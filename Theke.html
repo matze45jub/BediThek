@@ -13,6 +13,7 @@
         }
         h1 {
             color: #333;
+            text-align: center;
         }
         .order-item {
             border: 1px solid #ddd;
@@ -25,19 +26,31 @@
             max-width: 600px;
             margin: 0 auto;
         }
+        .test-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background-color: #45a049;
+        }
     </style>
-    
-     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-    
 </head>
 <body>
     <h1>Bestellungen</h1>
     <div id="orderList"></div>
 
+    <button class="test-button" onclick="testConnection()">Test Verbindung</button>
+
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
         console.log('Theke.html Skript geladen');
-       const socket = io('https://bedithek.onrender.com');
+        const socket = io('https://bedithek.onrender.com');
 
         socket.on('connect', () => {
             console.log('Verbindung zum Server hergestellt');
@@ -48,33 +61,50 @@
         });
 
         function displayOrder(orderData) {
+            if (!orderData || !orderData.order) {
+                console.error('Ungültige Bestelldaten empfangen:', orderData);
+                return;
+            }
+
             const orderList = document.getElementById('orderList');
             const orderItem = document.createElement('div');
             orderItem.className = 'order-item';
             orderItem.innerHTML = `
                 <h3>Neue Bestellung</h3>
-                <p>Tisch: ${orderData.table}, Person: ${orderData.person}</p>
+                <p><strong>Tisch:</strong> ${orderData.table}, <strong>Person:</strong> ${orderData.person}</p>
+                <p><strong>Bedienung:</strong> ${orderData.bedienung}</p>
                 <ul>
                     ${Object.entries(orderData.order).map(([productName, product]) => `
                         <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
                     `).join('')}
                 </ul>
-                <p>Zeit: ${new Date().toLocaleTimeString()}</p>
+                <p><strong>Gesamtpreis:</strong> ${calculateTotal(orderData.order).toFixed(2)} €</p>
+                <p><strong>Zeit:</strong> ${new Date().toLocaleTimeString()}</p>
             `;
             orderList.insertBefore(orderItem, orderList.firstChild);
         }
 
-        socket.on('newOrder', (orderData) => {
+        function calculateTotal(order) {
+            return Object.values(order).reduce((total, product) => total + (product.quantity * product.price), 0);
+        }
+
+        socket.on('neworder', (orderData) => {
             console.log('Neue Bestellung empfangen:', orderData);
             displayOrder(orderData);
         });
 
         function testConnection() {
             console.log('Test-Bestellung senden');
-            socket.emit('neworder', {test: 'Testbestellung'});
+            socket.emit('neworder', {
+                table: 1,
+                person: 1,
+                bedienung: 'Test-Bedienung',
+                order: {
+                    'Testprodukt': {quantity: 2, price: 9.99},
+                    'Testgetränk': {quantity: 1, price: 3.50}
+                }
+            });
         }
     </script>
-    
-    <button onclick="testConnection()">Test Verbindung</button>
 </body>
 </html>
