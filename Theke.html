@@ -47,27 +47,29 @@
             console.error('Verbindungsfehler:', error);
         });
 
-        function displayOrder(orderData) {
-            const orderList = document.getElementById('orderList');
-            const orderItem = document.createElement('div');
-            orderItem.className = 'order-item';
-            orderItem.innerHTML = `
-                <h3>Neue Bestellung</h3>
-                <p>Tisch: ${orderData.table}, Person: ${orderData.person}</p>
-                <ul>
-                    ${Object.entries(orderData.order).map(([productName, product]) => `
-                        <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
-                    `).join('')}
-                </ul>
-                <p>Zeit: ${new Date().toLocaleTimeString()}</p>
-            `;
-            orderList.insertBefore(orderItem, orderList.firstChild);
-        }
+       function displayOrder(orderData) {
+  const orderList = document.getElementById('orderList');
+  const orderItem = document.createElement('div');
+  orderItem.className = 'order-item';
+  orderItem.innerHTML = `
+    <h3>Neue Bestellung</h3>
+    <p>Tisch: ${orderData.table}, Person: ${orderData.person}</p>
+    <p>Bedienung: ${orderData.waiter}</p>
+    <ul>
+      ${Object.entries(orderData.order).map(([productName, product]) => `
+        <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
+      `).join('')}
+    </ul>
+    <p>Zeit: ${new Date().toLocaleTimeString()}</p>
+  `;
+  orderList.insertBefore(orderItem, orderList.firstChild);
+}
 
-        socket.on('newOrder', (orderData) => {
-            console.log('Neue Bestellung empfangen:', orderData);
-            displayOrder(orderData);
-        });
+
+       socket.on('newOrder', function(orderData) {
+  displayOrder(orderData);
+});
+
 
         function testConnection() {
             console.log('Test-Bestellung senden');
