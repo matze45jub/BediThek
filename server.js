@@ -17,7 +17,7 @@ app.use(express.static('public'));
 
 // Route für die Hauptseite
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'Bedienung.html'));
+  res.sendFile(path.join(__dirname, 'Bedienung.html'));
 });
 
 // Socket.IO Verbindungshandling
