@@ -29,10 +29,12 @@ app.get('/theke', (req, res) => {
 io.on('connection', (socket) => {
   console.log('Ein Client hat sich verbunden');
 
-  socket.on('neworder', (orderData) => {
-    console.log('Neue Bestellung erhalten:', orderData);
-    io.emit('newOrder', orderData);
-  });
+ socket.on('neworder', (orderData) => {
+  console.log('Neue Bestellung erhalten:', orderData);
+  console.log('Bedienung:', orderData.waiter);
+  io.emit('newOrder', orderData);
+});
+
 
   socket.on('disconnect', () => {
     console.log('Ein Client hat sich getrennt');
