@@ -15,9 +15,14 @@ const io = new Server(server, {
 // Statische Dateien aus dem 'public' Ordner bereitstellen
 app.use(express.static('public'));
 
-// Route für die Hauptseite
+// Route für die Hauptseite (Bedienung.html)
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'Bedienung.html'));
+});
+
+// Route für die Theke-Seite
+app.get('/theke', (req, res) => {
+  res.sendFile(path.join(__dirname, 'Theke.html'));
 });
 
 // Socket.IO Verbindungshandling
