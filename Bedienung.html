@@ -250,6 +250,10 @@
     <h1>JBO Kürnach</h1>
   </div>
 
+       <div id="bedienungNameDisplay" style="text-align: center; margin: 10px 0; font-weight: bold;"></div>
+    
+    
+    
   <div class="table-selection">
     <button class="table-button" onclick="selectTable(1)">Tisch 1</button>
     <button class="table-button" onclick="selectTable(2)">Tisch 2</button>
@@ -354,6 +358,7 @@ function sendOrderToTheke() {
       { name: "Wasser still", price: 2.0, category: "getraenke" }
     ];
 
+     let bedienungName = ''; 
     let currentTable = 1;
     let currentPerson = 1;
     let tables = {
@@ -386,7 +391,18 @@ function sendOrderToTheke() {
       }
     }
 
-    function selectPerson(personNumber) {
+       function promptForBedienungName() {
+  let name = prompt("Bitte geben Sie Ihren Namen ein:", "");
+  if (name != null && name.trim() !== "") {
+    bedienungName = name.trim();
+    document.getElementById('bedienungNameDisplay').textContent = `Bedienung: ${bedienungName}`;
+  } else {
+    alert("Bitte geben Sie einen gültigen Namen ein.");
+    promptForBedienungName(); // Erneut nach dem Namen fragen
+  }
+}   
+      
+      function selectPerson(personNumber) {
       currentPerson = personNumber;
       document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
@@ -481,7 +497,7 @@ function adjustQuantity(name, delta) {
 
    function sendOrderToTheke() {
   const orderData = {
-    table: currentTable,
+ bedienung: bedienungName,table: currentTable,
     person: currentPerson,
     order: tables[currentTable].persons[currentPerson - 1]
   };
@@ -587,7 +603,8 @@ function adjustQuantity(name, delta) {
 
     // Initialisierung
     window.onload = function() {
-      loadOrdersFromLocalStorage();
+      promptForBedienungName();
+  loadOrdersFromLocalStorage();
       renderProductButtons();
       selectTable(1);
     };
