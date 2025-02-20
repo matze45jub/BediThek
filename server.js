@@ -12,8 +12,8 @@ const io = new Server(server, {
   }
 });
 
-// Statische Dateien aus dem 'public' Ordner bereitstellen
-app.use(express.static('public'));
+// Statische Dateien aus dem aktuellen Verzeichnis bereitstellen
+app.use(express.static(__dirname));
 
 // Route für die Hauptseite (Bedienung.html)
 app.get('/', (req, res) => {
