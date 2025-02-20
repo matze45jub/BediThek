@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theke - Bestellungen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        .order-item {
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+        #orderList {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+    
+     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    
+</head>
+<body>
+    <h1>Bestellungen</h1>
+    <div id="orderList"></div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        console.log('Theke.html Skript geladen');
+        const socket = io('http://localhost:3000');
+
+        socket.on('connect', () => {
+            console.log('Verbindung zum Server hergestellt');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Verbindungsfehler:', error);
+        });
+
+        function displayOrder(orderData) {
+            const orderList = document.getElementById('orderList');
+            const orderItem = document.createElement('div');
+            orderItem.className = 'order-item';
+            orderItem.innerHTML = `
+                <h3>Neue Bestellung</h3>
+                <p>Tisch: ${orderData.table}, Person: ${orderData.person}</p>
+                <ul>
+                    ${Object.entries(orderData.order).map(([productName, product]) => `
+                        <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
+                    `).join('')}
+                </ul>
+                <p>Zeit: ${new Date().toLocaleTimeString()}</p>
+            `;
+            orderList.insertBefore(orderItem, orderList.firstChild);
+        }
+
+        socket.on('newOrder', (orderData) => {
+            console.log('Neue Bestellung empfangen:', orderData);
+            displayOrder(orderData);
+        });
+
+        function testConnection() {
+            console.log('Test-Bestellung senden');
+            socket.emit('neworder', {test: 'Testbestellung'});
+        }
+    </script>
+    
+    <button onclick="testConnection()">Test Verbindung</button>
+</body>
+</html>

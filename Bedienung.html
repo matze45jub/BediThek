@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JBO feiert mit Freunden</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      background-color: #101A4B;
+      color: white;
+      padding: 10px 0;
+    }
+
+    .table-selection {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .table-button {
+      padding: 10px 20px;
+      margin: 0 5px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .table-button.active {
+      background-color: #2980b9;
+    }
+
+    .person-selection {
+      display: flex;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    .person-button {
+      padding: 10px 15px;
+      margin: 0 5px;
+      font-size: 14px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .person-button.active {
+      background-color: #27ae60;
+    }
+
+    .product-buttons-container {
+      margin: 2px;
+    }
+
+    .product-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .product-button {
+      padding: 12px 25px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 120px;
+      margin: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .essen-button {
+      background-color: #E74C3C;
+      color: white;
+    }
+
+    .getraenke-button {
+      background-color: #377EBF;
+      color: white;
+    }
+
+    #orderTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5px 0;
+    }
+
+    #orderTable th, #orderTable td {
+      padding: 5px;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-size: 16px;
+      background-color: white;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .quantity-controls button {
+      background-color: #ddd;
+      border: none;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .quantity-controls button:hover {
+      background-color: #bbb;
+    }
+
+    .centered-heading {
+      text-align: center;
+    }
+
+    .total-sum {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .button-container button {
+      padding: 12px 25px;
+      font-size: 14px;
+      background-color: #E74C3C;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .button-container button:hover {
+      background-color: #C0392B;
+    }
+
+    .payment-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      z-index: 1000;
+      width: 80%;
+      max-width: 400px;
+      height: 80%;
+      max-height: 800px;
+      overflow-y: auto;
+    }
+
+    .payment-dialog .table-selection,
+    .payment-dialog .person-selection {
+      margin-bottom: 20px;
+    }
+
+    .payment-dialog .person-selection {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .payment-dialog .person-button {
+      flex: 0 0 auto;
+    }
+
+    .payment-dialog h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .payment-dialog input {
+      width: 180px;
+      font-size: 24px;
+      text-align: right;
+      padding: 5px;
+    }
+
+    .calc-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .calc-buttons button {
+      font-size: 20px;
+      padding: 10px;
+      border: none;
+      background-color: #ddd;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .calc-buttons button:hover {
+      background-color: #bbb;
+    }
+
+    .close-button, .ok-button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #E74C3C;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .close-button:hover, .ok-button:hover {
+      background-color: #C0392B;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>JBO Kürnach</h1>
+  </div>
+
+  <div class="table-selection">
+    <button class="table-button" onclick="selectTable(1)">Tisch 1</button>
+    <button class="table-button" onclick="selectTable(2)">Tisch 2</button>
+    <button class="table-button" onclick="selectTable(3)">Tisch 3</button>
+    <button class="table-button" onclick="selectTable(4)">Tisch 4</button>
+  </div>
+
+  <div class="person-selection" id="personSelection"></div>
+
+  <div id="productButtons" class="product-buttons-container">
+    <h3 class="centered-heading">Essen</h3>
+    <div class="product-buttons-row" id="essenButtons"></div>
+    <h3 class="centered-heading">Getränke</h3>
+    <div class="product-buttons-row" id="getraenkeButtons"></div>
+  </div>
+
+  <table id="orderTable">
+    <thead>
+      <tr>
+        <th>Produkt</th>
+        <th>Menge</th>
+        <th>Einzelpreis (€)</th>
+        <th>Gesamtpreis (€)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h3 class="total-sum">Gesamtsumme (€): <span id="totalSum">0.00</span>€</h3>
+
+<div class="button-container">
+  <button id="sendOrderButton" onclick="sendOrderToTheke()">Jetzt bestellen</button>
+  <button onclick="togglePaymentDialog()">Zahlung</button>
+  <button onclick="resetOrder()">Neuer Kunde</button>
+</div>
+    
+  <div class="payment-dialog" id="paymentDialog">
+    <h3>Zahlung</h3>
+    <div class="table-selection">
+      <button class="table-button" onclick="selectPaymentTable(1)">Tisch 1</button>
+      <button class="table-button" onclick="selectPaymentTable(2)">Tisch 2</button>
+      <button class="table-button" onclick="selectPaymentTable(3)">Tisch 3</button>
+      <button class="table-button" onclick="selectPaymentTable(4)">Tisch 4</button>
+    </div>
+    
+    <div class="person-selection" id="paymentPersonSelection"></div>
+    
+    <p>Zu zahlender Betrag: <span id="paymentAmountToPay">0.00</span>€</p>
+    <input type="text" id="paymentAmount" readonly>
+    <div class="calc-buttons">
+      <button onclick="addNumber(7)">7</button>
+      <button onclick="addNumber(8)">8</button>
+      <button onclick="addNumber(9)">9</button>
+      <button onclick="addNumber(4)">4</button>
+      <button onclick="addNumber(5)">5</button>
+      <button onclick="addNumber(6)">6</button>
+      <button onclick="addNumber(1)">1</button>
+      <button onclick="addNumber(2)">2</button>
+      <button onclick="addNumber(3)">3</button>
+      <button onclick="addNumber(0)">0</button>
+      <button onclick="addComma()">,</button>
+      <button onclick="clearPayment()">C</button>
+    </div>
+    <h4>Rückgeld: <span id="changeAmount">0.00</span>€</h4>
+    <button class="ok-button" onclick="completePayment()">OK</button>
+    <button class="close-button" onclick="togglePaymentDialog()">Schließen</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+   const socket = io('http://localhost:3000'); // Verbindung zum Server herstellen
+
+function sendOrderToTheke() {
+  const orderData = {
+    table: currentTable,
+    person: currentPerson,
+    order: tables[currentTable].persons[currentPerson - 1]
+  };
+
+
+  alert('Bestellung wurde an die Theke gesendet.');
+}
+
+    
+    const products = [
+      { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
+      { name: "Bratwurst mit Kraut", price: 8.5, category: "essen" },
+      { name: "Camenbert, gebacken", price: 4.2, category: "essen" },       
+      { name: "Obatzter", price: 3.2, category: "essen" },
+      { name: "Pommes", price: 2.5, category: "essen" },
+      { name: "Salat", price: 4.0, category: "essen" },
+      { name: "Alkoholfreies Bier", price: 3.6, category: "getraenke" },
+      { name: "Alkoholfreies Hefe", price: 3.6, category: "getraenke" }, 
+      { name: "Apfelschorle", price: 2.0, category: "getraenke" },
+      { name: "Bier", price: 4.8, category: "getraenke" },
+      { name: "Cola", price: 3.0, category: "getraenke" },
+      { name: "Fanta", price: 3.0, category: "getraenke" },
+      { name: "Hefeweizen", price: 3.8, category: "getraenke" },
+      { name: "Radler", price: 3.6, category: "getraenke" },
+      { name: "Spezi", price: 2.5, category: "getraenke" },
+      { name: "Wasser spritzig", price: 2.0, category: "getraenke" },
+      { name: "Wasser still", price: 2.0, category: "getraenke" }
+    ];
+
+    let currentTable = 1;
+    let currentPerson = 1;
+    let tables = {
+      1: { persons: [{}, {}, {}, {}, {}, {}] },
+      2: { persons: [{}, {}, {}, {}, {}, {}] },
+      3: { persons: [{}, {}, {}, {}, {}, {}] },
+      4: { persons: [{}, {}, {}, {}, {}, {}] }
+    };
+    let paymentDialogTable = 1;
+    let selectedPersons = [];
+
+    function selectTable(tableNumber) {
+      currentTable = tableNumber;
+      currentPerson = 1;
+      document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
+      renderPersonButtons();
+      renderOrder();
+    }
+
+    function renderPersonButtons() {
+      const personSelection = document.getElementById("personSelection");
+      personSelection.innerHTML = "";
+      for (let i = 1; i <= 6; i++) {
+        const button = document.createElement("button");
+        button.textContent = `Person ${i}`;
+        button.className = `person-button ${i === currentPerson ? 'active' : ''}`;
+        button.onclick = () => selectPerson(i);
+        personSelection.appendChild(button);
+      }
+    }
+
+    function selectPerson(personNumber) {
+      currentPerson = personNumber;
+      document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
+      renderOrder();
+    }
+
+    function togglePaymentDialog() {
+      const dialog = document.getElementById("paymentDialog");
+      paymentDialogTable = currentTable;
+      selectedPersons = [];
+      updatePaymentPersonSelection();
+      updatePaymentTotal();
+      dialog.style.display = (dialog.style.display === "none" || dialog.style.display === "") ? "block" : "none";
+    }
+
+    function addNumber(num) {
+      document.getElementById("paymentAmount").value += num;
+      updateChange();
+    }
+
+    function addComma() {
+      const input = document.getElementById("paymentAmount");
+      if (!input.value.includes(",")) input.value += ",";
+      updateChange();
+    }
+
+    function clearPayment() {
+      document.getElementById("paymentAmount").value = "";
+      updateChange();
+    }
+
+    function updateChange() {
+      const totalAmount = parseFloat(document.getElementById("paymentAmountToPay").textContent);
+      const paidAmount = parseFloat(document.getElementById("paymentAmount").value.replace(',', '.') || 0);
+      const change = paidAmount - totalAmount;
+      document.getElementById("changeAmount").textContent = change.toFixed(2);
+    }
+
+ function addProductToOrder(name) {
+  const product = products.find(p => p.name === name);
+  if (product) {
+    const personOrder = tables[currentTable].persons[currentPerson - 1];
+    const existingProduct = personOrder[name];
+    if (existingProduct) {
+      existingProduct.quantity++;
+    } else {
+      personOrder[name] = { ...product, quantity: 1 };
+    }
+    renderOrder();
+    saveOrdersToLocalStorage();
+  }
+}
+
+function adjustQuantity(name, delta) {
+  const personOrder = tables[currentTable].persons[currentPerson - 1];
+  const product = personOrder[name];
+  if (product) {
+    product.quantity += delta;
+    if (product.quantity < 1) {
+      delete personOrder[name];
+    }
+    renderOrder();
+    saveOrdersToLocalStorage();
+  }
+}
+
+    function renderOrder() {
+      const tbody = document.querySelector("#orderTable tbody");
+      tbody.innerHTML = "";
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      Object.values(personOrder).forEach(product => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${product.name}</td>
+            <td class="quantity-controls">
+              <button onclick="adjustQuantity('${product.name}', -1)">-</button>
+              ${product.quantity}
+              <button onclick="adjustQuantity('${product.name}', 1)">+</button>
+            </td>
+            <td>${product.price.toFixed(2)}</td>
+            <td>${(product.price * product.quantity).toFixed(2)}</td>
+          </tr>
+        `;
+      });
+      document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
+    }
+
+    function calculateTotal() {
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
+    }
+
+   function sendOrderToTheke() {
+  const orderData = {
+    table: currentTable,
+    person: currentPerson,
+    order: tables[currentTable].persons[currentPerson - 1]
+  };
+  socket.emit('neworder', orderData);
+  console.log('Bestellung gesendet:', orderData);
+  alert('Bestellung wurde an die Theke gesendet.');
+}
+
+
+    function selectPaymentTable(tableNumber) {
+      paymentDialogTable = tableNumber;
+      updatePaymentPersonSelection();
+      updatePaymentTotal();
+    }
+
+    function updatePaymentPersonSelection() {
+      const container = document.getElementById("paymentPersonSelection");
+      container.innerHTML = "";
+      
+      for (let i = 1; i <= 6; i++) {
+        const button = document.createElement("button");
+        button.textContent = `Person ${i}`;
+        button.className = `person-button ${selectedPersons.includes(i) ? 'active' : ''}`;
+        button.onclick = () => togglePaymentPerson(i);
+        container.appendChild(button);
+      }
+    }
+
+    function togglePaymentPerson(personNumber) {
+      const index = selectedPersons.indexOf(personNumber);
+      if (index === -1) {
+        selectedPersons.push(personNumber);
+      } else {
+        selectedPersons.splice(index, 1);
+      }
+      updatePaymentTotal();
+      updatePaymentPersonSelection();
+    }
+
+    function updatePaymentTotal() {
+      let total = 0;
+      selectedPersons.forEach(person => {
+        const personOrder = tables[paymentDialogTable].persons[person - 1];
+        total += Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
+      });
+      document.getElementById("paymentAmountToPay").textContent = total.toFixed(2);
+      updateChange();
+    }
+
+    function completePayment() {
+      if (selectedPersons.length === 0) {
+        alert("Bitte wählen Sie mindestens eine Person aus!");
+        return;
+      }
+
+      selectedPersons.forEach(person => {
+        tables[paymentDialogTable].persons[person - 1] = {};
+      });
+      
+      saveOrdersToLocalStorage();
+      alert(`Zahlung für Tisch ${paymentDialogTable}, Personen ${selectedPersons.join(', ')} abgeschlossen!`);
+      selectedPersons = [];
+      renderOrder();
+      togglePaymentDialog();
+    }
+
+    function resetOrder() {
+      tables[currentTable].persons[currentPerson - 1] = {};
+      renderOrder();
+      document.getElementById("paymentAmount").value = "";
+      document.getElementById("changeAmount").textContent = "0.00";
+      saveOrdersToLocalStorage();
+    }
+
+    function renderProductButtons() {
+      const essenButtons = document.getElementById("essenButtons");
+      const getraenkeButtons = document.getElementById("getraenkeButtons");
+      
+      products.forEach(product => {
+        const button = document.createElement("button");
+        button.textContent = product.name;
+        button.className = `product-button ${product.category}-button`;
+        button.onclick = () => addProductToOrder(product.name);
+        
+        if (product.category === "essen") {
+          essenButtons.appendChild(button);
+        } else {
+          getraenkeButtons.appendChild(button);
+        }
+      });
+    }
+
+    function saveOrdersToLocalStorage() {
+      localStorage.setItem('tables', JSON.stringify(tables));
+    }
+
+    function loadOrdersFromLocalStorage() {
+      const savedTables = localStorage.getItem('tables');
+      if (savedTables) {
+        tables = JSON.parse(savedTables);
+      }
+    }
+
+    // Initialisierung
+    window.onload = function() {
+      loadOrdersFromLocalStorage();
+      renderProductButtons();
+      selectTable(1);
+    };
+  </script>
+</body>
+</html>
