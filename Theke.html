@@ -1,125 +1,80 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JBO feiert mit Freunden - Theke</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
-      color: #333;
-    }
-
-    .header {
-      text-align: center;
-      background-color: #101A4B;
-      color: white;
-      padding: 10px 0;
-    }
-
-    #orderList {
-      width: 80%;
-      margin: 20px auto;
-    }
-
-    .order-item {
-      background-color: white;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      padding: 15px;
-      margin-bottom: 15px;
-    }
-
-    .order-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .order-details {
-      margin-top: 10px;
-    }
-
-    .order-product {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-
-    .complete-button {
-      background-color: #2ecc71;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-
-    .complete-button:hover {
-      background-color: #27ae60;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theke - Bestellungen</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        .order-item {
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+        #orderList {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+    
+     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    
 </head>
 <body>
-  <div class="header">
-    <h1>JBO Kürnach - Theke</h1>
-  </div>
+    <h1>Bestellungen</h1>
+    <div id="orderList"></div>
 
-  <div id="bedienungNameDisplay" style="text-align: center; margin: 10px 0; font-weight: bold;"></div>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        console.log('Theke.html Skript geladen');
+       const socket = io('https://bedithek.onrender.com');
 
-  <div id="orderList"></div>
+        socket.on('connect', () => {
+            console.log('Verbindung zum Server hergestellt');
+        });
 
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script>
-    const socket = io('https://bedithek.onrender.com');
-    let bedienungName = '';
+        socket.on('connect_error', (error) => {
+            console.error('Verbindungsfehler:', error);
+        });
 
-    socket.on('neworder', function(orderData) {
-      console.log('Neue Bestellung empfangen:', orderData);
-      bedienungName = orderData.bedienung;
-      document.getElementById('bedienungNameDisplay').textContent = `Bedienung: ${bedienungName}`;
-      addOrderToList(orderData);
-    });
+        function displayOrder(orderData) {
+            const orderList = document.getElementById('orderList');
+            const orderItem = document.createElement('div');
+            orderItem.className = 'order-item';
+            orderItem.innerHTML = `
+                <h3>Neue Bestellung</h3>
+                <p>Tisch: ${orderData.table}, Person: ${orderData.person}</p>
+                <ul>
+                    ${Object.entries(orderData.order).map(([productName, product]) => `
+                        <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
+                    `).join('')}
+                </ul>
+                <p>Zeit: ${new Date().toLocaleTimeString()}</p>
+            `;
+            orderList.insertBefore(orderItem, orderList.firstChild);
+        }
 
-    function addOrderToList(orderData) {
-      const orderList = document.getElementById('orderList');
-      const orderItem = document.createElement('div');
-      orderItem.className = 'order-item';
+        socket.on('newOrder', (orderData) => {
+            console.log('Neue Bestellung empfangen:', orderData);
+            displayOrder(orderData);
+        });
 
-      const orderHeader = document.createElement('div');
-      orderHeader.className = 'order-header';
-      orderHeader.innerHTML = `
-        <span>Tisch ${orderData.table}, Person ${orderData.person}</span>
-        <button class="complete-button" onclick="completeOrder(this)">Erledigt</button>
-      `;
-
-      const orderDetails = document.createElement('div');
-      orderDetails.className = 'order-details';
-
-      for (const [productName, productInfo] of Object.entries(orderData.order)) {
-        const productElement = document.createElement('div');
-        productElement.className = 'order-product';
-        productElement.innerHTML = `
-          <span>${productName}</span>
-          <span>${productInfo.quantity}x</span>
-        `;
-        orderDetails.appendChild(productElement);
-      }
-
-      orderItem.appendChild(orderHeader);
-      orderItem.appendChild(orderDetails);
-      orderList.appendChild(orderItem);
-    }
-
-    function completeOrder(button) {
-      const orderItem = button.closest('.order-item');
-      orderItem.remove();
-    }
-  </script>
+        function testConnection() {
+            console.log('Test-Bestellung senden');
+            socket.emit('neworder', {test: 'Testbestellung'});
+        }
+    </script>
+    
+    <button onclick="testConnection()">Test Verbindung</button>
 </body>
 </html>
