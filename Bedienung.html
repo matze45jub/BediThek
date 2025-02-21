@@ -484,7 +484,6 @@
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-let sentOrders = {};
 
 function sendOrderToTheke() {
   const orderData = {
@@ -505,17 +504,6 @@ function sendOrderToTheke() {
   }
 
   if (Object.keys(orderData.order).length > 0) {
-    socket.emit('neworder', orderData);
-    console.log('Neue Bestellung gesendet:', orderData);
-    alert('Bestellung wurde an die Theke gesendet.');
-  } else {
-    console.log('Keine neuen Produkte zum Senden.');
-    alert('Keine neuen Produkte zum Senden.');
-  }
-}
-
-
-  if (hasNewItems) {
     socket.emit('neworder', orderData);
     console.log('Neue Bestellung gesendet:', orderData);
     alert('Bestellung wurde an die Theke gesendet.');
@@ -596,6 +584,9 @@ function sendOrderToTheke() {
       const essenButtons = document.getElementById("essenButtons");
       const getraenkeButtons = document.getElementById("getraenkeButtons");
       
+      essenButtons.innerHTML = '';
+      getraenkeButtons.innerHTML = '';
+      
       products.forEach(product => {
         const button = document.createElement("button");
         button.textContent = product.name;
@@ -626,6 +617,7 @@ function sendOrderToTheke() {
       promptForBedienungName();
       loadOrdersFromLocalStorage();
       renderProductButtons();
+      renderPersonButtons();
       selectTable(1);
     };
   </script>
