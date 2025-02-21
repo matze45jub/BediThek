@@ -250,9 +250,7 @@
     <h1>JBO Kürnach</h1>
   </div>
 
-       <div id="bedienungNameDisplay" style="text-align: center; margin: 10px 0; font-weight: bold;"></div>
-    
-    
+  <div id="bedienungNameDisplay" style="text-align: center; margin: 10px 0; font-weight: bold;"></div>
     
   <div class="table-selection">
     <button class="table-button" onclick="selectTable(1)">Tisch 1</button>
@@ -284,11 +282,11 @@
 
   <h3 class="total-sum">Gesamtsumme (€): <span id="totalSum">0.00</span>€</h3>
 
-<div class="button-container">
-  <button id="sendOrderButton" onclick="sendOrderToTheke()">Jetzt bestellen</button>
-  <button onclick="togglePaymentDialog()">Zahlung</button>
-  <button onclick="resetOrder()">Neuer Kunde</button>
-</div>
+  <div class="button-container">
+    <button id="sendOrderButton" onclick="sendOrderToTheke()">Jetzt bestellen</button>
+    <button onclick="togglePaymentDialog()">Zahlung</button>
+    <button onclick="resetOrder()">Neuer Kunde</button>
+  </div>
     
   <div class="payment-dialog" id="paymentDialog">
     <h3>Zahlung</h3>
@@ -326,8 +324,6 @@
   <script>
    const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
 
-
-    
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
       { name: "Bratwurst mit Kraut", price: 8.5, category: "essen" },
@@ -348,7 +344,7 @@
       { name: "Wasser still", price: 2.0, category: "getraenke" }
     ];
 
-     let bedienungName = ''; 
+    let bedienungName = ''; 
     let currentTable = 1;
     let currentPerson = 1;
     let tables = {
@@ -359,6 +355,7 @@
     };
     let paymentDialogTable = 1;
     let selectedPersons = [];
+    let sentOrders = {}; // Neues Objekt zur Verfolgung gesendeter Bestellungen
 
     function selectTable(tableNumber) {
       currentTable = tableNumber;
@@ -381,19 +378,18 @@
       }
     }
 
-function promptForBedienungName() {
-  let name = prompt("Bitte geben Sie Ihren Namen ein:", "");
-  if (name != null && name.trim() !== "") {
-    bedienungName = name.trim();
-    document.getElementById('bedienungNameDisplay').textContent = `Bedienung: ${bedienungName}`;
-  } else {
-    alert("Bitte geben Sie einen gültigen Namen ein.");
-    promptForBedienungName();
-  }
-}
+    function promptForBedienungName() {
+      let name = prompt("Bitte geben Sie Ihren Namen ein:", "");
+      if (name != null && name.trim() !== "") {
+        bedienungName = name.trim();
+        document.getElementById('bedienungNameDisplay').textContent = `Bedienung: ${bedienungName}`;
+      } else {
+        alert("Bitte geben Sie einen gültigen Namen ein.");
+        promptForBedienungName();
+      }
+    }
 
-      
-      function selectPerson(personNumber) {
+    function selectPerson(personNumber) {
       currentPerson = personNumber;
       document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
@@ -406,7 +402,7 @@ function promptForBedienungName() {
       selectedPersons = [];
       updatePaymentPersonSelection();
       updatePaymentTotal();
-      dialog.style.display = (dialog.style.display === "none" || dialog.style.display === "") ? "block" : "none";
+           dialog.style.display = (dialog.style.display === "none" || dialog.style.display === "") ? "block" : "none";
     }
 
     function addNumber(num) {
@@ -432,33 +428,33 @@ function promptForBedienungName() {
       document.getElementById("changeAmount").textContent = change.toFixed(2);
     }
 
- function addProductToOrder(name) {
-  const product = products.find(p => p.name === name);
-  if (product) {
-    const personOrder = tables[currentTable].persons[currentPerson - 1];
-    const existingProduct = personOrder[name];
-    if (existingProduct) {
-      existingProduct.quantity++;
-    } else {
-      personOrder[name] = { ...product, quantity: 1 };
+    function addProductToOrder(name) {
+      const product = products.find(p => p.name === name);
+      if (product) {
+        const personOrder = tables[currentTable].persons[currentPerson - 1];
+        const existingProduct = personOrder[name];
+        if (existingProduct) {
+          existingProduct.quantity++;
+        } else {
+          personOrder[name] = { ...product, quantity: 1 };
+        }
+        renderOrder();
+        saveOrdersToLocalStorage();
+      }
     }
-    renderOrder();
-    saveOrdersToLocalStorage();
-  }
-}
 
-function adjustQuantity(name, delta) {
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
-  const product = personOrder[name];
-  if (product) {
-    product.quantity += delta;
-    if (product.quantity < 1) {
-      delete personOrder[name];
+    function adjustQuantity(name, delta) {
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      const product = personOrder[name];
+      if (product) {
+        product.quantity += delta;
+        if (product.quantity < 1) {
+          delete personOrder[name];
+        }
+        renderOrder();
+        saveOrdersToLocalStorage();
+      }
     }
-    renderOrder();
-    saveOrdersToLocalStorage();
-  }
-}
 
     function renderOrder() {
       const tbody = document.querySelector("#orderTable tbody");
@@ -486,18 +482,17 @@ function adjustQuantity(name, delta) {
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-   function sendOrderToTheke() {
-  const orderData = {
- bedienung: bedienungName,
-    table: currentTable,
-    person: currentPerson,
-    order: tables[currentTable].persons[currentPerson - 1]
-  };
-  socket.emit('neworder', orderData);
-  console.log('Bestellung gesendet:', orderData);
-  alert('Bestellung wurde an die Theke gesendet.');
-}
-
+    function sendOrderToTheke() {
+      const orderData = {
+        bedienung: bedienungName,
+        table: currentTable,
+        person: currentPerson,
+        order: tables[currentTable].persons[currentPerson - 1]
+      };
+      socket.emit('neworder', orderData);
+      console.log('Bestellung gesendet:', orderData);
+      alert('Bestellung wurde an die Theke gesendet.');
+    }
 
     function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
@@ -596,7 +591,7 @@ function adjustQuantity(name, delta) {
     // Initialisierung
     window.onload = function() {
       promptForBedienungName();
-  loadOrdersFromLocalStorage();
+      loadOrdersFromLocalStorage();
       renderProductButtons();
       selectTable(1);
     };
