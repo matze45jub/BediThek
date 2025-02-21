@@ -25,17 +25,31 @@ app.get('/theke', (req, res) => {
   res.sendFile(path.join(__dirname, 'Theke.html'));
 });
 
-// Socket.IO Verbindungshandling
-io.on('connection', (socket) => {
-  console.log('Ein Client hat sich verbunden');
 
- socket.on('neworder', (orderData) => {
-  console.log('Neue Bestellung erhalten:', orderData);
-  console.log('Bedienung:', orderData.waiter);
-  io.emit('newOrder', orderData);
+
+
+
+// Socket.IO Verbindungshandling
+
+ io.on('connection', (socket) => {
+  console.log('Ein Client hat sich verbunden');
+   socket.on('neworder', (orderData) => {
+    console.log('Neue Bestellung erhalten:', orderData);
+    // Hier den Bedienungsnamen mit übertragen
+    io.emit('neworder', {
+      ...orderData,
+      bedienung: orderData.bedienung // Explizit den Bedienungsnamen hinzufügen
+    });
+  });
 });
 
-
+  
+  
+  
+  
+  
+  
+  
   socket.on('disconnect', () => {
     console.log('Ein Client hat sich getrennt');
   });
