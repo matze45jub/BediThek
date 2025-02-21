@@ -21,74 +21,38 @@
       padding: 10px 0;
     }
 
-    .table-selection {
+    .table-selection, .person-container {
       text-align: center;
       margin: 10px 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
     }
 
-    .table-button {
+    .table-button, .person-button {
       padding: 10px 20px;
-      margin: 0 5px;
       font-size: 16px;
       background-color: #3498db;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      flex: 1 0 auto;
+      min-width: 100px;
+      max-width: 150px;
     }
 
-    .table-button.active {
+    .table-button.active, .person-button.active {
       background-color: #2980b9;
     }
 
-    .person-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
     .person-button {
-      width: 80px;
-      height: 80px;
-      font-size: 16px;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
       background-color: #2ecc71;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
     }
 
     .person-button.active {
       background-color: #27ae60;
-    }
-
-    @media (max-width: 600px) {
-      .person-container {
-        justify-content: center;
-      }
-      .person-button {
-        width: calc(33.33% - 10px);
-      }
-    }
-
-    @media (min-width: 601px) and (max-width: 900px) {
-      .person-button {
-        width: calc(25% - 10px);
-      }
-    }
-
-    @media (min-width: 901px) {
-      .person-button {
-        width: calc(20% - 10px);
-      }
     }
 
     .product-buttons-container {
@@ -413,7 +377,7 @@
       }
     }
 
-        function promptForBedienungName() {
+    function promptForBedienungName() {
       let name = prompt("Bitte geben Sie Ihren Namen ein:", "");
       if (name != null && name.trim() !== "") {
         bedienungName = name.trim();
@@ -670,4 +634,3 @@
   </script>
 </body>
 </html>
-
