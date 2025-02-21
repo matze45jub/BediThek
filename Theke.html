@@ -13,6 +13,7 @@
         }
         h1 {
             color: #333;
+            text-align: center;
         }
         .order-item {
             border: 1px solid #ddd;
@@ -20,10 +21,28 @@
             padding: 10px;
             background-color: #fff;
             border-radius: 5px;
+            position: relative;
+        }
+        .order-item.completed {
+            background-color: #e6ffe6;
         }
         #orderList {
             max-width: 600px;
             margin: 0 auto;
+        }
+        .complete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .complete-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
@@ -62,8 +81,16 @@
                     `).join('')}
                 </ul>
                 <p>Zeit: ${new Date().toLocaleTimeString()}</p>
+                <button class="complete-btn" onclick="markAsCompleted(this)">Erledigt</button>
             `;
             orderList.insertBefore(orderItem, orderList.firstChild);
+        }
+
+        function markAsCompleted(button) {
+            const orderItem = button.closest('.order-item');
+            orderItem.classList.add('completed');
+            button.textContent = 'Erledigt';
+            button.disabled = true;
         }
 
         socket.on('neworder', function(orderData) {
