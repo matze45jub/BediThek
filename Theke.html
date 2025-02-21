@@ -26,9 +26,6 @@
             margin: 0 auto;
         }
     </style>
-    
-     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-    
 </head>
 <body>
     <h1>Bestellungen</h1>
@@ -37,39 +34,42 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
         console.log('Theke.html Skript geladen');
-       const socket = io('https://bedithek.onrender.com');
+        const socket = io('https://bedithek.onrender.com');
 
         socket.on('connect', () => {
-            console.log('Verbindung zum Server hergestellt');
+            console.log('Verbunden mit dem Server');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Verbindung zum Server getrennt');
         });
 
         socket.on('connect_error', (error) => {
             console.error('Verbindungsfehler:', error);
         });
 
-       function displayOrder(orderData) {
-  const orderList = document.getElementById('orderList');
-  const orderItem = document.createElement('div');
-  orderItem.className = 'order-item';
-  orderItem.innerHTML = `
-    <h3>Neue Bestellung</h3>
-    <p>Tisch: ${orderData.table}, Person: ${orderData.person}</p>
-    <p>Bedienung: ${orderData.waiter}</p>
-    <ul>
-      ${Object.entries(orderData.order).map(([productName, product]) => `
-        <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
-      `).join('')}
-    </ul>
-    <p>Zeit: ${new Date().toLocaleTimeString()}</p>
-  `;
-  orderList.insertBefore(orderItem, orderList.firstChild);
-}
+        function displayOrder(orderData) {
+            const orderList = document.getElementById('orderList');
+            const orderItem = document.createElement('div');
+            orderItem.className = 'order-item';
+            orderItem.innerHTML = `
+                <h3>Neue Bestellung</h3>
+                <p>Tisch: ${orderData.table}, Person: ${orderData.person}</p>
+                <p>Bedienung: ${orderData.bedienung || 'Unbekannt'}</p>
+                <ul>
+                    ${Object.entries(orderData.order).map(([productName, product]) => `
+                        <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
+                    `).join('')}
+                </ul>
+                <p>Zeit: ${new Date().toLocaleTimeString()}</p>
+            `;
+            orderList.insertBefore(orderItem, orderList.firstChild);
+        }
 
-
-       socket.on('newOrder', function(orderData) {
-  displayOrder(orderData);
-});
-
+        socket.on('neworder', function(orderData) {
+            console.log('Neue Bestellung erhalten:', orderData);
+            displayOrder(orderData);
+        });
 
         function testConnection() {
             console.log('Test-Bestellung senden');
