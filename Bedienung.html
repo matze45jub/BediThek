@@ -364,6 +364,7 @@
       document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
       renderPersonButtons();
       renderOrder();
+       sentOrders = {};
     }
 
     function renderPersonButtons() {
@@ -394,6 +395,7 @@
       document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
       document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
       renderOrder();
+       sentOrders = {};
     }
 
     function togglePaymentDialog() {
@@ -572,6 +574,7 @@
       document.getElementById("paymentAmount").value = "";
       document.getElementById("changeAmount").textContent = "0.00";
       saveOrdersToLocalStorage();
+       sentOrders = {};
     }
 
     function renderProductButtons() {
