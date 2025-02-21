@@ -326,16 +326,6 @@
   <script>
    const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
 
-function sendOrderToTheke() {
-  const orderData = {
-    table: currentTable,
-    person: currentPerson,
-    order: tables[currentTable].persons[currentPerson - 1]
-  };
-
-
-  alert('Bestellung wurde an die Theke gesendet.');
-}
 
     
     const products = [
