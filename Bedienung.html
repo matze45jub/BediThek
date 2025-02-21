@@ -482,17 +482,32 @@
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-    function sendOrderToTheke() {
-      const orderData = {
-        bedienung: bedienungName,
-        table: currentTable,
-        person: currentPerson,
-        order: tables[currentTable].persons[currentPerson - 1]
-      };
-      socket.emit('neworder', orderData);
-      console.log('Bestellung gesendet:', orderData);
-      alert('Bestellung wurde an die Theke gesendet.');
+ function sendOrderToTheke() {
+  const orderData = {
+    bedienung: bedienungName,
+    table: currentTable,
+    person: currentPerson,
+    order: {}
+  };
+
+  const personOrder = tables[currentTable].persons[currentPerson - 1];
+  for (const [productName, product] of Object.entries(personOrder)) {
+    const orderId = `${currentTable}-${currentPerson}-${productName}`;
+    if (!sentOrders[orderId] || sentOrders[orderId] < product.quantity) {
+      const newQuantity = product.quantity - (sentOrders[orderId] || 0);
+      orderData.order[productName] = { ...product, quantity: newQuantity };
+      sentOrders[orderId] = product.quantity;
     }
+  }
+
+  if (Object.keys(orderData.order).length > 0) {
+    socket.emit('neworder', orderData);
+    console.log('Neue Bestellung gesendet:', orderData);
+    alert('Bestellung wurde an die Theke gesendet.');
+  } else {
+    console.log('Keine neuen Produkte zum Senden.');
+  }
+}
 
     function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
