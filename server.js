@@ -29,17 +29,19 @@ app.get('/theke', (req, res) => {
 
 
 
-// Socket.IO Verbindungshandling
+socket.on('neworder', (orderData) => {
+  const orderList = document.getElementById('orderList');
+  const orderItem = document.createElement('li');
+  orderItem.innerHTML = `
+    <strong>Tisch ${orderData.table}, Person ${orderData.person}</strong>
+    <br>Bedienung: ${orderData.bedienung || 'Unbekannt'}
+    <br>${Object.entries(orderData.order).map(([product, details]) => 
+      `${product}: ${details.quantity}`
+    ).join(', ')}
+  `;
+  orderList.appendChild(orderItem);
+});
 
- io.on('connection', (socket) => {
-  console.log('Ein Client hat sich verbunden');
-   socket.on('neworder', (orderData) => {
-    console.log('Neue Bestellung erhalten:', orderData);
-    // Hier den Bedienungsnamen mit übertragen
-    io.emit('neworder', {
-      ...orderData,
-      bedienung: orderData.bedienung // Explizit den Bedienungsnamen hinzufügen
-    });
   });
 });
 
