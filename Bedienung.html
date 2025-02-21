@@ -381,16 +381,17 @@
       }
     }
 
-       function promptForBedienungName() {
+function promptForBedienungName() {
   let name = prompt("Bitte geben Sie Ihren Namen ein:", "");
   if (name != null && name.trim() !== "") {
     bedienungName = name.trim();
     document.getElementById('bedienungNameDisplay').textContent = `Bedienung: ${bedienungName}`;
   } else {
     alert("Bitte geben Sie einen gültigen Namen ein.");
-    promptForBedienungName(); // Erneut nach dem Namen fragen
+    promptForBedienungName();
   }
-}   
+}
+
       
       function selectPerson(personNumber) {
       currentPerson = personNumber;
@@ -487,7 +488,8 @@ function adjustQuantity(name, delta) {
 
    function sendOrderToTheke() {
   const orderData = {
- bedienung: bedienungName,table: currentTable,
+ bedienung: bedienungName,
+    table: currentTable,
     person: currentPerson,
     order: tables[currentTable].persons[currentPerson - 1]
   };
