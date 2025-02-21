@@ -510,8 +510,10 @@ function sendOrderToTheke() {
     alert('Bestellung wurde an die Theke gesendet.');
   } else {
     console.log('Keine neuen Produkte zum Senden.');
+    alert('Keine neuen Produkte zum Senden.');
   }
 }
+
 
   if (hasNewItems) {
     socket.emit('neworder', orderData);
