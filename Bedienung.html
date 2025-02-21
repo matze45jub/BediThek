@@ -41,16 +41,24 @@
       background-color: #2980b9;
     }
 
-    .person-selection {
+    .person-container {
       display: flex;
-      justify-content: center;
-      margin: 10px 0;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .person-button {
-      padding: 10px 15px;
-      margin: 0 5px;
-      font-size: 14px;
+      width: 80px;
+      height: 80px;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
       background-color: #2ecc71;
       color: white;
       border: none;
@@ -60,6 +68,27 @@
 
     .person-button.active {
       background-color: #27ae60;
+    }
+
+    @media (max-width: 600px) {
+      .person-container {
+        justify-content: center;
+      }
+      .person-button {
+        width: calc(33.33% - 10px);
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      .person-button {
+        width: calc(25% - 10px);
+      }
+    }
+
+    @media (min-width: 901px) {
+      .person-button {
+        width: calc(20% - 10px);
+      }
     }
 
     .product-buttons-container {
@@ -259,7 +288,7 @@
     <button class="table-button" onclick="selectTable(4)">Tisch 4</button>
   </div>
 
-  <div class="person-selection" id="personSelection"></div>
+  <div class="person-container" id="personSelection"></div>
 
   <div id="productButtons" class="product-buttons-container">
     <h3 class="centered-heading">Essen</h3>
@@ -384,7 +413,7 @@
       }
     }
 
-    function promptForBedienungName() {
+        function promptForBedienungName() {
       let name = prompt("Bitte geben Sie Ihren Namen ein:", "");
       if (name != null && name.trim() !== "") {
         bedienungName = name.trim();
@@ -406,14 +435,13 @@
   }
 }
 
-
     function togglePaymentDialog() {
       const dialog = document.getElementById("paymentDialog");
       paymentDialogTable = currentTable;
       selectedPersons = [];
       updatePaymentPersonSelection();
       updatePaymentTotal();
-           dialog.style.display = (dialog.style.display === "none" || dialog.style.display === "") ? "block" : "none";
+      dialog.style.display = (dialog.style.display === "none" || dialog.style.display === "") ? "block" : "none";
     }
 
     function addNumber(num) {
@@ -493,42 +521,38 @@
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
+    function sendOrderToTheke() {
+      const orderData = {
+        bedienung: bedienungName,
+        table: currentTable,
+        person: currentPerson,
+        order: {}
+      };
 
-function sendOrderToTheke() {
-  const orderData = {
-    bedienung: bedienungName,
-    table: currentTable,
-    person: currentPerson,
-    order: {}
-  };
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      let hasNewItems = false;
 
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
-  let hasNewItems = false;
+      for (const [productName, product] of Object.entries(personOrder)) {
+        const orderId = `${productName}`;
+        const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
+        
+        if (product.quantity > previousQuantity) {
+          const newQuantity = product.quantity - previousQuantity;
+          orderData.order[productName] = { ...product, quantity: newQuantity };
+          sentOrders[currentTable][currentPerson][orderId] = product.quantity;
+          hasNewItems = true;
+        }
+      }
 
-  for (const [productName, product] of Object.entries(personOrder)) {
-    const orderId = `${productName}`;
-    const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
-    
-    if (product.quantity > previousQuantity) {
-      const newQuantity = product.quantity - previousQuantity;
-      orderData.order[productName] = { ...product, quantity: newQuantity };
-      sentOrders[currentTable][currentPerson][orderId] = product.quantity;
-      hasNewItems = true;
+      if (hasNewItems) {
+        socket.emit('neworder', orderData);
+        console.log('Neue Bestellung gesendet:', orderData);
+        alert('Bestellung wurde an die Theke gesendet.');
+      } else {
+        console.log('Keine neuen Produkte zum Senden.');
+        alert('Keine neuen Produkte zum Senden.');
+      }
     }
-  }
-
-  if (hasNewItems) {
-    socket.emit('neworder', orderData);
-    console.log('Neue Bestellung gesendet:', orderData);
-    alert('Bestellung wurde an die Theke gesendet.');
-  } else {
-    console.log('Keine neuen Produkte zum Senden.');
-    alert('Keine neuen Produkte zum Senden.');
-  }
-}
-
-
-
 
     function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
@@ -593,7 +617,7 @@ function sendOrderToTheke() {
       document.getElementById("paymentAmount").value = "";
       document.getElementById("changeAmount").textContent = "0.00";
       saveOrdersToLocalStorage();
-       sentOrders = {};
+      sentOrders = {};
     }
 
     function renderProductButtons() {
@@ -636,14 +660,14 @@ function sendOrderToTheke() {
       renderPersonButtons();
       selectTable(1);
 
-
-document.getElementById('sendOrderButton').addEventListener('click', function(e) {
-      e.preventDefault();
-      this.disabled = true;
-      sendOrderToTheke();
-      setTimeout(() => this.disabled = false, 2000); // Re-enable after 2 seconds
-    });
+      document.getElementById('sendOrderButton').addEventListener('click', function(e) {
+        e.preventDefault();
+        this.disabled = true;
+        sendOrderToTheke();
+        setTimeout(() => this.disabled = false, 2000); // Re-enable after 2 seconds
+      });
     };
   </script>
 </body>
 </html>
+
