@@ -355,17 +355,22 @@
     };
     let paymentDialogTable = 1;
     let selectedPersons = [];
-    let sentOrders = {}; // Neues Objekt zur Verfolgung gesendeter Bestellungen
+    let sentOrders = {1: {}, 2: {}, 3: {}, 4: {} // Ein Objekt für jeden Tisch
+};
 
-    function selectTable(tableNumber) {
-      currentTable = tableNumber;
-      currentPerson = 1;
-      document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
-      renderPersonButtons();
-      renderOrder();
-       sentOrders = {};
-    }
+
+   function selectTable(tableNumber) {
+  currentTable = tableNumber;
+  currentPerson = 1;
+  document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
+  renderPersonButtons();
+  renderOrder();
+  // Initialisieren Sie sentOrders für den neuen Tisch, falls noch nicht vorhanden
+  if (!sentOrders[currentTable]) {
+    sentOrders[currentTable] = {};
+  }
+}
 
     function renderPersonButtons() {
       const personSelection = document.getElementById("personSelection");
@@ -390,13 +395,17 @@
       }
     }
 
-    function selectPerson(personNumber) {
-      currentPerson = personNumber;
-      document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
-      document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
-      renderOrder();
-       sentOrders = {};
-    }
+   function selectPerson(personNumber) {
+  currentPerson = personNumber;
+  document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
+  renderOrder();
+  // Initialisieren Sie sentOrders für die neue Person, falls noch nicht vorhanden
+  if (!sentOrders[currentTable][currentPerson]) {
+    sentOrders[currentTable][currentPerson] = {};
+  }
+}
+
 
     function togglePaymentDialog() {
       const dialog = document.getElementById("paymentDialog");
@@ -497,13 +506,13 @@ function sendOrderToTheke() {
   let hasNewItems = false;
 
   for (const [productName, product] of Object.entries(personOrder)) {
-    const orderId = `${currentTable}-${currentPerson}-${productName}`;
-    const previousQuantity = sentOrders[orderId] || 0;
+    const orderId = `${productName}`;
+    const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
     
     if (product.quantity > previousQuantity) {
       const newQuantity = product.quantity - previousQuantity;
       orderData.order[productName] = { ...product, quantity: newQuantity };
-      sentOrders[orderId] = product.quantity;
+      sentOrders[currentTable][currentPerson][orderId] = product.quantity;
       hasNewItems = true;
     }
   }
@@ -517,6 +526,7 @@ function sendOrderToTheke() {
     alert('Keine neuen Produkte zum Senden.');
   }
 }
+
 
 
 
