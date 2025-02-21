@@ -31,11 +31,15 @@ io.on('connection', (socket) => {
 
   socket.on('neworder', (orderData) => {
     console.log('Neue Bestellung erhalten:', orderData);
-    io.emit('neworder', orderData);
+    io.emit('neworder', orderData); // Sendet an alle verbundenen Clients
   });
 
   socket.on('disconnect', () => {
     console.log('Ein Client hat sich getrennt');
+  });
+
+  socket.on('error', (error) => {
+    console.error('Socket.IO Fehler:', error);
   });
 });
 
