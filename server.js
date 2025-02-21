@@ -25,29 +25,19 @@ app.get('/theke', (req, res) => {
   res.sendFile(path.join(__dirname, 'Theke.html'));
 });
 
+// Socket.IO Logik
+io.on('connection', (socket) => {
+  console.log('Ein Client hat sich verbunden');
 
+  socket.on('neworder', (orderData) => {
+    console.log('Neue Bestellung erhalten:', orderData);
+    io.emit('neworder', orderData);
+  });
 
-
-
-socket.on('neworder', (orderData) => {
-  const orderList = document.getElementById('orderList');
-  const orderItem = document.createElement('li');
-  orderItem.innerHTML = `
-    <strong>Tisch ${orderData.table}, Person ${orderData.person}</strong>
-    <br>Bedienung: ${orderData.bedienung || 'Unbekannt'}
-    <br>${Object.entries(orderData.order).map(([product, details]) => 
-      `${product}: ${details.quantity}`
-    ).join(', ')}
-  `;
-  orderList.appendChild(orderItem);
-});
-
-  
-  
-  
   socket.on('disconnect', () => {
     console.log('Ein Client hat sich getrennt');
   });
+});
 
 // Server starten
 const PORT = process.env.PORT || 3000;
