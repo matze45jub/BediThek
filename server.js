@@ -42,20 +42,12 @@ socket.on('neworder', (orderData) => {
   orderList.appendChild(orderItem);
 });
 
-  });
-});
-
-  
-  
-  
-  
   
   
   
   socket.on('disconnect', () => {
     console.log('Ein Client hat sich getrennt');
   });
-});
 
 // Server starten
 const PORT = process.env.PORT || 3000;
