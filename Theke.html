@@ -77,26 +77,26 @@
             console.error('Verbindungsfehler:', error);
         });
 
-      function displayOrder(orderData) {
-    const orderList = document.getElementById('orderList');
-    const orderItem = document.createElement('div');
-    orderItem.className = 'order-item';
-    orderItem.innerHTML = `
-        <p class="order-time">Zeit: ${new Date().toLocaleTimeString()}</p>
-        <p class="order-info">
-            <span>Bedienung:</span> ${orderData.bedienung || 'Unbekannt'} | 
-            <span>Platz:</span> ${orderData.row && orderData.table ? `Reihe ${orderData.row}, Tisch ${orderData.table}` : 'Unbekannt'} |
-            <span>Person:</span> ${orderData.person}
-        </p>
-        <ul>
-            ${Object.entries(orderData.order).map(([productName, product]) => `
-                <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
-            `).join('')}
-        </ul>
-        <button class="complete-btn" onclick="markAsCompleted(this)">Erledigt</button>
-    `;
-    orderList.insertBefore(orderItem, orderList.firstChild);
-}
+        function displayOrder(orderData) {
+            const orderList = document.getElementById('orderList');
+            const orderItem = document.createElement('div');
+            orderItem.className = 'order-item';
+            orderItem.innerHTML = `
+                <p class="order-time">Zeit: ${new Date().toLocaleTimeString()}</p>
+                <p class="order-info">
+                    <span>Bedienung:</span> ${orderData.bedienung || 'Unbekannt'} | 
+                    <span>Reihe:</span> ${orderData.row || 'Unbekannt'} | 
+                    <span>Tisch:</span> ${orderData.table}, <span>Person:</span> ${orderData.person}
+                </p>
+                <ul>
+                    ${Object.entries(orderData.order).map(([productName, product]) => `
+                        <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
+                    `).join('')}
+                </ul>
+                <button class="complete-btn" onclick="markAsCompleted(this)">Erledigt</button>
+            `;
+            orderList.insertBefore(orderItem, orderList.firstChild);
+        }
 
         function markAsCompleted(button) {
             const orderItem = button.closest('.order-item');
