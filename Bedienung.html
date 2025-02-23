@@ -622,8 +622,8 @@ let sentOrders = {
 
   function sendOrderToTheke() {
   const orderData = {
-    bedienung: bedienungName,
-    row: currentRow, // Hier die Reihen-Nummer hinzufügen
+    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`, // Hier die Reihen-Nummer und die Tisch- sowie Person-Nummer hinzufügen
+    row: currentRow, // Hier die Reihen-Nummer
     table: currentTable,
     person: currentPerson,
     order: {}
