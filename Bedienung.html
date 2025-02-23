@@ -35,21 +35,23 @@
       
 .row-buttons {
   display: flex;
+  flex-wrap: wrap; /* Erlaubt das Umbrechen der Schaltflächen */
   justify-content: center; /* Zentriert die Schaltflächen */
   gap: 10px; /* Abstand zwischen den Schaltflächen */
   margin-bottom: 10px;
 }
 
 
+/* Für die Reihen-Schaltflächen */
 .row-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #ffcc00; /* Gelb */
+  padding: 12px 25px;
+  font-size: 16px; /* Schriftgröße angeglichen */
+  background-color: #E74C3C;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  flex: 1 1 150px; /* Erhöht den Flexwert, damit die Schaltflächen gleich groß sind */
+  flex: 1 0 auto;
   min-width: 100px;
   max-width: 150px;
 }
@@ -68,14 +70,6 @@
   background-color: #ddd; /* Helles Grau */
   color: #000; /* Textfarbe für aktive Auswahl */
 }
-      
-      
-.row-button:hover {
-  background-color: #d0d0d0; /* Hintergrundfarbe beim Hover */
-  color: #000; /* Textfarbe beim Hover */
-  cursor: pointer; /* Zeiger-Cursor anzeigen */
-}
-
             
       .table-selection, .person-container {
       text-align: center;
@@ -213,12 +207,24 @@
       margin-top: 10px;
     }
 
-    .button-container {
-      text-align: center;
-      margin-top: 20px;
-    }
+   .button-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+      
+      
+      /* Für die Reihen */
+.row-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
 
-    .button-container button {
+    .button-container button,
+      .row-container button{
       padding: 12px 25px;
       font-size: 14px;
       background-color: #E74C3C;
@@ -228,7 +234,8 @@
       cursor: pointer;
     }
 
-    .button-container button:hover {
+    .button-container button:hover,
+      .row-container button:hover{
       background-color: #C0392B;
     }
 
