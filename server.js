@@ -34,6 +34,11 @@ io.on('connection', (socket) => {
     io.emit('neworder', orderData); // Sendet an alle verbundenen Clients
   });
 
+  socket.on('orderPaid', (orderData) => {
+    console.log('Bestellung bezahlt:', orderData);
+    io.emit('orderPaid', orderData); // Sendet an alle verbundenen Clients
+  });
+
   socket.on('disconnect', () => {
     console.log('Ein Client hat sich getrennt');
   });
