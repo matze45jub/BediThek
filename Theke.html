@@ -107,7 +107,27 @@ function displayOrder(orderData) {
             displayOrder(orderData);
         });
 
-       
+       // Bestellung bezahlt
+socket.on('orderPaid', function(orderData) {
+    console.log('Bestellung bezahlt:', orderData);
+    
+    // Suche die Bestellung in der Liste und markiere sie rot
+    const orderItems = document.querySelectorAll('.order-item');
+    orderItems.forEach(orderItem => {
+        const orderInfo = orderItem.querySelector('.order-info');
+        if (orderInfo) {
+            const tableText = orderInfo.textContent.includes(`Tisch: ${orderData.table}, Person: ${orderData.person}`);
+            if (tableText) {
+                orderItem.style.backgroundColor = 'red'; // Bestellung rot färben
+                orderItem.querySelector('.complete-btn').disabled = true; // Button deaktivieren
+            }
+        }
+    });
+});
+        
+        
+        
+        
     </script>
 
 </body>
