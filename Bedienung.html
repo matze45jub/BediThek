@@ -700,9 +700,16 @@ let sentOrders = {
         return;
       }
 
-      selectedPersons.forEach(person => {
+selectedPersons.forEach(person => {
+        // Bestellung für die Person löschen
         tables[paymentDialogTable].persons[person - 1] = {};
-      });
+        // Signal an den Server senden, dass die Bestellung bezahlt wurde
+        socket.emit('orderPaid', {
+            table: paymentDialogTable,
+            person: person,
+            row: currentRow, // Zeilen-Nummer hinzufügen
+        });
+    });
       
       saveOrdersToLocalStorage();
       alert(`Zahlung für Tisch ${paymentDialogTable}, Personen ${selectedPersons.join(', ')} abgeschlossen!`);
