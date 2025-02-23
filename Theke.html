@@ -8,25 +8,25 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding-top: 50px; /* Platz für die fixierte Legende */
             background-color: #f0f0f0;
         }
-     .legend {
+        .legend {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            background-color: #ddd;
-            padding: 10px;
+            background-color: #bbb; /* Dunkler für bessere Sichtbarkeit */
+            padding: 15px;
             font-weight: bold;
             text-align: center;
+            font-size: 1.2em; /* Größere Schrift für bessere Sichtbarkeit */
             z-index: 1000;
         }
-        
-        
         h1 {
             color: #333;
             text-align: center;
+            margin-top: 10px; /* Nur kleiner Abstand nach unten */
         }
         .order-item {
             border: 1px solid #ddd;
@@ -37,11 +37,12 @@
             position: relative;
         }
         .order-item.completed {
-            background-color: #e6ffe6;
+            background-color: #e6ffe6; /* Grün für erledigt */
         }
         #orderList {
             max-width: 600px;
             margin: 0 auto;
+            padding-top: 20px;
         }
         .complete-btn {
             position: absolute;
@@ -67,7 +68,7 @@
     </style>
 </head>
 <body>
-  <div class="legend">Legende: weiß = eingegangen | grün = ausgegeben | rot = bezahlt</div>
+    <div class="legend">Legende: weiß = eingegangen | grün = ausgegeben | rot = bezahlt</div>
     <h1>Bestellungen</h1>
     <div id="orderList"></div>
 
