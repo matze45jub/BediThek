@@ -107,12 +107,8 @@ function displayOrder(orderData) {
             displayOrder(orderData);
         });
 
-        function testConnection() {
-            console.log('Test-Bestellung senden');
-            socket.emit('neworder', {test: 'Testbestellung'});
-        }
+       
     </script>
-    
-    <button onclick="testConnection()">Test Verbindung</button>
+
 </body>
 </html>
