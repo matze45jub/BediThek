@@ -616,7 +616,7 @@ setInterval(syncWithServer, 30000);
       document.getElementById("changeAmount").textContent = change.toFixed(2);
     }
 
- function addProductToOrder(name) {
+function addProductToOrder(name) {
   const product = products.find(p => p.name === name);
   if (product) {
     const personOrder = tables[currentTable].persons[currentPerson - 1];
@@ -624,12 +624,12 @@ setInterval(syncWithServer, 30000);
     if (existingProduct) {
       existingProduct.quantity++;
     } else {
-      personOrder[name] = { ...product, quantity: 1 };
+      personOrder[name] = { ...product, quantity: 1 }; // Produkt hinzufügen
     }
-    updateOrder(currentTable, currentPerson - 1, personOrder[name]);
-    renderOrder();
+    renderOrder(); // Bestellung rendern
   }
 }
+
 
 function updateOrder(table, person, product) {
   // Aktualisieren Sie die lokale Speicherung
@@ -654,35 +654,31 @@ function updateOrder(table, person, product) {
       }
     }
 
-    function renderOrder() {
-      const tbody = document.querySelector("#orderTable tbody");
-      tbody.innerHTML = "";
-      const personOrder = tables[currentTable].persons[currentPerson - 1];
-      
-      Object.values(personOrder).forEach(product => {
-        const row = document.createElement("tr");
-        row.classList.add('order-row');
-        
-        if (selectedPersons.includes(currentPerson)) {
-          row.classList.add('selected-order-row');
-        }
-        
-        row.innerHTML = `
-          <td>${product.name}</td>
-          <td class="quantity-controls">
-            <button onclick="adjustQuantity('${product.name}', -1)">-</button>
-            ${product.quantity}
-            <button onclick="adjustQuantity('${product.name}', 1)">+</button>
-          </td>
-          <td>${product.price.toFixed(2)}</td>
-          <td>${(product.price * product.quantity).toFixed(2)}</td>
-        `;
-        
-        tbody.appendChild(row);
-      });
-      
-      document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
-    }
+  function renderOrder() {
+  const tbody = document.querySelector("#orderTable tbody");
+  tbody.innerHTML = ""; // Tabelle leeren
+  const personOrder = tables[currentTable].persons[currentPerson - 1];
+  
+  Object.values(personOrder).forEach(product => {
+    const row = document.createElement("tr");
+    
+    row.innerHTML = `
+      <td>${product.name}</td>
+      <td class="quantity-controls">
+        <button onclick="adjustQuantity('${product.name}', -1)">-</button>
+        ${product.quantity}
+        <button onclick="adjustQuantity('${product.name}', 1)">+</button>
+      </td>
+      <td>${product.price.toFixed(2)}</td>
+      <td>${(product.price * product.quantity).toFixed(2)}</td>
+    `;
+    
+    tbody.appendChild(row);
+  });
+  
+  document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
+}
+
 
     function calculateTotal() {
       const personOrder = tables[currentTable].persons[currentPerson - 1];
