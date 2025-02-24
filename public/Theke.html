@@ -8,9 +8,8 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding-top: 50px; /* Platz für die fixierte Legende */
       padding: 20px;
-      background-color: #f0f0f0;
+      background-color: #f8f9fa;
     }
 
     .legend {
@@ -18,98 +17,77 @@
       top: 0;
       left: 0;
       width: 100%;
-      background-color: #bbb; /* Dunkler für bessere Sichtbarkeit */
+      background-color: #6c757d;
+      color: white;
       padding: 15px;
-      font-weight: bold;
       text-align: center;
-      font-size: 1.2em; /* Größere Schrift für bessere Sichtbarkeit */
+      font-size: 1.2em;
       z-index: 1000;
     }
 
     h1 {
-      color: #333;
       text-align: center;
-      margin-top: 10px;
+      margin-top: 60px;
     }
 
     .order-item {
       border: 1px solid #ddd;
       margin-bottom: 10px;
-      padding: 10px;
-      position: relative;
-      background-color: #fff;
+      padding: 15px;
+      background-color: white;
       border-radius: 5px;
+      position: relative;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
     }
 
     .order-item.completed {
-      background-color: #e6ffe6; /* Grün für erledigt */
+      background-color: #d4edda;
     }
 
     .order-item.paid {
-      background-color: #ffe6e6; /* Rot für bezahlt */
+      background-color: #f8d7da;
     }
 
-    #orderList {
-      max-width: 600px;
-      margin: 0 auto;
-      padding-top: 20px;
+    .button-container {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
     }
 
     .complete-btn, .paid-btn {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 5px 10px;
+      padding: 8px 12px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
 
     .complete-btn {
-      background-color: #27ae60;
+      background-color: #28a745;
       color: white;
-    }
-
-    .complete-btn:hover {
-      background-color: #2ecc71;
     }
 
     .paid-btn {
-      background-color: #e74c3c;
+      background-color: #dc3545;
       color: white;
-    }
-
-    .paid-btn:hover {
-      background-color: #c0392b;
-    }
-
-    .order-info {
-      margin-top: 5px;
-    }
-
-    .order-info span {
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
   <div class="legend">
-    <p>Legende: <span style="color: #333;">weiß</span> = eingegangen | <span style="color: #27ae60;">grün</span> = ausgegeben | <span style="color: #e74c3c;">rot</span> = bezahlt</p>
+    <p>Legende: <span style="color: white;">Weiß</span> = Eingegangen | <span style="color: #28a745;">Grün</span> = Ausgegeben | <span style="color: #dc3545;">Rot</span> = Bezahlt</p>
   </div>
 
   <h1>Bestellungen</h1>
 
-  <div id="orderList">
-    <!-- Bestellungen werden hier dynamisch eingefügt -->
-  </div>
+  <div id="orderList"></div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
     const socket = io('https://bedithek.onrender.com'); 
 
     socket.on('connect', () => {
-      console.log('✅ Verbindung zum Server erfolgreich hergestellt.');
+      console.log('✅ Verbindung zum Server hergestellt.');
     });
 
     socket.on('disconnect', () => {
@@ -118,43 +96,42 @@
 
     socket.on('neworder', (orderData) => {
       console.log('📩 Neue Bestellung empfangen:', orderData);
-      
-      const orderList = document.getElementById('orderList');
+      addOrderToList(orderData);
+    });
 
-      // Erstelle eine neue Bestellung
+    function addOrderToList(orderData) {
+      const orderList = document.getElementById('orderList');
       const orderElement = document.createElement('div');
       orderElement.classList.add('order-item');
-      
       if (orderData.status) {
         orderElement.classList.add(orderData.status);
       }
 
       orderElement.innerHTML = `
         <div>
-          <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}
-          <br>Bestellzeit: ${new Date(orderData.timestamp).toLocaleString()}
-          <br>Produkte: ${Object.entries(orderData.order).map(([name, item]) => `${item.quantity}x ${name}`).join(', ')}
+          <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
+          Bestellzeit: ${new Date(orderData.timestamp).toLocaleString()}<br>
+          Produkte: ${Object.values(orderData.order).map(item => `${item.quantity}x ${item.name}`).join(', ')}
         </div>
-        <div class="order-info">
-          <span>Status: ${orderData.status || 'eingegangen'}</span>
+        <div class="button-container">
+          <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
+          <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Bezahlt</button>
         </div>
-        <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}')">Ausgegeben</button>
-        <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}')">Bezahlt</button>
       `;
 
       orderList.appendChild(orderElement);
-    });
-
-    // Funktion zum Markieren der Bestellung als ausgegeben
-    function markAsCompleted(row, table, person) {
-      socket.emit('markOrderCompleted', { row, table, person });
-      alert(`Bestellung für Reihe ${row}, Tisch ${table}, Person ${person} als ausgegeben markiert.`);
     }
 
-    // Funktion zum Markieren der Bestellung als bezahlt
-    function markAsPaid(row, table, person) {
+    function markAsCompleted(row, table, person, button) {
+      socket.emit('markOrderCompleted', { row, table, person });
+      const orderItem = button.closest('.order-item');
+      orderItem.classList.add('completed');
+    }
+
+    function markAsPaid(row, table, person, button) {
       socket.emit('orderPaid', { row, table, person });
-      alert(`Bestellung für Reihe ${row}, Tisch ${table}, Person ${person} als bezahlt markiert.`);
+      const orderItem = button.closest('.order-item');
+      orderItem.classList.add('paid');
     }
   </script>
 
