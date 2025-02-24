@@ -32,44 +32,60 @@ io.on('connection', (socket) => {
   });
 
   socket.on('syncOrders', (clientOrders) => {
-    // Hier könnten Sie eine Logik implementieren, um Konflikte zu lösen
-    // Für dieses Beispiel überschreiben wir einfach die Server-Daten
-    globalOrders = clientOrders;
-    io.emit('updateOrders', globalOrders);
+    if (typeof clientOrders === 'object' && clientOrders !== null) {
+      globalOrders = clientOrders;
+      io.emit('updateOrders', globalOrders);
+    } else {
+      console.error('Fehler: Ungültige Bestellungen empfangen');
+    }
   });
 
   socket.on('updateOrder', ({ table, person, product }) => {
+    if (!table || !person || !product || typeof product !== 'object') {
+      console.error('Fehler: Ungültige Bestelldaten erhalten');
+      return;
+    }
+
     const orderId = `${table}-${person}`;
     if (!globalOrders[orderId]) {
       globalOrders[orderId] = { items: [] };
     }
+
     const existingProductIndex = globalOrders[orderId].items.findIndex(item => item.name === product.name);
     if (existingProductIndex !== -1) {
       globalOrders[orderId].items[existingProductIndex] = product;
     } else {
       globalOrders[orderId].items.push(product);
     }
+
     io.emit('updateOrders', globalOrders);
   });
 
   socket.on('neworder', (orderData) => {
-    // Verarbeite die neue Bestellung
+    if (!orderData || !orderData.row || !orderData.table || !orderData.person || !Array.isArray(orderData.order)) {
+      console.error('Fehler: Ungültige Bestelldaten erhalten');
+      return;
+    }
+
     const orderId = `${orderData.row}-${orderData.table}-${orderData.person}`;
     if (!globalOrders[orderId]) {
       globalOrders[orderId] = { items: [], bedienung: orderData.bedienung };
     }
+
     globalOrders[orderId].items.push(...orderData.order);
 
-    // Sende das Update an alle Clients
     io.emit('updateOrders', globalOrders);
   });
 
   socket.on('orderPaid', (paymentData) => {
-    // Verarbeite die Zahlungsinformation
+    if (!paymentData || !paymentData.row || !paymentData.table || !paymentData.person) {
+      console.error('Fehler: Ungültige Zahlungsdaten erhalten');
+      return;
+    }
+
     const orderId = `${paymentData.row}-${paymentData.table}-${paymentData.person}`;
     if (globalOrders[orderId]) {
       delete globalOrders[orderId];
-      // Sende das Update an alle Clients
       io.emit('updateOrders', globalOrders);
     }
   });
