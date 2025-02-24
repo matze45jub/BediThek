@@ -660,39 +660,37 @@
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-    function sendOrderToTheke() {
-      const orderData = {
-        bedienung: `${bedienungName}`,
-        row: currentRow,
-        table: currentTable,
-        person: currentPerson,
-        order: {}
-      };
+function sendOrderToTheke() {
+  const orderData = {
+    bedienung: bedienungName,
+    row: currentRow,
+    table: currentTable,
+    person: currentPerson,
+    order: []
+  };
 
-      const personOrder = tables[currentTable].persons[currentPerson - 1];
-      let hasNewItems = false;
-
-      for (const [productName, product] of Object.entries(personOrder)) {
-        const orderId = `${productName}`;
-        const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
-        
-        if (product.quantity > previousQuantity) {
-          const newQuantity = product.quantity - previousQuantity;
-          orderData.order[productName] = { ...product, quantity: newQuantity };
-          sentOrders[currentTable][currentPerson][orderId] = product.quantity;
-          hasNewItems = true;
-        }
-      }
-
-      if (hasNewItems) {
-        socket.emit('neworder', orderData);
-        console.log('Neue Bestellung gesendet:', orderData);
-        alert('Bestellung wurde an die Theke gesendet.');
-      } else {
-        console.log('Keine neuen Produkte zum Senden.');
-        alert('Keine neuen Produkte zum Senden.');
-      }
+  const personOrder = tables[currentTable].persons[currentPerson - 1];
+  for (const [productName, product] of Object.entries(personOrder)) {
+    const orderId = productName;
+    const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
+    
+    if (product.quantity > previousQuantity) {
+      const newQuantity = product.quantity - previousQuantity;
+      orderData.order.push({ ...product, quantity: newQuantity });
+      sentOrders[currentTable][currentPerson][orderId] = product.quantity;
     }
+  }
+
+  if (orderData.order.length > 0) {
+    socket.emit('neworder', orderData);
+    console.log('Neue Bestellung gesendet:', orderData);
+    alert('Bestellung wurde an die Theke gesendet.');
+  } else {
+    console.log('Keine neuen Produkte zum Senden.');
+    alert('Keine neuen Produkte zum Senden.');
+  }
+}
+
 
     function completePayment() {
       if (selectedPersons.length === 0) {
