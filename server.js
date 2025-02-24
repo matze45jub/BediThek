@@ -13,12 +13,13 @@ app.get('/', (req, res) => {
 });
 
 app.get('/bedienung', (req, res) => {
-  res.sendFile(path.join(process.cwd(), 'public', 'bedienung.html'));
+  res.sendFile(path.join(__dirname, 'public', 'Bedienung.html'));
 });
 
 
-app.get('/theke', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'theke.html'));
+
+app.get('/Theke', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'Theke.html'));
 });
 
 // Globales Objekt zur Speicherung aller Bestellungen
