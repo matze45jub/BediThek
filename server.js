@@ -7,6 +7,11 @@ const path = require('path');
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Route für den Wurzelpfad hinzufügen
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.get('/bedienung', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'bedienung.html'));
 });
