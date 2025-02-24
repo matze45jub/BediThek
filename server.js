@@ -24,13 +24,14 @@ app.get('/Theke', (req, res) => {
 let globalOrders = {};
 
 io.on('connection', (socket) => {
-  console.log('Ein Client hat sich verbunden');
+  console.log('👤 Ein neuer Client hat sich verbunden.');
 
   // Sende aktuelle Bestellungen an den neu verbundenen Client
   socket.on('requestInitialData', () => {
     socket.emit('initialOrders', globalOrders);
   });
 
+  // Synchronisiere Bestellungen mit einem Client
   socket.on('syncOrders', (clientOrders) => {
     if (typeof clientOrders === 'object' && clientOrders !== null) {
       globalOrders = clientOrders;
@@ -40,9 +41,38 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Empfang einer neuen Bestellung
+  socket.on('neworder', (orderData) => {
+    console.log("📬 Empfangene Bestelldaten:", orderData);
+
+    if (!orderData || typeof orderData !== 'object') {
+      console.error('❌ Fehler: Bestelldaten fehlen oder sind ungültig!', orderData);
+      return;
+    }
+
+    const { row, table, person, order, bedienung } = orderData;
+
+    if (!row || !table || !person || !order) {
+      console.error('❌ Fehler: Fehlende Bestellwerte!', orderData);
+      return;
+    }
+
+    const orderId = `${row}-${table}-${person}`;
+
+    if (!globalOrders[orderId]) {
+      globalOrders[orderId] = { items: [], bedienung };
+    }
+
+    // Falls `order` kein Array ist, umwandeln
+    globalOrders[orderId].items.push(...(Array.isArray(order) ? order : [order]));
+
+    io.emit('updateOrders', globalOrders);
+  });
+
+  // Aktualisierung einer einzelnen Bestellung
   socket.on('updateOrder', ({ table, person, product }) => {
     if (!table || !person || !product || typeof product !== 'object') {
-      console.error('Fehler: Ungültige Bestelldaten erhalten', { table, person, product });
+      console.error('❌ Fehler: Ungültige Bestelldaten erhalten', { table, person, product });
       return;
     }
 
@@ -61,36 +91,10 @@ io.on('connection', (socket) => {
     io.emit('updateOrders', globalOrders);
   });
 
-  socket.on('neworder', (orderData) => {
-    console.log("Empfangene Bestelldaten:", orderData);
-
-    if (!orderData || typeof orderData !== 'object') {
-      console.error('Fehler: Bestelldaten fehlen oder sind ungültig!', orderData);
-      return;
-    }
-
-    const { row, table, person, order, bedienung } = orderData;
-
-    if (!row || !table || !person || !order) {
-      console.error('Fehler: Fehlende Bestellwerte!', orderData);
-      return;
-    }
-
-    const orderId = `${row}-${table}-${person}`;
-
-    if (!globalOrders[orderId]) {
-      globalOrders[orderId] = { items: [], bedienung };
-    }
-
-    // Falls `order` kein Array ist, umwandeln
-    globalOrders[orderId].items.push(...(Array.isArray(order) ? order : [order]));
-
-    io.emit('updateOrders', globalOrders);
-  });
-
+  // Bestellung als bezahlt markieren
   socket.on('orderPaid', (paymentData) => {
     if (!paymentData || !paymentData.row || !paymentData.table || !paymentData.person) {
-      console.error('Fehler: Ungültige Zahlungsdaten erhalten', paymentData);
+      console.error('❌ Fehler: Ungültige Zahlungsdaten erhalten', paymentData);
       return;
     }
 
@@ -101,25 +105,25 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Hier wird das 'markOrderCompleted'-Event hinzugefügt
+  // Bestellung als ausgegeben markieren
   socket.on('markOrderCompleted', (orderData) => {
     const { row, table, person } = orderData;
     const orderId = `${row}-${table}-${person}`;
-  
+
     if (globalOrders[orderId]) {
       globalOrders[orderId].completed = true;
       io.emit('updateOrders', globalOrders);
     } else {
-      console.error('Fehler: Bestellung nicht gefunden', orderData);
+      console.error('❌ Fehler: Bestellung nicht gefunden', orderData);
     }
   });
 
   socket.on('disconnect', () => {
-    console.log('Ein Client hat sich getrennt');
+    console.log('❌ Ein Client hat sich getrennt');
   });
 });
 
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => {
-  console.log(`Server läuft auf Port ${PORT}`);
+  console.log(`✅ Server läuft auf Port ${PORT}`);
 });
