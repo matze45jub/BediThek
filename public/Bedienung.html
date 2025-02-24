@@ -411,33 +411,6 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
     const socket = io('https://bedithek.onrender.com');
-      
-         // Neuer Event-Listener für Bestellaktualisierungen
- socket.on('updateOrders', (updatedOrders) => {
-  tables = updatedOrders;
-  renderOrder();
-});
-
-function sendOrderUpdate() {
-  socket.emit('updateAllClients', tables);
-}
-
-      function generateOrderId(row, table, person) {
-  return `${row}-${table}-${person}`;
-}
-
-      
-      function updateOrder(row, table, person, item) {
-  const orderId = generateOrderId(row, table, person);
-  if (!orders[orderId]) {
-    orders[orderId] = { items: [], bedienung: bedienungName };
-  }
-  orders[orderId].items.push(item);
-  sendOrderUpdate();
-}
-
-      
-      
 
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
@@ -456,23 +429,10 @@ function sendOrderUpdate() {
       { name: "Radler", price: 3.6, category: "getraenke" },
       { name: "Spezi", price: 2.5, category: "getraenke" },
       { name: "Wasser spritzig", price: 2.0, category: "getraenke" },
-      { name: "Wasser sill", price: 2.0, category: "getraenke" },
-      { name: "Weinschoppen: Müller-Thurgau", price: 3.8, category: "getraenke" },
-      { name: "Weinschoppen: Silvaner", price: 4.2, category: "getraenke" }
+      { name: "Wasser still", price: 2.0, category: "getraenke" }
     ];
 
-    
-      
-      let orders = {
-  [generateOrderId(1, 1, 1)]: {
-    items: [],
-    bedienung: "Bedienung 1"
-  }
-};
-
-      
-      
-      let bedienungName = ''; 
+    let bedienungName = ''; 
     let currentRow = 1;
     let currentTable = 1;
     let currentPerson = 1;
@@ -649,8 +609,6 @@ function sendOrderUpdate() {
         }
         renderOrder();
         saveOrdersToLocalStorage();
-        // Neue Zeile: Sende aktualisierte Bestellungen an alle Clients
-        socket.emit('updateAllClients', tables);
       }
     }
 
@@ -667,14 +625,8 @@ function sendOrderUpdate() {
       }
     }
 
-      
-      
-      
     function renderOrder() {
-const orderContainer = document.getElementById("orderContainer");
-  orderContainer.innerHTML = "";
-  for (const [orderId, order] of Object.entries(orders)) {
-        const tbody = document.querySelector("#orderTable tbody");
+      const tbody = document.querySelector("#orderTable tbody");
       tbody.innerHTML = "";
       const personOrder = tables[currentTable].persons[currentPerson - 1];
       
@@ -716,8 +668,8 @@ const orderContainer = document.getElementById("orderContainer");
         person: currentPerson,
         order: {}
       };
-  
-        const personOrder = tables[currentTable].persons[currentPerson - 1];
+
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
       let hasNewItems = false;
 
       for (const [productName, product] of Object.entries(personOrder)) {
@@ -732,10 +684,8 @@ const orderContainer = document.getElementById("orderContainer");
         }
       }
 
-         if (hasNewItems) {
+      if (hasNewItems) {
         socket.emit('neworder', orderData);
-        // Neue Zeile: Sende aktualisierte Bestellungen an alle Clients
-        socket.emit('updateAllClients', tables);
         console.log('Neue Bestellung gesendet:', orderData);
         alert('Bestellung wurde an die Theke gesendet.');
       } else {
