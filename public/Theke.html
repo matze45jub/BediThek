@@ -95,9 +95,9 @@
     });
 
     socket.on('neworder', (orderData) => {
-      console.log('📩 Neue Bestellung empfangen:', orderData);
-      addOrderToList(orderData);
-    });
+    console.log('📩 Bestellung in Theke empfangen:', orderData); // Debugging
+    updateOrderDisplay(orderData);
+});
 
     function addOrderToList(orderData) {
       const orderList = document.getElementById('orderList');
