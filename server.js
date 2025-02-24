@@ -16,8 +16,6 @@ app.get('/bedienung', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Bedienung.html'));
 });
 
-
-
 app.get('/Theke', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Theke.html'));
 });
@@ -29,24 +27,42 @@ io.on('connection', (socket) => {
   console.log('Ein Client hat sich verbunden');
 
   // Sende aktuelle Bestellungen an den neu verbundenen Client
-  socket.emit('initialOrders', globalOrders);
-
-  socket.on('updateAllClients', (updatedOrders) => {
-    globalOrders = updatedOrders;
-    // Sende das Update an alle Clients außer dem Sender
-    socket.broadcast.emit('updateOrders', globalOrders);
+  socket.on('requestInitialData', () => {
+    socket.emit('initialOrders', globalOrders);
   });
 
-socket.on('neworder', (orderData) => {
-  const orderId = `${orderData.row}-${orderData.table}-${orderData.person}`;
-  if (!globalOrders[orderId]) {
-    globalOrders[orderId] = { items: [], bedienung: orderData.bedienung };
-  }
-  globalOrders[orderId].items.push(...orderData.order);
+  socket.on('syncOrders', (clientOrders) => {
+    // Hier könnten Sie eine Logik implementieren, um Konflikte zu lösen
+    // Für dieses Beispiel überschreiben wir einfach die Server-Daten
+    globalOrders = clientOrders;
+    io.emit('updateOrders', globalOrders);
+  });
 
-  io.emit('updateOrders', globalOrders);
-});
+  socket.on('updateOrder', ({ table, person, product }) => {
+    const orderId = `${table}-${person}`;
+    if (!globalOrders[orderId]) {
+      globalOrders[orderId] = { items: [] };
+    }
+    const existingProductIndex = globalOrders[orderId].items.findIndex(item => item.name === product.name);
+    if (existingProductIndex !== -1) {
+      globalOrders[orderId].items[existingProductIndex] = product;
+    } else {
+      globalOrders[orderId].items.push(product);
+    }
+    io.emit('updateOrders', globalOrders);
+  });
 
+  socket.on('neworder', (orderData) => {
+    // Verarbeite die neue Bestellung
+    const orderId = `${orderData.row}-${orderData.table}-${orderData.person}`;
+    if (!globalOrders[orderId]) {
+      globalOrders[orderId] = { items: [], bedienung: orderData.bedienung };
+    }
+    globalOrders[orderId].items.push(...orderData.order);
+
+    // Sende das Update an alle Clients
+    io.emit('updateOrders', globalOrders);
+  });
 
   socket.on('orderPaid', (paymentData) => {
     // Verarbeite die Zahlungsinformation
