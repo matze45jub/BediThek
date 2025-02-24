@@ -13,8 +13,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/bedienung', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'bedienung.html'));
+  res.sendFile(path.join(process.cwd(), 'public', 'bedienung.html'));
 });
+
 
 app.get('/theke', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'theke.html'));
