@@ -108,26 +108,26 @@
   <script>
     const socket = io('https://bedithek.onrender.com'); 
 
-socket.on('connect', () => {
-  console.log('✅ Verbindung zum Server erfolgreich hergestellt.');
-});
+    socket.on('connect', () => {
+      console.log('✅ Verbindung zum Server erfolgreich hergestellt.');
+    });
 
-socket.on('disconnect', () => {
-  console.warn('⚠️ Verbindung zum Server verloren.');
-});
+    socket.on('disconnect', () => {
+      console.warn('⚠️ Verbindung zum Server verloren.');
+    });
 
-socket.on('neworder', (orderData) => {
-  console.log('📩 Neue Bestellung empfangen:', orderData);
-  
-  const orderList = document.getElementById('orderList');
-
-  // Erstelle eine neue Bestellung
-  const orderElement = document.createElement('div');
-  orderElement.classList.add('order-item');
-});
+    socket.on('neworder', (orderData) => {
+      console.log('📩 Neue Bestellung empfangen:', orderData);
       
-      // Bestellstatus initialisieren
-      orderElement.classList.add(orderData.status || ''); // Optionaler Status, z.B. 'completed', 'paid'
+      const orderList = document.getElementById('orderList');
+
+      // Erstelle eine neue Bestellung
+      const orderElement = document.createElement('div');
+      orderElement.classList.add('order-item');
+      
+      if (orderData.status) {
+        orderElement.classList.add(orderData.status);
+      }
 
       orderElement.innerHTML = `
         <div>
@@ -138,23 +138,23 @@ socket.on('neworder', (orderData) => {
         <div class="order-info">
           <span>Status: ${orderData.status || 'eingegangen'}</span>
         </div>
-        <button class="complete-btn" onclick="markAsCompleted(${orderData.table}, ${orderData.person})">Ausgegeben</button>
-        <button class="paid-btn" onclick="markAsPaid(${orderData.table}, ${orderData.person})">Bezahlt</button>
+        <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}')">Ausgegeben</button>
+        <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}')">Bezahlt</button>
       `;
 
       orderList.appendChild(orderElement);
     });
 
     // Funktion zum Markieren der Bestellung als ausgegeben
-    function markAsCompleted(table, person) {
-      socket.emit('ordercompleted', { table, person });
-      alert(`Bestellung für Tisch ${table}, Person ${person} als ausgegeben markiert.`);
+    function markAsCompleted(row, table, person) {
+      socket.emit('markOrderCompleted', { row, table, person });
+      alert(`Bestellung für Reihe ${row}, Tisch ${table}, Person ${person} als ausgegeben markiert.`);
     }
 
     // Funktion zum Markieren der Bestellung als bezahlt
-    function markAsPaid(table, person) {
-      socket.emit('orderpaid', { table, person });
-      alert(`Bestellung für Tisch ${table}, Person ${person} als bezahlt markiert.`);
+    function markAsPaid(row, table, person) {
+      socket.emit('orderPaid', { row, table, person });
+      alert(`Bestellung für Reihe ${row}, Tisch ${table}, Person ${person} als bezahlt markiert.`);
     }
   </script>
 
