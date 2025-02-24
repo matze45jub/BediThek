@@ -1,8 +1,12 @@
 const express = require('express');
+const path = require('path');
+const http = require('http');
+const socketIo = require('socket.io');
+
+// Initialisiere Express und den Server
 const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http);
-const path = require('path'); 
+const server = http.createServer(app);
+const io = socketIo(server);
 
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
@@ -12,118 +16,47 @@ app.get('/', (req, res) => {
   res.redirect('/bedienung');
 });
 
+// Route für die Bedienungsseite
 app.get('/bedienung', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Bedienung.html'));
 });
 
-app.get('/Theke', (req, res) => {
+// Route für die Theken-Seite
+app.get('/theke', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Theke.html'));
 });
 
-// Globales Objekt zur Speicherung aller Bestellungen
-let globalOrders = {};
-
+// Socket.io-Setup
 io.on('connection', (socket) => {
-  console.log('👤 Ein neuer Client hat sich verbunden.');
+  console.log('Ein Benutzer ist verbunden.');
 
-  // Sende aktuelle Bestellungen an den neu verbundenen Client
-  socket.on('requestInitialData', () => {
-    socket.emit('initialOrders', globalOrders);
-  });
-
-  // Synchronisiere Bestellungen mit einem Client
-  socket.on('syncOrders', (clientOrders) => {
-    if (typeof clientOrders === 'object' && clientOrders !== null) {
-      globalOrders = clientOrders;
-      io.emit('updateOrders', globalOrders);
-    } else {
-      console.error('Fehler: Ungültige Bestellungen empfangen', clientOrders);
-    }
-  });
-
-  // Empfang einer neuen Bestellung
+  // Wenn eine neue Bestellung gesendet wird
   socket.on('neworder', (orderData) => {
-    console.log("📬 Empfangene Bestelldaten:", orderData);
-
-    if (!orderData || typeof orderData !== 'object') {
-      console.error('❌ Fehler: Bestelldaten fehlen oder sind ungültig!', orderData);
-      return;
-    }
-
-    const { row, table, person, order, bedienung } = orderData;
-
-    if (!row || !table || !person || !order) {
-      console.error('❌ Fehler: Fehlende Bestellwerte!', orderData);
-      return;
-    }
-
-    const orderId = `${row}-${table}-${person}`;
-
-    if (!globalOrders[orderId]) {
-      globalOrders[orderId] = { items: [], bedienung };
-    }
-
-    // Falls `order` kein Array ist, umwandeln
-    globalOrders[orderId].items.push(...(Array.isArray(order) ? order : [order]));
-
-    io.emit('updateOrders', globalOrders);
+    console.log('Neue Bestellung erhalten:', orderData);
+    // Sende die Bestellung an alle verbundenen Clients (z.B. Thekenseite)
+    io.emit('neworder', orderData);
   });
 
-  // Aktualisierung einer einzelnen Bestellung
-  socket.on('updateOrder', ({ table, person, product }) => {
-    if (!table || !person || !product || typeof product !== 'object') {
-      console.error('❌ Fehler: Ungültige Bestelldaten erhalten', { table, person, product });
-      return;
-    }
-
-    const orderId = `${table}-${person}`;
-    if (!globalOrders[orderId]) {
-      globalOrders[orderId] = { items: [] };
-    }
-
-    const existingProductIndex = globalOrders[orderId].items.findIndex(item => item.name === product.name);
-    if (existingProductIndex !== -1) {
-      globalOrders[orderId].items[existingProductIndex] = product;
-    } else {
-      globalOrders[orderId].items.push(product);
-    }
-
-    io.emit('updateOrders', globalOrders);
+  // Wenn eine Bestellung als erledigt markiert wird
+  socket.on('markOrderCompleted', (orderDetails) => {
+    console.log('Bestellung erledigt:', orderDetails);
+    io.emit('orderCompleted', orderDetails);
   });
 
-  // Bestellung als bezahlt markieren
-  socket.on('orderPaid', (paymentData) => {
-    if (!paymentData || !paymentData.row || !paymentData.table || !paymentData.person) {
-      console.error('❌ Fehler: Ungültige Zahlungsdaten erhalten', paymentData);
-      return;
-    }
-
-    const orderId = `${paymentData.row}-${paymentData.table}-${paymentData.person}`;
-    if (globalOrders[orderId]) {
-      delete globalOrders[orderId];
-      io.emit('updateOrders', globalOrders);
-    }
+  // Wenn eine Bestellung als bezahlt markiert wird
+  socket.on('orderPaid', (orderDetails) => {
+    console.log('Bestellung bezahlt:', orderDetails);
+    io.emit('orderPaid', orderDetails);
   });
 
-  // Bestellung als ausgegeben markieren
-  socket.on('markOrderCompleted', (orderData) => {
-    const { row, table, person } = orderData;
-    const orderId = `${row}-${table}-${person}`;
-
-    if (globalOrders[orderId]) {
-      globalOrders[orderId].completed = true;
-      io.emit('updateOrders', globalOrders);
-    } else {
-      console.error('❌ Fehler: Bestellung nicht gefunden', orderData);
-    }
-  });
-
+  // Wenn der Benutzer die Verbindung trennt
   socket.on('disconnect', () => {
-    console.log('❌ Ein Client hat sich getrennt');
+    console.log('Ein Benutzer hat die Verbindung getrennt.');
   });
 });
 
+// Server starten und auf Anfragen hören
 const PORT = process.env.PORT || 3000;
-http.listen(PORT, () => {
-  console.log(`✅ Server läuft auf Port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server läuft auf Port ${PORT}`);
 });
