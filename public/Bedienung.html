@@ -411,25 +411,6 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
     const socket = io('https://bedithek.onrender.com');
-    socket.on('connect', () => {
-  socket.emit('requestInitialData');
-});
-
-socket.on('initialOrders', (serverOrders) => {
-  // Aktualisieren Sie die lokale Speicherung mit den Serverdaten
-  tables = serverOrders;
-  saveOrdersToLocalStorage();
-  renderOrder(); // Aktualisieren Sie die Anzeige
-});
-
-    function syncWithServer() {
-  socket.emit('syncOrders', tables);
-}
-
-// Rufen Sie syncWithServer alle 30 Sekunden auf
-setInterval(syncWithServer, 30000);
-
-
 
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
@@ -616,30 +597,20 @@ setInterval(syncWithServer, 30000);
       document.getElementById("changeAmount").textContent = change.toFixed(2);
     }
 
-function addProductToOrder(name) {
-  const product = products.find(p => p.name === name);
-  if (product) {
-    const personOrder = tables[currentTable].persons[currentPerson - 1];
-    const existingProduct = personOrder[name];
-    if (existingProduct) {
-      existingProduct.quantity++;
-    } else {
-      personOrder[name] = { ...product, quantity: 1 }; // Produkt hinzufügen
+    function addProductToOrder(name) {
+      const product = products.find(p => p.name === name);
+      if (product) {
+        const personOrder = tables[currentTable].persons[currentPerson - 1];
+        const existingProduct = personOrder[name];
+        if (existingProduct) {
+          existingProduct.quantity++;
+        } else {
+          personOrder[name] = { ...product, quantity: 1 };
+        }
+        renderOrder();
+        saveOrdersToLocalStorage();
+      }
     }
-    renderOrder(); // Bestellung rendern
-  }
-}
-
-
-function updateOrder(table, person, product) {
-  // Aktualisieren Sie die lokale Speicherung
-  tables[table].persons[person][product.name] = product;
-  saveOrdersToLocalStorage();
-
-  // Senden Sie das Update an den Server
-  socket.emit('updateOrder', { table, person, product });
-}
-
 
     function adjustQuantity(name, delta) {
       const personOrder = tables[currentTable].persons[currentPerson - 1];
@@ -654,68 +625,74 @@ function updateOrder(table, person, product) {
       }
     }
 
-  function renderOrder() {
-  const tbody = document.querySelector("#orderTable tbody");
-  tbody.innerHTML = ""; // Tabelle leeren
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
-  
-  Object.values(personOrder).forEach(product => {
-    const row = document.createElement("tr");
-    
-    row.innerHTML = `
-      <td>${product.name}</td>
-      <td class="quantity-controls">
-        <button onclick="adjustQuantity('${product.name}', -1)">-</button>
-        ${product.quantity}
-        <button onclick="adjustQuantity('${product.name}', 1)">+</button>
-      </td>
-      <td>${product.price.toFixed(2)}</td>
-      <td>${(product.price * product.quantity).toFixed(2)}</td>
-    `;
-    
-    tbody.appendChild(row);
-  });
-  
-  document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
-}
-
+    function renderOrder() {
+      const tbody = document.querySelector("#orderTable tbody");
+      tbody.innerHTML = "";
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      
+      Object.values(personOrder).forEach(product => {
+        const row = document.createElement("tr");
+        row.classList.add('order-row');
+        
+        if (selectedPersons.includes(currentPerson)) {
+          row.classList.add('selected-order-row');
+        }
+        
+        row.innerHTML = `
+          <td>${product.name}</td>
+          <td class="quantity-controls">
+            <button onclick="adjustQuantity('${product.name}', -1)">-</button>
+            ${product.quantity}
+            <button onclick="adjustQuantity('${product.name}', 1)">+</button>
+          </td>
+          <td>${product.price.toFixed(2)}</td>
+          <td>${(product.price * product.quantity).toFixed(2)}</td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+      
+      document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
+    }
 
     function calculateTotal() {
       const personOrder = tables[currentTable].persons[currentPerson - 1];
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-function sendOrderToTheke() {
-  const orderData = {
-    bedienung: bedienungName,
-    row: currentRow,
-    table: currentTable,
-    person: currentPerson,
-    order: []
-  };
+    function sendOrderToTheke() {
+      const orderData = {
+        bedienung: `${bedienungName}`,
+        row: currentRow,
+        table: currentTable,
+        person: currentPerson,
+        order: {}
+      };
 
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
-  for (const [productName, product] of Object.entries(personOrder)) {
-    const orderId = productName;
-    const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
-    
-    if (product.quantity > previousQuantity) {
-      const newQuantity = product.quantity - previousQuantity;
-      orderData.order.push({ ...product, quantity: newQuantity });
-      sentOrders[currentTable][currentPerson][orderId] = product.quantity;
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      let hasNewItems = false;
+
+      for (const [productName, product] of Object.entries(personOrder)) {
+        const orderId = `${productName}`;
+        const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
+        
+        if (product.quantity > previousQuantity) {
+          const newQuantity = product.quantity - previousQuantity;
+          orderData.order[productName] = { ...product, quantity: newQuantity };
+          sentOrders[currentTable][currentPerson][orderId] = product.quantity;
+          hasNewItems = true;
+        }
+      }
+
+      if (hasNewItems) {
+        socket.emit('neworder', orderData);
+        console.log('Neue Bestellung gesendet:', orderData);
+        alert('Bestellung wurde an die Theke gesendet.');
+      } else {
+        console.log('Keine neuen Produkte zum Senden.');
+        alert('Keine neuen Produkte zum Senden.');
+      }
     }
-  }
-
-  if (orderData.order.length > 0) {
-    socket.emit('neworder', orderData);
-    console.log('Neue Bestellung gesendet:', orderData);
-    alert('Bestellung wurde an die Theke gesendet.');
-  } else {
-    console.log('Keine neuen Produkte zum Senden.');
-    alert('Keine neuen Produkte zum Senden.');
-  }
-}
-
 
     function completePayment() {
       if (selectedPersons.length === 0) {
