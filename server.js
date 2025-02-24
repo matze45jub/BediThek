@@ -5,12 +5,16 @@ const io = require('socket.io')(http);
 const path = require('path');
 
 // Statische Dateien servieren
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Route für die Hauptseite
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'bedienung.html'));
+app.get('/bedienung', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'bedienung.html'));
 });
+
+app.get('/theke', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'theke.html'));
+});
+
 
 // Globales Objekt zur Speicherung aller Bestellungen
 let globalOrders = {};
