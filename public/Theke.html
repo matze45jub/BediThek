@@ -95,12 +95,21 @@
     });
 
     socket.on('neworder', (orderData) => {
-    console.log('📩 Bestellung in Theke empfangen:', orderData); // Debugging
-    updateOrderDisplay(orderData);
-});
+      console.log('📩 Bestellung in Theke empfangen:', orderData); // Debugging
+      addOrderToList(orderData); // Funktion für die Anzeige von Bestellungen aufrufen
+    });
 
     function addOrderToList(orderData) {
       const orderList = document.getElementById('orderList');
+      
+      // Überprüfe, ob das orderData-Objekt gültig ist
+      console.log('📦 Empfangene Bestellung:', orderData);
+
+      if (!orderData || !orderData.order) {
+        console.error('❌ Fehler: orderData.order ist nicht definiert!');
+        return;
+      }
+
       const orderElement = document.createElement('div');
       orderElement.classList.add('order-item');
       if (orderData.status) {
@@ -119,9 +128,8 @@
         </div>
       `;
 
-console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
-orderList.appendChild(orderElement);
-    
+      console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
+      orderList.appendChild(orderElement);
     }
 
     function markAsCompleted(row, table, person, button) {
