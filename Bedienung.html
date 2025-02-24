@@ -413,10 +413,31 @@
     const socket = io('https://bedithek.onrender.com');
       
          // Neuer Event-Listener für Bestellaktualisierungen
-    socket.on('updateOrders', (updatedOrders) => {
-      tables = updatedOrders;
-      renderOrder();
-    });
+ socket.on('updateOrders', (updatedOrders) => {
+  tables = updatedOrders;
+  renderOrder();
+});
+
+function sendOrderUpdate() {
+  socket.emit('updateAllClients', tables);
+}
+
+      function generateOrderId(row, table, person) {
+  return `${row}-${table}-${person}`;
+}
+
+      
+      function updateOrder(row, table, person, item) {
+  const orderId = generateOrderId(row, table, person);
+  if (!orders[orderId]) {
+    orders[orderId] = { items: [], bedienung: bedienungName };
+  }
+  orders[orderId].items.push(item);
+  sendOrderUpdate();
+}
+
+      
+      
 
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
@@ -440,7 +461,18 @@
       { name: "Weinschoppen: Silvaner", price: 4.2, category: "getraenke" }
     ];
 
-    let bedienungName = ''; 
+    
+      
+      let orders = {
+  [generateOrderId(1, 1, 1)]: {
+    items: [],
+    bedienung: "Bedienung 1"
+  }
+};
+
+      
+      
+      let bedienungName = ''; 
     let currentRow = 1;
     let currentTable = 1;
     let currentPerson = 1;
@@ -635,8 +667,14 @@
       }
     }
 
+      
+      
+      
     function renderOrder() {
-      const tbody = document.querySelector("#orderTable tbody");
+const orderContainer = document.getElementById("orderContainer");
+  orderContainer.innerHTML = "";
+  for (const [orderId, order] of Object.entries(orders)) {
+        const tbody = document.querySelector("#orderTable tbody");
       tbody.innerHTML = "";
       const personOrder = tables[currentTable].persons[currentPerson - 1];
       
