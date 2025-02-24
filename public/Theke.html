@@ -1,161 +1,90 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Theke - Bestellungen</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f0f0;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        .order-item {
-            border: 1px solid #ddd;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #fff;
-            border-radius: 5px;
-            position: relative;
-        }
-        .order-item.completed {
-            background-color: #e6ffe6;
-        }
-        .order-item.paid {
-            background-color: #ffcccc;
-        }
-        #orderList {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .complete-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .complete-btn:hover {
-            background-color: #45a049;
-        }
-        .complete-btn:disabled {
-            background-color: #888;
-            cursor: not-allowed;
-        }
-        .order-time {
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        .order-info {
-            margin-top: 5px;
-        }
-        .order-info span {
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theke - Bestellungen</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .header {
+      background-color: #E74C3C;
+      padding: 10px;
+      text-align: center;
+      color: white;
+      font-size: 24px;
+    }
+    .order-container {
+      background-color: white;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .order {
+      margin-bottom: 15px;
+      padding: 10px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .order button {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .order button:hover {
+      background-color: #2ecc71;
+    }
+  </style>
 </head>
 <body>
-    <h1>Bestellungen</h1>
-    <div id="orderList"></div>
 
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    <script>
-        console.log('Theke.html Skript geladen');
-        const socket = io(); // Automatische Verbindung zum Server
+  <div class="header">
+    <h1>Theke - Bestellungen</h1>
+  </div>
 
-        socket.on('connect', () => {
-            console.log('Verbunden mit dem Server');
-            socket.emit('requestInitialData'); // Alle Bestellungen abrufen
-        });
+  <div id="orderList" class="order-container">
+    <!-- Bestellungen werden hier dynamisch eingefügt -->
+  </div>
 
-        socket.on('disconnect', () => {
-            console.log('Verbindung zum Server getrennt');
-        });
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io('https://bedithek.onrender.com'); // Verbinde zum Server
 
-        socket.on('connect_error', (error) => {
-            console.error('Verbindungsfehler:', error);
-        });
+    socket.on('neworder', (orderData) => {
+      const orderList = document.getElementById('orderList');
 
-        function displayOrder(orderId, orderData) {
-            const orderList = document.getElementById('orderList');
+      // Erstelle eine neue Bestellungselement
+      const orderElement = document.createElement('div');
+      orderElement.classList.add('order');
+      orderElement.innerHTML = `
+        <div>
+          <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}
+          <br>Bestellzeit: ${new Date(orderData.timestamp).toLocaleString()}
+          <br>Produkte: ${Object.entries(orderData.order).map(([name, item]) => `${item.quantity}x ${name}`).join(', ')}
+        </div>
+        <button onclick="markAsServed(${orderData.table}, ${orderData.person})">Serviert</button>
+      `;
 
-            // Prüfen, ob die Bestellung bereits existiert
-            let existingOrder = document.getElementById(orderId);
-            if (existingOrder) {
-                existingOrder.remove();
-            }
+      orderList.appendChild(orderElement);
+    });
 
-            const orderItem = document.createElement('div');
-            orderItem.className = 'order-item';
-            orderItem.id = orderId;
-
-            orderItem.innerHTML = `
-                <p class="order-time">Zeit: ${new Date().toLocaleTimeString()}</p>
-                <p class="order-info">
-                    <span>Bedienung:</span> ${orderData.bedienung || 'Unbekannt'} | 
-                    <span>Reihe:</span> ${orderData.reihe || 'Unbekannt'} | 
-                    <span>Tisch:</span> ${orderData.tisch}, <span>Person:</span> ${orderData.person}
-                </p>
-                <ul>
-                    ${orderData.artikel.map(product => `
-                        <li>${product.menge}x ${product.name} - ${product.preis.toFixed(2)} €</li>
-                    `).join('')}
-                </ul>
-                <button class="complete-btn" onclick="markAsCompleted('${orderId}')">Erledigt</button>
-            `;
-            orderList.insertBefore(orderItem, orderList.firstChild);
-        }
-
-        function markAsCompleted(orderId) {
-            const orderItem = document.getElementById(orderId);
-            if (orderItem) {
-                orderItem.classList.add('completed');
-                const button = orderItem.querySelector('.complete-btn');
-                button.textContent = 'Erledigt';
-                button.disabled = true;
-
-                // Bestellung als erledigt markieren
-                socket.emit('markOrderCompleted', {
-                    reihe: orderItem.querySelector('.order-info span:nth-child(2)').textContent.split(':')[1].trim(),
-                    tisch: orderItem.querySelector('.order-info span:nth-child(4)').textContent.split(':')[1].trim(),
-                    person: orderItem.querySelector('.order-info span:nth-child(6)').textContent.split(':')[1].trim()
-                });
-            }
-        }
-
-        // Neue Bestellung empfangen
-        socket.on('updateOrders', function(allOrders) {
-            console.log('Alle Bestellungen aktualisiert:', allOrders);
-
-            // Lösche alle Bestellungen und zeige die neuen an
-            document.getElementById('orderList').innerHTML = '';
-
-            Object.entries(allOrders).forEach(([orderId, orderData]) => {
-                displayOrder(orderId, orderData);
-            });
-        });
-
-        // Bestellung bezahlt
-        socket.on('orderPaid', function(paymentData) {
-            console.log('Bestellung bezahlt:', paymentData);
-            const orderId = `${paymentData.reihe}-${paymentData.tisch}-${paymentData.person}`;
-            const orderItem = document.getElementById(orderId);
-            if (orderItem) {
-                orderItem.classList.add('paid');
-                const button = orderItem.querySelector('.complete-btn');
-                if (button) button.disabled = true;
-            }
-        });
-
-    </script>
+    // Funktion zum Markieren einer Bestellung als serviert
+    function markAsServed(table, person) {
+      // Markiere die Bestellung als serviert, z.B. durch eine Visualisierung oder durch Senden einer Bestätigung
+      socket.emit('orderserved', { table, person });
+      alert(`Bestellung für Tisch ${table}, Person ${person} als serviert markiert.`);
+      // Hier kann eine Methode zum Entfernen oder Markieren der Bestellung aus der Liste eingebaut werden
+    }
+  </script>
 </body>
 </html>
