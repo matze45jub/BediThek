@@ -5,7 +5,7 @@ const io = require('socket.io')(http);
 const path = require('path');
 
 // Statische Dateien servieren
-app.use(express.static(path.join(__dirname,)));
+app.use(express.static(__dirname));
 
 // Route für die Hauptseite
 app.get('/', (req, res) => {
