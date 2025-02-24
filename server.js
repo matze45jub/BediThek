@@ -7,9 +7,9 @@ const path = require('path');
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route für den Wurzelpfad hinzufügen
+// Route für den Wurzelpfad hinzufügen - Umleitung zur Bedienungsseite
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.redirect('/bedienung');
 });
 
 app.get('/bedienung', (req, res) => {
@@ -19,7 +19,6 @@ app.get('/bedienung', (req, res) => {
 app.get('/theke', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'theke.html'));
 });
-
 
 // Globales Objekt zur Speicherung aller Bestellungen
 let globalOrders = {};
