@@ -37,17 +37,16 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('updateOrders', globalOrders);
   });
 
-  socket.on('neworder', (orderData) => {
-    // Verarbeite die neue Bestellung
-    const orderId = `${orderData.row}-${orderData.table}-${orderData.person}`;
-    if (!globalOrders[orderId]) {
-      globalOrders[orderId] = { items: [], bedienung: orderData.bedienung };
-    }
-    globalOrders[orderId].items.push(...Object.values(orderData.order));
+socket.on('neworder', (orderData) => {
+  const orderId = `${orderData.row}-${orderData.table}-${orderData.person}`;
+  if (!globalOrders[orderId]) {
+    globalOrders[orderId] = { items: [], bedienung: orderData.bedienung };
+  }
+  globalOrders[orderId].items.push(...orderData.order);
 
-    // Sende das Update an alle Clients
-    io.emit('updateOrders', globalOrders);
-  });
+  io.emit('updateOrders', globalOrders);
+});
+
 
   socket.on('orderPaid', (paymentData) => {
     // Verarbeite die Zahlungsinformation
