@@ -1,59 +1,51 @@
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
-const path = require('path');
-
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: ["https://bedithek.onrender.com", "http://localhost:3000"], // Hier die erlaubten Ursprünge einfügen
-    methods: ["GET", "POST"]
-  }
-});
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
 
-// Statische Dateien aus dem aktuellen Verzeichnis bereitstellen
-app.use(express.static(path.join(__dirname, 'public'))); // Falls du einen Unterordner 'public' hast
+// Globales Objekt zur Speicherung aller Bestellungen
+let globalOrders = {};
 
-// Route für die Hauptseite (Bedienung.html)
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Bedienung.html'));
-});
-
-// Route für die Theke-Seite
-app.get('/theke', (req, res) => {
-  res.sendFile(path.join(__dirname, 'Theke.html'));
-});
-
-// Socket.IO Logik
 io.on('connection', (socket) => {
   console.log('Ein Client hat sich verbunden');
 
-  // Empfang einer neuen Bestellung
+  // Sende aktuelle Bestellungen an den neu verbundenen Client
+  socket.emit('initialOrders', globalOrders);
+
+  socket.on('updateAllClients', (updatedOrders) => {
+    globalOrders = updatedOrders;
+    // Sende das Update an alle Clients außer dem Sender
+    socket.broadcast.emit('updateOrders', globalOrders);
+  });
+
   socket.on('neworder', (orderData) => {
-    console.log('Neue Bestellung erhalten:', orderData);
-    io.emit('neworder', orderData); // Sendet die Bestellung an alle verbundenen Clients
+    // Verarbeite die neue Bestellung
+    const orderId = `${orderData.row}-${orderData.table}-${orderData.person}`;
+    if (!globalOrders[orderId]) {
+      globalOrders[orderId] = { items: [], bedienung: orderData.bedienung };
+    }
+    globalOrders[orderId].items.push(...Object.values(orderData.order));
+
+    // Sende das Update an alle Clients
+    io.emit('updateOrders', globalOrders);
   });
 
-  // Empfang der Bestellbestätigung (Bestellung bezahlt)
-  socket.on('orderPaid', (orderData) => {
-    console.log('Bestellung bezahlt:', orderData);
-    io.emit('orderPaid', orderData); // Sendet an alle verbundenen Clients
+  socket.on('orderPaid', (paymentData) => {
+    // Verarbeite die Zahlungsinformation
+    const orderId = `${paymentData.row}-${paymentData.table}-${paymentData.person}`;
+    if (globalOrders[orderId]) {
+      delete globalOrders[orderId];
+      // Sende das Update an alle Clients
+      io.emit('updateOrders', globalOrders);
+    }
   });
 
-  // Fehlerbehandlung
-  socket.on('error', (error) => {
-    console.error('Socket.IO Fehler:', error);
-  });
-
-  // Wenn ein Client sich trennt
   socket.on('disconnect', () => {
     console.log('Ein Client hat sich getrennt');
   });
 });
 
-// Server starten
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`Server läuft auf http://localhost:${PORT}`);
+http.listen(PORT, () => {
+  console.log(`Server läuft auf Port ${PORT}`);
 });
