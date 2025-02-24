@@ -36,13 +36,13 @@ io.on('connection', (socket) => {
       globalOrders = clientOrders;
       io.emit('updateOrders', globalOrders);
     } else {
-      console.error('Fehler: Ungültige Bestellungen empfangen');
+      console.error('Fehler: Ungültige Bestellungen empfangen', clientOrders);
     }
   });
 
   socket.on('updateOrder', ({ table, person, product }) => {
     if (!table || !person || !product || typeof product !== 'object') {
-      console.error('Fehler: Ungültige Bestelldaten erhalten');
+      console.error('Fehler: Ungültige Bestelldaten erhalten', { table, person, product });
       return;
     }
 
@@ -62,24 +62,35 @@ io.on('connection', (socket) => {
   });
 
   socket.on('neworder', (orderData) => {
-    if (!orderData || !orderData.row || !orderData.table || !orderData.person || !Array.isArray(orderData.order)) {
-      console.error('Fehler: Ungültige Bestelldaten erhalten');
+    console.log("Empfangene Bestelldaten:", orderData);
+
+    if (!orderData || typeof orderData !== 'object') {
+      console.error('Fehler: Bestelldaten fehlen oder sind ungültig!', orderData);
       return;
     }
 
-    const orderId = `${orderData.row}-${orderData.table}-${orderData.person}`;
-    if (!globalOrders[orderId]) {
-      globalOrders[orderId] = { items: [], bedienung: orderData.bedienung };
+    const { row, table, person, order, bedienung } = orderData;
+
+    if (!row || !table || !person || !order) {
+      console.error('Fehler: Fehlende Bestellwerte!', orderData);
+      return;
     }
 
-    globalOrders[orderId].items.push(...orderData.order);
+    const orderId = `${row}-${table}-${person}`;
+
+    if (!globalOrders[orderId]) {
+      globalOrders[orderId] = { items: [], bedienung };
+    }
+
+    // Falls `order` kein Array ist, umwandeln
+    globalOrders[orderId].items.push(...(Array.isArray(order) ? order : [order]));
 
     io.emit('updateOrders', globalOrders);
   });
 
   socket.on('orderPaid', (paymentData) => {
     if (!paymentData || !paymentData.row || !paymentData.table || !paymentData.person) {
-      console.error('Fehler: Ungültige Zahlungsdaten erhalten');
+      console.error('Fehler: Ungültige Zahlungsdaten erhalten', paymentData);
       return;
     }
 
