@@ -662,8 +662,10 @@
 
     function sendOrderToTheke() {
       const orderData = {
-        bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`,
-
+        bedienung: `${bedienungName}`,
+        row: currentRow,
+        table: currentTable,
+        person: currentPerson,
         order: {}
       };
 
