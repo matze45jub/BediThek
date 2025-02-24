@@ -70,11 +70,11 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
         console.log('Theke.html Skript geladen');
-        const socket = io(); // Automatische Verbindung zum Server
+        const socket = io();
 
         socket.on('connect', () => {
             console.log('Verbunden mit dem Server');
-            socket.emit('requestInitialData'); // Alle Bestellungen abrufen
+            socket.emit('requestInitialData');
         });
 
         socket.on('disconnect', () => {
@@ -88,7 +88,7 @@
         function displayOrder(orderId, orderData) {
             const orderList = document.getElementById('orderList');
 
-            // Prüfen, ob die Bestellung bereits existiert
+            // Prüfen, ob Bestellung existiert
             let existingOrder = document.getElementById(orderId);
             if (existingOrder) {
                 existingOrder.remove();
@@ -98,6 +98,8 @@
             orderItem.className = 'order-item';
             orderItem.id = orderId;
 
+            const orderItems = orderData.items || orderData.order || []; // Fix für undefined-Daten
+
             orderItem.innerHTML = `
                 <p class="order-time">Zeit: ${new Date().toLocaleTimeString()}</p>
                 <p class="order-info">
@@ -106,7 +108,7 @@
                     <span>Tisch:</span> ${orderData.table}, <span>Person:</span> ${orderData.person}
                 </p>
                 <ul>
-                    ${orderData.items.map(product => `
+                    ${orderItems.map(product => `
                         <li>${product.quantity}x ${product.name} - ${product.price.toFixed(2)} €</li>
                     `).join('')}
                 </ul>
@@ -122,22 +124,30 @@
                 const button = orderItem.querySelector('.complete-btn');
                 button.textContent = 'Erledigt';
                 button.disabled = true;
+
+                socket.emit('orderCompleted', orderId); // Server informieren
             }
         }
 
-        // Neue Bestellung empfangen
         socket.on('updateOrders', function(allOrders) {
             console.log('Alle Bestellungen aktualisiert:', allOrders);
+            
+            const orderList = document.getElementById('orderList');
+            const existingOrders = new Set(Object.keys(allOrders));
 
-            // Lösche alle Bestellungen und zeige die neuen an
-            document.getElementById('orderList').innerHTML = '';
+            // Entferne nicht mehr vorhandene Bestellungen
+            document.querySelectorAll('.order-item').forEach(orderItem => {
+                if (!existingOrders.has(orderItem.id)) {
+                    orderItem.remove();
+                }
+            });
 
+            // Neue oder aktualisierte Bestellungen anzeigen
             Object.entries(allOrders).forEach(([orderId, orderData]) => {
                 displayOrder(orderId, orderData);
             });
         });
 
-        // Bestellung bezahlt
         socket.on('orderPaid', function(paymentData) {
             console.log('Bestellung bezahlt:', paymentData);
             const orderId = `${paymentData.row}-${paymentData.table}-${paymentData.person}`;
