@@ -411,6 +411,12 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
     const socket = io('https://bedithek.onrender.com');
+      
+         // Neuer Event-Listener für Bestellaktualisierungen
+    socket.on('updateOrders', (updatedOrders) => {
+      tables = updatedOrders;
+      renderOrder();
+    });
 
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
@@ -429,7 +435,9 @@
       { name: "Radler", price: 3.6, category: "getraenke" },
       { name: "Spezi", price: 2.5, category: "getraenke" },
       { name: "Wasser spritzig", price: 2.0, category: "getraenke" },
-      { name: "Wasser still", price: 2.0, category: "getraenke" }
+      { name: "Wasser sill", price: 2.0, category: "getraenke" },
+      { name: "Weinschoppen: Müller-Thurgau", price: 3.8, category: "getraenke" },
+      { name: "Weinschoppen: Silvaner", price: 4.2, category: "getraenke" }
     ];
 
     let bedienungName = ''; 
@@ -609,6 +617,8 @@
         }
         renderOrder();
         saveOrdersToLocalStorage();
+        // Neue Zeile: Sende aktualisierte Bestellungen an alle Clients
+        socket.emit('updateAllClients', tables);
       }
     }
 
@@ -668,8 +678,8 @@
         person: currentPerson,
         order: {}
       };
-
-      const personOrder = tables[currentTable].persons[currentPerson - 1];
+  
+        const personOrder = tables[currentTable].persons[currentPerson - 1];
       let hasNewItems = false;
 
       for (const [productName, product] of Object.entries(personOrder)) {
@@ -684,8 +694,10 @@
         }
       }
 
-      if (hasNewItems) {
+         if (hasNewItems) {
         socket.emit('neworder', orderData);
+        // Neue Zeile: Sende aktualisierte Bestellungen an alle Clients
+        socket.emit('updateAllClients', tables);
         console.log('Neue Bestellung gesendet:', orderData);
         alert('Bestellung wurde an die Theke gesendet.');
       } else {
