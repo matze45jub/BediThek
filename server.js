@@ -101,6 +101,19 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Hier wird das 'markOrderCompleted'-Event hinzugefügt
+  socket.on('markOrderCompleted', (orderData) => {
+    const { row, table, person } = orderData;
+    const orderId = `${row}-${table}-${person}`;
+  
+    if (globalOrders[orderId]) {
+      globalOrders[orderId].completed = true;
+      io.emit('updateOrders', globalOrders);
+    } else {
+      console.error('Fehler: Bestellung nicht gefunden', orderData);
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('Ein Client hat sich getrennt');
   });
