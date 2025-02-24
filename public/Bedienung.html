@@ -644,14 +644,13 @@ let sentOrders = {
     }
   }
 
-  if (hasNewItems) {
+if (hasNewItems) {
+    console.log('📤 Bestellung wird gesendet:', orderData);
     socket.emit('neworder', orderData); // Bestellung wird an die Theke gesendet
-    console.log('Neue Bestellung gesendet:', orderData);
     alert('Bestellung wurde an die Theke gesendet.');
-  } else {
-    console.log('Keine neuen Produkte zum Senden.');
+} else {
+    console.log('❌ Keine neuen Produkte zum Senden.');
     alert('Keine neuen Produkte zum Senden.');
-  }
 }
 
     function selectPaymentTable(tableNumber) {
