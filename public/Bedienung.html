@@ -411,6 +411,25 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
     const socket = io('https://bedithek.onrender.com');
+    socket.on('connect', () => {
+  socket.emit('requestInitialData');
+});
+
+socket.on('initialOrders', (serverOrders) => {
+  // Aktualisieren Sie die lokale Speicherung mit den Serverdaten
+  tables = serverOrders;
+  saveOrdersToLocalStorage();
+  renderOrder(); // Aktualisieren Sie die Anzeige
+});
+
+    function syncWithServer() {
+  socket.emit('syncOrders', tables);
+}
+
+// Rufen Sie syncWithServer alle 30 Sekunden auf
+setInterval(syncWithServer, 30000);
+
+
 
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
@@ -597,20 +616,30 @@
       document.getElementById("changeAmount").textContent = change.toFixed(2);
     }
 
-    function addProductToOrder(name) {
-      const product = products.find(p => p.name === name);
-      if (product) {
-        const personOrder = tables[currentTable].persons[currentPerson - 1];
-        const existingProduct = personOrder[name];
-        if (existingProduct) {
-          existingProduct.quantity++;
-        } else {
-          personOrder[name] = { ...product, quantity: 1 };
-        }
-        renderOrder();
-        saveOrdersToLocalStorage();
-      }
+ function addProductToOrder(name) {
+  const product = products.find(p => p.name === name);
+  if (product) {
+    const personOrder = tables[currentTable].persons[currentPerson - 1];
+    const existingProduct = personOrder[name];
+    if (existingProduct) {
+      existingProduct.quantity++;
+    } else {
+      personOrder[name] = { ...product, quantity: 1 };
     }
+    updateOrder(currentTable, currentPerson - 1, personOrder[name]);
+    renderOrder();
+  }
+}
+
+function updateOrder(table, person, product) {
+  // Aktualisieren Sie die lokale Speicherung
+  tables[table].persons[person][product.name] = product;
+  saveOrdersToLocalStorage();
+
+  // Senden Sie das Update an den Server
+  socket.emit('updateOrder', { table, person, product });
+}
+
 
     function adjustQuantity(name, delta) {
       const personOrder = tables[currentTable].persons[currentPerson - 1];
