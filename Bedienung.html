@@ -21,57 +21,51 @@
       padding: 10px 0;
     }
 
- h1 {
-  font-size: 24px; /* Halbe Höhe durch kleinere Schriftgröße */
-  line-height: 24px; /* Zeilenhöhe ebenfalls anpassen */
-  margin: 0; /* Falls nötig, den Standardabstand entfernen */
-}
+    h1 {
+      font-size: 24px;
+      line-height: 24px;
+      margin: 0;
+    }
       
-  .selected-order-row {
-  background-color: yellow; /* Gelber Hintergrund */
-  color: black; /* Schwarze Schrift */
-}
+    .selected-order-row {
+      background-color: yellow;
+      color: black;
+    }
       
-      
-.row-buttons {
-  display: flex;
-  flex-wrap: wrap; /* Erlaubt das Umbrechen der Schaltflächen */
-  justify-content: center; /* Zentriert die Schaltflächen */
-  gap: 10px; /* Abstand zwischen den Schaltflächen */
-  margin-bottom: 10px;
-}
+    .row-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
 
+    .row-button {
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #E74C3C;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      flex: 1 0 auto;
+      min-width: 100px;
+      max-width: 150px;
+    }
 
-/* Für die Reihen-Schaltflächen */
-.row-button {
-  padding: 12px 25px;
-  font-size: 16px; /* Schriftgröße angeglichen */
-  background-color: #E74C3C;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  flex: 1 0 auto;
-  min-width: 100px;
-  max-width: 150px;
-}
-
-.button-disabled {
-  background-color: #d3d3d3; /* Grauer Hintergrund */
-  color: #808080; /* Graue Schriftfarbe */
-  cursor: not-allowed; /* Zeigt an, dass der Button nicht aktiv ist */
-  pointer-events: none; /* Deaktiviert den Klick auf den Button */
-}      
+    .button-disabled {
+      background-color: #d3d3d3;
+      color: #808080;
+      cursor: not-allowed;
+      pointer-events: none;
+    }      
       
-      
-      
-      
-.row-button.active {
-  background-color: #ddd; /* Helles Grau */
-  color: #000; /* Textfarbe für aktive Auswahl */
-}
+    .row-button.active {
+      background-color: #ddd;
+      color: #000;
+    }
             
-      .table-selection, .person-container {
+    .table-selection, .person-container {
       text-align: center;
       margin: 10px 0;
       display: flex;
@@ -81,50 +75,48 @@
     }
 
     .table-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #3498db; /* Helles Blau */
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  flex: 1 0 auto;
-  min-width: 100px;
-  max-width: 150px;
-}
-.person-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #2ecc71; /* Helles Grün */
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  flex: 1 0 auto;
-  min-width: 100px;
-  max-width: 150px;
-}
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      flex: 1 0 auto;
+      min-width: 100px;
+      max-width: 150px;
+    }
+    .person-button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      flex: 1 0 auto;
+      min-width: 100px;
+      max-width: 150px;
+    }
 
-/* Hover-Effekt für Tisch */
-.table-button:hover {
-  background-color: #1f6d94; /* Dunkleres Blau */
-}
+    .table-button:hover {
+      background-color: #1f6d94;
+    }
 
-/* Hover-Effekt für Person */
-.person-button:hover {
-  background-color: #27ae60; /* Dunkleres Grün */
-}
+    .person-button:hover {
+      background-color: #27ae60;
+    }
 
-.table-button.active,
-.person-button.active {
-  background-color: #f0f0f0; /* Beispielhafte Hervorhebung */
-  color: #000; /* Textfarbe für die aktive Auswahl */
-}
+    .table-button.active,
+    .person-button.active {
+      background-color: #f0f0f0;
+      color: #000;
+    }
 
-.table-button:hover,
-.person-button:hover {
-  background-color: #ddd; /* Hover-Effekt */
-}
+    .table-button:hover,
+    .person-button:hover {
+      background-color: #ddd;
+    }
 
     .product-buttons-container {
       margin: 2px;
@@ -207,24 +199,22 @@
       margin-top: 10px;
     }
 
-   .button-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-}
+    .button-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
       
-      
-      /* Für die Reihen */
-.row-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-}
+    .row-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
 
     .button-container button,
-      .row-container button{
+    .row-container button {
       padding: 12px 25px;
       font-size: 14px;
       background-color: #E74C3C;
@@ -235,7 +225,7 @@
     }
 
     .button-container button:hover,
-      .row-container button:hover{
+    .row-container button:hover {
       background-color: #C0392B;
     }
 
@@ -320,6 +310,11 @@
     .close-button:hover, .ok-button:hover {
       background-color: #C0392B;
     }
+
+    .row-button.selected, .table-button.selected, .person-button.selected {
+      background-color: #808080;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -329,25 +324,23 @@
 
   <div id="bedienungNameDisplay" style="text-align: center; margin: 10px 0; font-weight: bold;"></div>
     
+  <div class="row-buttons">
+    <button class="row-button" id="row1" onclick="selectRow(1)">Reihe 1</button>
+    <button class="row-button" id="row2" onclick="selectRow(2)">Reihe 2</button>
+    <button class="row-button" id="row3" onclick="selectRow(3)">Reihe 3</button>
+    <button class="row-button" id="row4" onclick="selectRow(4)">Reihe 4</button>
+    <button class="row-button" id="row5" onclick="selectRow(5)">Reihe 5</button>
+    <button class="row-button" id="row6" onclick="selectRow(6)">Reihe 6</button>
+  </div>
     
-<div class="row-buttons">
-  <button class="row-button" id="row1" onclick="selectRow(1)">Reihe 1</button>
-  <button class="row-button" id="row2" onclick="selectRow(2)">Reihe 2</button>
-  <button class="row-button" id="row3" onclick="selectRow(3)">Reihe 3</button>
-  <button class="row-button" id="row4" onclick="selectRow(4)">Reihe 4</button>
-  <button class="row-button" id="row5" onclick="selectRow(5)">Reihe 5</button>
-  <button class="row-button" id="row6" onclick="selectRow(6)">Reihe 6</button>
-</div>
-    
-    
- <div class="table-selection">
+  <div class="table-selection">
     <button class="table-button" onclick="selectTable(1)">Tisch 1</button>
     <button class="table-button" onclick="selectTable(2)">Tisch 2</button>
     <button class="table-button" onclick="selectTable(3)">Tisch 3</button>
     <button class="table-button" onclick="selectTable(4)">Tisch 4</button>
-    <button class="table-button" onclick="selectTable(5)">Tisch 5</button> <!-- Neuer Tisch 5 -->
-    <button class="table-button" onclick="selectTable(6)">Tisch 6</button> <!-- Neuer Tisch 6 -->
-</div>
+    <button class="table-button" onclick="selectTable(5)">Tisch 5</button>
+    <button class="table-button" onclick="selectTable(6)">Tisch 6</button>
+  </div>
 
   <div class="person-container" id="personSelection"></div>
 
@@ -372,36 +365,25 @@
 
   <h3 class="total-sum">Gesamtsumme (€): <span id="totalSum">0.00</span>€</h3>
 
-<div class="button-container">
-  <button id="sendOrderButton">Jetzt bestellen</button>
-  <button onclick="togglePaymentDialog()">Zahlung</button>
-  <button onclick="resetOrder()">Neuer Kunde</button>
+  <div class="button-container">
+    <button id="sendOrderButton">Jetzt bestellen</button>
+    <button onclick="togglePaymentDialog()">Zahlung</button>
+    <button onclick="resetOrder()">Neuer Kunde</button>
   </div>
     
   <div class="payment-dialog" id="paymentDialog">
     <h3>Zahlung</h3>
       
-  <div class="row-selection">
-  <button class="row-button" onclick="selectRow(1)">Reihe 1</button>
-  <button class="row-button" onclick="selectRow(2)">Reihe 2</button>
-  <button class="row-button" onclick="selectRow(3)">Reihe 3</button>
-  <button class="row-button" onclick="selectRow(4)">Reihe 4</button>
-  <button class="row-button" onclick="selectRow(5)">Reihe 5</button>
-  <button class="row-button" onclick="selectRow(6)">Reihe 6</button>
-</div>
+    <div class="row-selection">
+      <button class="row-button" onclick="selectPaymentRow(1)">Reihe 1</button>
+      <button class="row-button" onclick="selectPaymentRow(2)">Reihe 2</button>
+      <button class="row-button" onclick="selectPaymentRow(3)">Reihe 3</button>
+      <button class="row-button" onclick="selectPaymentRow(4)">Reihe 4</button>
+      <button class="row-button" onclick="selectPaymentRow(5)">Reihe 5</button>
+      <button class="row-button" onclick="selectPaymentRow(6)">Reihe 6</button>
+    </div>
       
-      
-<!-- Für jede Reihe -->
-<div class="row-container" id="row1">
-  <div class="table-selection">
-    <button class="table-button" onclick="selectTable(1, 1)">Tisch 1</button>
-    <button class="table-button" onclick="selectTable(1, 2)">Tisch 2</button>
-    <button class="table-button" onclick="selectTable(1, 3)">Tisch 3</button>
-    <button class="table-button" onclick="selectTable(1, 4)">Tisch 4</button>
-    <button class="table-button" onclick="selectTable(1, 5)">Tisch 5</button>
-    <button class="table-button" onclick="selectTable(1, 6)">Tisch 6</button>
-  </div>
- 
+    <div class="table-selection" id="paymentTableSelection"></div>
     
     <div class="person-selection" id="paymentPersonSelection"></div>
     
@@ -428,7 +410,7 @@
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
-   const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
+    const socket = io('https://bedithek.onrender.com');
 
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
@@ -451,48 +433,41 @@
     ];
 
     let bedienungName = ''; 
-      let currentRow = 1;
+    let currentRow = 1;
     let currentTable = 1;
     let currentPerson = 1;
-  let tables = {
-    1: { persons: [{}, {}, {}, {}, {}, {}] },
-    2: { persons: [{}, {}, {}, {}, {}, {}] },
-    3: { persons: [{}, {}, {}, {}, {}, {}] },
-    4: { persons: [{}, {}, {}, {}, {}, {}] },
-    5: { persons: [{}, {}, {}, {}, {}, {}] },  // Neuer Tisch 5
-    6: { persons: [{}, {}, {}, {}, {}, {}] }   // Neuer Tisch 6
-};
-    let paymentDialogTable = 1;
+    let tables = {
+      1: { persons: [{}, {}, {}, {}, {}, {}] },
+      2: { persons: [{}, {}, {}, {}, {}, {}] },
+      3: { persons: [{}, {}, {}, {}, {}, {}] },
+      4: { persons: [{}, {}, {}, {}, {}, {}] },
+      5: { persons: [{}, {}, {}, {}, {}, {}] },
+      6: { persons: [{}, {}, {}, {}, {}, {}] }
+    };
+    let selectedRow = null;
+    let selectedPaymentTable = null;
     let selectedPersons = [];
-let sentOrders = {
-    1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}  // Für Tische 1 bis 6
-};
+    let sentOrders = {
+      1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}
+    };
 
+    function selectRow(rowNumber) {
+      currentRow = rowNumber;
+      document.querySelectorAll('.row-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`#row${rowNumber}`).classList.add('active');
+    }
 
-
-      function selectRow(rowNumber) {
-  currentRow = rowNumber;
-  document.querySelectorAll('.row-button').forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`#row${rowNumber}`).classList.add('active');
-  // Füge hier weitere Logik hinzu, um mit der Auswahl der Reihe fortzufahren
-}
-      
-      
-      
-      
-      
-      function selectTable(tableNumber) {
-  currentTable = tableNumber;
-  currentPerson = 1;
-  document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
-  renderPersonButtons();
-  renderOrder();
-  // Initialisieren Sie sentOrders für den neuen Tisch, falls noch nicht vorhanden
-  if (!sentOrders[currentTable]) {
-    sentOrders[currentTable] = {};
-  }
-}
+    function selectTable(tableNumber) {
+      currentTable = tableNumber;
+      currentPerson = 1;
+      document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
+      renderPersonButtons();
+      renderOrder();
+      if (!sentOrders[currentTable]) {
+        sentOrders[currentTable] = {};
+      }
+    }
 
     function renderPersonButtons() {
       const personSelection = document.getElementById("personSelection");
@@ -517,25 +492,86 @@ let sentOrders = {
       }
     }
 
-      
-      function selectPerson(personNumber) {
-  currentPerson = personNumber;
-  document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
-  renderOrder();
-  // Initialisieren Sie sentOrders für die neue Person, falls noch nicht vorhanden
-  if (!sentOrders[currentTable][currentPerson]) {
-    sentOrders[currentTable][currentPerson] = {};
-  }
-}
+    function selectPerson(personNumber) {
+      currentPerson = personNumber;
+      document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
+      renderOrder();
+      if (!sentOrders[currentTable][currentPerson]) {
+        sentOrders[currentTable][currentPerson] = {};
+      }
+    }
 
     function togglePaymentDialog() {
       const dialog = document.getElementById("paymentDialog");
-      paymentDialogTable = currentTable;
+      selectedRow = null;
+      selectedPaymentTable = null;
       selectedPersons = [];
       updatePaymentPersonSelection();
       updatePaymentTotal();
       dialog.style.display = (dialog.style.display === "none" || dialog.style.display === "") ? "block" : "none";
+    }
+
+    function selectPaymentRow(rowNumber) {
+      selectedRow = rowNumber;
+      document.querySelectorAll('.payment-dialog .row-button').forEach(btn => btn.classList.remove('selected'));
+      document.querySelector(`.payment-dialog .row-button:nth-child(${rowNumber})`).classList.add('selected');
+      updatePaymentTableSelection();
+    }
+
+    function updatePaymentTableSelection() {
+      const tableContainer = document.getElementById("paymentTableSelection");
+      tableContainer.innerHTML = '';
+      for (let i = 1; i <= 6; i++) {
+        const button = document.createElement('button');
+        button.textContent = `Tisch ${i}`;
+        button.className = 'table-button';
+        button.onclick = () => selectPaymentTable(i);
+        tableContainer.appendChild(button);
+      }
+    }
+
+    function selectPaymentTable(tableNumber) {
+      selectedPaymentTable = tableNumber;
+      document.querySelectorAll('.payment-dialog .table-button').forEach(btn => btn.classList.remove('selected'));
+      document.querySelector(`.payment-dialog .table-button:nth-child(${tableNumber})`).classList.add('selected');
+      updatePaymentPersonSelection();
+    }
+
+    function updatePaymentPersonSelection() {
+      const container = document.getElementById("paymentPersonSelection");
+      container.innerHTML = "";
+      
+      for (let i = 1; i <= 6; i++) {
+        const button = document.createElement("button");
+        button.textContent = `Person ${i}`;
+        button.className = `person-button ${selectedPersons.includes(i) ? 'selected' : ''}`;
+        button.onclick = () => togglePaymentPerson(i);
+        container.appendChild(button);
+      }
+    }
+
+    function togglePaymentPerson(personNumber) {
+      const index = selectedPersons.indexOf(personNumber);
+      if (index === -1) {
+        selectedPersons.push(personNumber);
+      } else {
+        selectedPersons.splice(index, 1);
+      }
+      updatePaymentTotal();
+      updatePaymentPersonSelection();
+    }
+
+    function updatePaymentTotal() {
+      let total = 0;
+      if (selectedPaymentTable && selectedPersons.length > 0) {
+        selectedPersons.forEach(person => {
+          const personOrder = tables[selectedPaymentTable].persons[person - 1];
+          total += Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
+        });
+      }
+      document.getElementById("paymentAmountToPay").textContent = total.toFixed(2);
+      updateChange();
     }
 
     function addNumber(num) {
@@ -589,116 +625,73 @@ let sentOrders = {
       }
     }
 
-  function renderOrder() {
-  const tbody = document.querySelector("#orderTable tbody");
-  tbody.innerHTML = "";
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
-  
-  // Iteriere über die Produkte und füge die Markierung für die ausgewählte Person hinzu
-  Object.values(personOrder).forEach(product => {
-    const row = document.createElement("tr");
-    row.classList.add('order-row'); // Standardklasse für eine Zeile
-    
-    // Hier wird überprüft, ob dieses Produkt für die aktuelle Person markiert werden soll
-    if (selectedPersons.includes(currentPerson)) {
-      row.classList.add('selected-order-row'); // Füge die Markierung hinzu
+    function renderOrder() {
+      const tbody = document.querySelector("#orderTable tbody");
+      tbody.innerHTML = "";
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      
+      Object.values(personOrder).forEach(product => {
+        const row = document.createElement("tr");
+        row.classList.add('order-row');
+        
+        if (selectedPersons.includes(currentPerson)) {
+          row.classList.add('selected-order-row');
+        }
+        
+        row.innerHTML = `
+          <td>${product.name}</td>
+          <td class="quantity-controls">
+            <button onclick="adjustQuantity('${product.name}', -1)">-</button>
+            ${product.quantity}
+            <button onclick="adjustQuantity('${product.name}', 1)">+</button>
+          </td>
+          <td>${product.price.toFixed(2)}</td>
+          <td>${(product.price * product.quantity).toFixed(2)}</td>
+        `;
+        
+        tbody.appendChild(row);
+      });
+      
+      document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
     }
-    
-    row.innerHTML = `
-      <td>${product.name}</td>
-      <td class="quantity-controls">
-        <button onclick="adjustQuantity('${product.name}', -1)">-</button>
-        ${product.quantity}
-        <button onclick="adjustQuantity('${product.name}', 1)">+</button>
-      </td>
-      <td>${product.price.toFixed(2)}</td>
-      <td>${(product.price * product.quantity).toFixed(2)}</td>
-    `;
-    
-    tbody.appendChild(row);
-  });
-  
-  // Berechne den Gesamtbetrag
-  document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
-}
 
     function calculateTotal() {
       const personOrder = tables[currentTable].persons[currentPerson - 1];
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-  function sendOrderToTheke() {
-  const orderData = {
-    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`, // Hier die Reihen-Nummer und die Tisch- sowie Person-Nummer hinzufügen
-    row: currentRow, // Hier die Reihen-Nummer
-    table: currentTable,
-    person: currentPerson,
-    order: {}
-  };
+    function sendOrderToTheke() {
+      const orderData = {
+        bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`,
+        row: currentRow,
+        table: currentTable,
+        person: currentPerson,
+        order: {}
+      };
 
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
-  let hasNewItems = false;
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      let hasNewItems = false;
 
-  for (const [productName, product] of Object.entries(personOrder)) {
-    const orderId = `${productName}`;
-    const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
-    
-    if (product.quantity > previousQuantity) {
-      const newQuantity = product.quantity - previousQuantity;
-      orderData.order[productName] = { ...product, quantity: newQuantity };
-      sentOrders[currentTable][currentPerson][orderId] = product.quantity;
-      hasNewItems = true;
-    }
-  }
-
-  if (hasNewItems) {
-    socket.emit('neworder', orderData); // Bestellung wird an die Theke gesendet
-    console.log('Neue Bestellung gesendet:', orderData);
-    alert('Bestellung wurde an die Theke gesendet.');
-  } else {
-    console.log('Keine neuen Produkte zum Senden.');
-    alert('Keine neuen Produkte zum Senden.');
-  }
-}
-
-    function selectPaymentTable(tableNumber) {
-      paymentDialogTable = tableNumber;
-      updatePaymentPersonSelection();
-      updatePaymentTotal();
-    }
-
-    function updatePaymentPersonSelection() {
-      const container = document.getElementById("paymentPersonSelection");
-      container.innerHTML = "";
-      
-      for (let i = 1; i <= 6; i++) {
-        const button = document.createElement("button");
-        button.textContent = `Person ${i}`;
-        button.className = `person-button ${selectedPersons.includes(i) ? 'active' : ''}`;
-        button.onclick = () => togglePaymentPerson(i);
-        container.appendChild(button);
+      for (const [productName, product] of Object.entries(personOrder)) {
+        const orderId = `${productName}`;
+        const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
+        
+        if (product.quantity > previousQuantity) {
+          const newQuantity = product.quantity - previousQuantity;
+          orderData.order[productName] = { ...product, quantity: newQuantity };
+          sentOrders[currentTable][currentPerson][orderId] = product.quantity;
+          hasNewItems = true;
+        }
       }
-    }
 
-    function togglePaymentPerson(personNumber) {
-      const index = selectedPersons.indexOf(personNumber);
-      if (index === -1) {
-        selectedPersons.push(personNumber);
+      if (hasNewItems) {
+        socket.emit('neworder', orderData);
+        console.log('Neue Bestellung gesendet:', orderData);
+        alert('Bestellung wurde an die Theke gesendet.');
       } else {
-        selectedPersons.splice(index, 1);
+        console.log('Keine neuen Produkte zum Senden.');
+        alert('Keine neuen Produkte zum Senden.');
       }
-      updatePaymentTotal();
-      updatePaymentPersonSelection();
-    }
-
-    function updatePaymentTotal() {
-      let total = 0;
-      selectedPersons.forEach(person => {
-        const personOrder = tables[paymentDialogTable].persons[person - 1];
-        total += Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
-      });
-      document.getElementById("paymentAmountToPay").textContent = total.toFixed(2);
-      updateChange();
     }
 
     function completePayment() {
@@ -707,19 +700,17 @@ let sentOrders = {
         return;
       }
 
-selectedPersons.forEach(person => {
-        // Bestellung für die Person löschen
-        tables[paymentDialogTable].persons[person - 1] = {};
-        // Signal an den Server senden, dass die Bestellung bezahlt wurde
+      selectedPersons.forEach(person => {
+        tables[selectedPaymentTable].persons[person - 1] = {};
         socket.emit('orderPaid', {
-            table: paymentDialogTable,
+            table: selectedPaymentTable,
             person: person,
-            row: currentRow, // Zeilen-Nummer hinzufügen
+            row: selectedRow,
         });
-    });
+      });
       
       saveOrdersToLocalStorage();
-      alert(`Zahlung für Tisch ${paymentDialogTable}, Personen ${selectedPersons.join(', ')} abgeschlossen!`);
+      alert(`Zahlung für Tisch ${selectedPaymentTable}, Personen ${selectedPersons.join(', ')} abgeschlossen!`);
       selectedPersons = [];
       renderOrder();
       togglePaymentDialog();
@@ -778,7 +769,7 @@ selectedPersons.forEach(person => {
         e.preventDefault();
         this.disabled = true;
         sendOrderToTheke();
-        setTimeout(() => this.disabled = false, 2000); // Re-enable after 2 seconds
+        setTimeout(() => this.disabled = false, 2000);
       });
     };
   </script>
