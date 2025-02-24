@@ -102,12 +102,12 @@
                 <p class="order-time">Zeit: ${new Date().toLocaleTimeString()}</p>
                 <p class="order-info">
                     <span>Bedienung:</span> ${orderData.bedienung || 'Unbekannt'} | 
-                    <span>Reihe:</span> ${orderData.row || 'Unbekannt'} | 
-                    <span>Tisch:</span> ${orderData.table}, <span>Person:</span> ${orderData.person}
+                    <span>Reihe:</span> ${orderData.reihe || 'Unbekannt'} | 
+                    <span>Tisch:</span> ${orderData.tisch}, <span>Person:</span> ${orderData.person}
                 </p>
                 <ul>
-                    ${orderData.items.map(product => `
-                        <li>${product.quantity}x ${product.name} - ${product.price.toFixed(2)} €</li>
+                    ${orderData.artikel.map(product => `
+                        <li>${product.menge}x ${product.name} - ${product.preis.toFixed(2)} €</li>
                     `).join('')}
                 </ul>
                 <button class="complete-btn" onclick="markAsCompleted('${orderId}')">Erledigt</button>
@@ -125,8 +125,8 @@
 
                 // Bestellung als erledigt markieren
                 socket.emit('markOrderCompleted', {
-                    row: orderItem.querySelector('.order-info span:nth-child(2)').textContent.split(':')[1].trim(),
-                    table: orderItem.querySelector('.order-info span:nth-child(4)').textContent.split(':')[1].trim(),
+                    reihe: orderItem.querySelector('.order-info span:nth-child(2)').textContent.split(':')[1].trim(),
+                    tisch: orderItem.querySelector('.order-info span:nth-child(4)').textContent.split(':')[1].trim(),
                     person: orderItem.querySelector('.order-info span:nth-child(6)').textContent.split(':')[1].trim()
                 });
             }
@@ -147,7 +147,7 @@
         // Bestellung bezahlt
         socket.on('orderPaid', function(paymentData) {
             console.log('Bestellung bezahlt:', paymentData);
-            const orderId = `${paymentData.row}-${paymentData.table}-${paymentData.person}`;
+            const orderId = `${paymentData.reihe}-${paymentData.tisch}-${paymentData.person}`;
             const orderItem = document.getElementById(orderId);
             if (orderItem) {
                 orderItem.classList.add('paid');
