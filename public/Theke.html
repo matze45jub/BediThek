@@ -106,14 +106,25 @@
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
-    const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server
+    const socket = io('https://bedithek.onrender.com'); 
 
-    socket.on('neworder', (orderData) => {
-      const orderList = document.getElementById('orderList');
+socket.on('connect', () => {
+  console.log('✅ Verbindung zum Server erfolgreich hergestellt.');
+});
 
-      // Erstelle eine neue Bestellung
-      const orderElement = document.createElement('div');
-      orderElement.classList.add('order-item');
+socket.on('disconnect', () => {
+  console.warn('⚠️ Verbindung zum Server verloren.');
+});
+
+socket.on('neworder', (orderData) => {
+  console.log('📩 Neue Bestellung empfangen:', orderData);
+  
+  const orderList = document.getElementById('orderList');
+
+  // Erstelle eine neue Bestellung
+  const orderElement = document.createElement('div');
+  orderElement.classList.add('order-item');
+});
       
       // Bestellstatus initialisieren
       orderElement.classList.add(orderData.status || ''); // Optionaler Status, z.B. 'completed', 'paid'
