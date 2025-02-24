@@ -26,6 +26,9 @@
         .order-item.completed {
             background-color: #e6ffe6;
         }
+        .order-item.paid {
+            background-color: #ffcccc;
+        }
         #orderList {
             max-width: 600px;
             margin: 0 auto;
@@ -43,6 +46,10 @@
         }
         .complete-btn:hover {
             background-color: #45a049;
+        }
+        .complete-btn:disabled {
+            background-color: #888;
+            cursor: not-allowed;
         }
         .order-time {
             font-weight: bold;
@@ -63,10 +70,11 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <script>
         console.log('Theke.html Skript geladen');
-        const socket = io('https://bedithek.onrender.com');
+        const socket = io(); // Automatische Verbindung zum Server
 
         socket.on('connect', () => {
             console.log('Verbunden mit dem Server');
+            socket.emit('requestInitialData'); // Alle Bestellungen abrufen
         });
 
         socket.on('disconnect', () => {
@@ -77,10 +85,19 @@
             console.error('Verbindungsfehler:', error);
         });
 
-        function displayOrder(orderData) {
+        function displayOrder(orderId, orderData) {
             const orderList = document.getElementById('orderList');
+
+            // Prüfen, ob die Bestellung bereits existiert
+            let existingOrder = document.getElementById(orderId);
+            if (existingOrder) {
+                existingOrder.remove();
+            }
+
             const orderItem = document.createElement('div');
             orderItem.className = 'order-item';
+            orderItem.id = orderId;
+
             orderItem.innerHTML = `
                 <p class="order-time">Zeit: ${new Date().toLocaleTimeString()}</p>
                 <p class="order-info">
@@ -89,45 +106,49 @@
                     <span>Tisch:</span> ${orderData.table}, <span>Person:</span> ${orderData.person}
                 </p>
                 <ul>
-                    ${Object.entries(orderData.order).map(([productName, product]) => `
-                        <li>${product.quantity}x ${productName} - ${product.price.toFixed(2)} €</li>
+                    ${orderData.items.map(product => `
+                        <li>${product.quantity}x ${product.name} - ${product.price.toFixed(2)} €</li>
                     `).join('')}
                 </ul>
-                <button class="complete-btn" onclick="markAsCompleted(this)">Erledigt</button>
+                <button class="complete-btn" onclick="markAsCompleted('${orderId}')">Erledigt</button>
             `;
             orderList.insertBefore(orderItem, orderList.firstChild);
         }
 
-        function markAsCompleted(button) {
-            const orderItem = button.closest('.order-item');
-            orderItem.classList.add('completed');
-            button.textContent = 'Erledigt';
-            button.disabled = true;
+        function markAsCompleted(orderId) {
+            const orderItem = document.getElementById(orderId);
+            if (orderItem) {
+                orderItem.classList.add('completed');
+                const button = orderItem.querySelector('.complete-btn');
+                button.textContent = 'Erledigt';
+                button.disabled = true;
+            }
         }
 
-        socket.on('neworder', function(orderData) {
-            console.log('Neue Bestellung erhalten:', orderData);
-            displayOrder(orderData);
+        // Neue Bestellung empfangen
+        socket.on('updateOrders', function(allOrders) {
+            console.log('Alle Bestellungen aktualisiert:', allOrders);
+
+            // Lösche alle Bestellungen und zeige die neuen an
+            document.getElementById('orderList').innerHTML = '';
+
+            Object.entries(allOrders).forEach(([orderId, orderData]) => {
+                displayOrder(orderId, orderData);
+            });
         });
 
         // Bestellung bezahlt
-        socket.on('orderPaid', function(orderData) {
-            console.log('Bestellung bezahlt:', orderData);
-            
-            // Suche die Bestellung in der Liste und markiere sie rot
-            const orderItems = document.querySelectorAll('.order-item');
-            orderItems.forEach(orderItem => {
-                const orderInfo = orderItem.querySelector('.order-info');
-                if (orderInfo) {
-                    const tableText = orderInfo.textContent.includes(`Tisch: ${orderData.table}, Person: ${orderData.person}`);
-                    if (tableText) {
-                        orderItem.style.backgroundColor = 'red'; // Bestellung rot färben
-                        orderItem.querySelector('.complete-btn').disabled = true; // Button deaktivieren
-                    }
-                }
-            });
+        socket.on('orderPaid', function(paymentData) {
+            console.log('Bestellung bezahlt:', paymentData);
+            const orderId = `${paymentData.row}-${paymentData.table}-${paymentData.person}`;
+            const orderItem = document.getElementById(orderId);
+            if (orderItem) {
+                orderItem.classList.add('paid');
+                const button = orderItem.querySelector('.complete-btn');
+                if (button) button.disabled = true;
+            }
         });
-    </script>
 
+    </script>
 </body>
 </html>
