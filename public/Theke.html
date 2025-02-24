@@ -44,6 +44,9 @@
     .order button:hover {
       background-color: #2ecc71;
     }
+    .order-details {
+      flex: 1;
+    }
   </style>
 </head>
 <body>
@@ -66,11 +69,19 @@
       // Erstelle eine neue Bestellungselement
       const orderElement = document.createElement('div');
       orderElement.classList.add('order');
+      
+      // Bestell-Details aus den übergebenen Daten formatieren
+      const itemsDetails = Object.entries(orderData.order).map(([name, item]) => `${item.quantity}x ${name}`).join('<br>');
+
       orderElement.innerHTML = `
-        <div>
+        <div class="order-details">
           <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}
           <br>Bestellzeit: ${new Date(orderData.timestamp).toLocaleString()}
-          <br>Produkte: ${Object.entries(orderData.order).map(([name, item]) => `${item.quantity}x ${name}`).join(', ')}
+          <br>Produkte: ${itemsDetails}
+          <br><br>
+          Gesamtpreis: ${orderData.totalPrice}
+          <br>Gesamtpfand: ${orderData.totalDeposit}
+          <br>Gesamtbetrag: ${orderData.totalAmount}
         </div>
         <button onclick="markAsServed(${orderData.table}, ${orderData.person})">Serviert</button>
       `;
@@ -80,11 +91,21 @@
 
     // Funktion zum Markieren einer Bestellung als serviert
     function markAsServed(table, person) {
-      // Markiere die Bestellung als serviert, z.B. durch eine Visualisierung oder durch Senden einer Bestätigung
+      // Markiere die Bestellung als serviert
       socket.emit('orderserved', { table, person });
       alert(`Bestellung für Tisch ${table}, Person ${person} als serviert markiert.`);
-      // Hier kann eine Methode zum Entfernen oder Markieren der Bestellung aus der Liste eingebaut werden
+      
+      // Optional: Hier könnte die Bestellung aus der Liste entfernt werden
+      // Beispiel: entferne die Bestellung aus der Ansicht, wenn sie serviert wurde
+      const orderElements = document.querySelectorAll('.order');
+      orderElements.forEach((orderElement) => {
+        const orderPerson = orderElement.querySelector('strong').textContent.match(/Person: (\d+)/)[1];
+        if (orderPerson == person) {
+          orderElement.style.display = 'none'; // Bestellung ausblenden
+        }
+      });
     }
   </script>
+
 </body>
 </html>
