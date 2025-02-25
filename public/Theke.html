@@ -121,6 +121,10 @@
     ? new Date(Number(orderData.timestamp)).toLocaleString() 
     : "Zeit unbekannt";
 
+   
+  // 🆕 Bedienung abrufen (falls nicht vorhanden, "Unbekannt" anzeigen)
+   const bedienungName = orderData.bedienung ? orderData.bedienung : "Unbekannt";
+
   // Bestellung anzeigen
   orderElement.innerHTML = `
     <div>
