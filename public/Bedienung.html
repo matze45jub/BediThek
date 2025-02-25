@@ -642,7 +642,7 @@ let sentOrders = {
   if (!sentOrders[currentTable][currentPerson]) sentOrders[currentTable][currentPerson] = {};
 
   const orderData = {
-    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`,
+    bedienung: bedienungName || "Unbekannt", // Falls nicht gesetzt, "Unbekannt" als Fallback
     timestamp: Date.now(), // ✅ Aktuelle Zeit als Timestamp hinzufügen
     row: currentRow,       // ✅ Reihen-Nummer
     table: currentTable,   // ✅ Tisch-Nummer
