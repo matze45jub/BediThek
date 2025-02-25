@@ -630,13 +630,14 @@ let sentOrders = {
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-  function sendOrderToTheke() {
+  ffunction sendOrderToTheke() {
   const orderData = {
     bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`, // Hier die Reihen-Nummer und die Tisch- sowie Person-Nummer hinzufügen
     row: currentRow, // Hier die Reihen-Nummer
     table: currentTable,
     person: currentPerson,
-    order: {}
+    order: {},
+    timestamp: Date.now() // Zeitstempel hinzufügen
   };
 
   const personOrder = tables[currentTable].persons[currentPerson - 1];
@@ -653,6 +654,8 @@ let sentOrders = {
       hasNewItems = true;
     }
   }
+
+}
 
   if (hasNewItems) {
     socket.emit('neworder', orderData); // Bestellung wird an die Theke gesendet
