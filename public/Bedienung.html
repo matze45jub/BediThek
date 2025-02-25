@@ -630,13 +630,24 @@ let sentOrders = {
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-  function sendOrderToTheke() {
+ function sendOrderToTheke() {
+  if (!currentRow || !currentTable || !currentPerson) {
+    console.error("❌ Fehler: Reihen-, Tisch- oder Person-Nummer fehlt!");
+    alert("Bitte Reihe, Tisch und Person auswählen!");
+    return;
+  }
+
+  // Sicherstellen, dass sentOrders[currentTable][currentPerson] existiert
+  if (!sentOrders[currentTable]) sentOrders[currentTable] = {};
+  if (!sentOrders[currentTable][currentPerson]) sentOrders[currentTable][currentPerson] = {};
+
   const orderData = {
-    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`, // Hier die Reihen-Nummer und die Tisch- sowie Person-Nummer hinzufügen
-    row: currentRow, // Hier die Reihen-Nummer
-    table: currentTable,
-    person: currentPerson,
-    order: {}
+    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`,
+    timestamp: Date.now(), // ✅ Aktuelle Zeit als Timestamp hinzufügen
+    row: currentRow,       // ✅ Reihen-Nummer
+    table: currentTable,   // ✅ Tisch-Nummer
+    person: currentPerson, // ✅ Personen-Nummer
+    order: {}              // ✅ Bestellung wird hier gefüllt
   };
 
   const personOrder = tables[currentTable].persons[currentPerson - 1];
@@ -645,7 +656,7 @@ let sentOrders = {
   for (const [productName, product] of Object.entries(personOrder)) {
     const orderId = `${productName}`;
     const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
-    
+
     if (product.quantity > previousQuantity) {
       const newQuantity = product.quantity - previousQuantity;
       orderData.order[productName] = { ...product, quantity: newQuantity };
@@ -655,15 +666,14 @@ let sentOrders = {
   }
 
   if (hasNewItems) {
-    socket.emit('neworder', orderData); // Bestellung wird an die Theke gesendet
-    console.log('Neue Bestellung gesendet:', orderData);
-    alert('Bestellung wurde an die Theke gesendet.');
+    socket.emit("sendOrder", orderData); // ✅ Bestellung wird an die Theke gesendet
+    console.log("📦 Neue Bestellung gesendet:", orderData);
+    alert("Bestellung wurde an die Theke gesendet.");
   } else {
-    console.log('Keine neuen Produkte zum Senden.');
-    alert('Keine neuen Produkte zum Senden.');
+    console.log("⚠️ Keine neuen Produkte zum Senden.");
+    alert("Keine neuen Produkte zum Senden.");
   }
 }
-
     function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
       updatePaymentPersonSelection();
