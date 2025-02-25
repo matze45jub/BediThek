@@ -99,50 +99,47 @@
       addOrderToList(orderData); // Funktion für die Anzeige von Bestellungen aufrufen
     });
 
- function addOrderToList(orderData) {
-  const orderList = document.getElementById('orderList');
-  
-  // Debugging - Überprüfe, ob der Timestamp korrekt übergeben wird
-  console.log('Timestamp:', orderData.timestamp);
+    function addOrderToList(orderData) {
+      const orderList = document.getElementById('orderList');
+      
+      // Debugging - Überprüfe, ob der Timestamp korrekt übergeben wird
+      console.log('Timestamp:', orderData.timestamp);
 
-  if (!orderData || !orderData.order) {
-    console.error('❌ Fehler: orderData.order ist nicht definiert!');
-    return;
-  }
+      if (!orderData || !orderData.order) {
+        console.error('❌ Fehler: orderData.order ist nicht definiert!');
+        return;
+      }
 
-  const orderElement = document.createElement('div');
-  orderElement.classList.add('order-item');
-  if (orderData.status) {
-    orderElement.classList.add(orderData.status);
-  }
+      const orderElement = document.createElement('div');
+      orderElement.classList.add('order-item');
+      if (orderData.status) {
+        orderElement.classList.add(orderData.status);
+      }
 
-  // Überprüfe, ob der Timestamp existiert und gültig ist
-  const timestamp = orderData.timestamp 
-    ? new Date(Number(orderData.timestamp)).toLocaleString() 
-    : "Zeit unbekannt";
+      // Überprüfe, ob der Timestamp existiert und gültig ist
+      const timestamp = orderData.timestamp 
+        ? new Date(Number(orderData.timestamp)).toLocaleString() 
+        : "Zeit unbekannt";
 
-   
-  // 🆕 Bedienung abrufen (falls nicht vorhanden, "Unbekannt" anzeigen)
-   const bedienungName = orderData.bedienung ? orderData.bedienung : "Unbekannt";
+      // Bestellung anzeigen
+      orderElement.innerHTML = `
+        <div>
+          <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
+          Bestellzeit: ${timestamp}<br>
+          Bedienung: ${orderData.bedienung}<br>  <!-- Hier wird der Name der Bedienung hinzugefügt -->
+          Produkte: ${Object.values(orderData.order)
+            .map(item => `${item.quantity}x ${item.name}`)
+            .join(', ')}
+        </div>
+        <div class="button-container">
+          <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
+          <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Bezahlt</button>
+        </div>
+      `;
 
-  // Bestellung anzeigen
-  orderElement.innerHTML = `
-    <div>
-      <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
-      Bestellzeit: ${timestamp}<br>
-      Produkte: ${Object.values(orderData.order)
-        .map(item => `${item.quantity}x ${item.name}`)
-        .join(', ')}
-    </div>
-    <div class="button-container">
-      <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
-      <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Bezahlt</button>
-    </div>
-  `;
-
-  console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
-  orderList.appendChild(orderElement);
-}
+      console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
+      orderList.appendChild(orderElement);
+    }
 
     function markAsCompleted(row, table, person, button) {
       socket.emit('markOrderCompleted', { row, table, person });
