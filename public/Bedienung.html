@@ -33,14 +33,14 @@
 }
       
       
-..row-buttons {
+.row-buttons {
   display: flex;
+  justify-content: center; 
   flex-wrap: wrap; /* Stellt sicher, dass Buttons umbrechen */
   justify-content: center;
   gap: 10px;
   margin-bottom: 10px;
 }
-
 
 .row-button {
   padding: 10px 20px;
@@ -55,6 +55,7 @@
   max-width: 150px;
 }
 
+    
 .button-disabled {
   background-color: #d3d3d3; /* Grauer Hintergrund */
   color: #808080; /* Graue Schriftfarbe */
@@ -62,8 +63,7 @@
   pointer-events: none; /* Deaktiviert den Klick auf den Button */
 }      
       
-      
-      
+           
       
 .row-button.active {
   background-color: #ddd; /* Helles Grau */
