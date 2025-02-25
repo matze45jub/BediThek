@@ -6,7 +6,7 @@ const socketIo = require('socket.io');
 // Initialisiere Express und den Server
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server); // ✅ Nur einmal definieren!
 
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
@@ -26,37 +26,37 @@ app.get('/theke', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Theke.html'));
 });
 
-// Socket.io-Setup
+// ✅ WebSocket-Verbindung
 io.on('connection', (socket) => {
-  console.log('Ein Benutzer ist verbunden.');
+  console.log('🔗 Ein Client hat sich verbunden');
 
-  // Wenn eine neue Bestellung gesendet wird
-  socket.on('neworder', (orderData) => {
-    console.log('Neue Bestellung erhalten:', orderData);
-    // Sende die Bestellung an alle verbundenen Clients (z.B. Thekenseite)
-    io.emit('neworder', orderData);
+  // Bestellung empfangen
+  socket.on('sendOrder', (orderData) => {
+    orderData.timestamp = Date.now(); // ✅ Zeitstempel hinzufügen
+    console.log('📦 Bestellung erhalten:', orderData);
+    io.emit('neworder', orderData); // ✅ Bestellung an alle Clients senden
   });
 
-  // Wenn eine Bestellung als erledigt markiert wird
+  // Bestellung als erledigt markieren
   socket.on('markOrderCompleted', (orderDetails) => {
-    console.log('Bestellung erledigt:', orderDetails);
+    console.log('✅ Bestellung erledigt:', orderDetails);
     io.emit('orderCompleted', orderDetails);
   });
 
-  // Wenn eine Bestellung als bezahlt markiert wird
+  // Bestellung als bezahlt markieren
   socket.on('orderPaid', (orderDetails) => {
-    console.log('Bestellung bezahlt:', orderDetails);
+    console.log('💰 Bestellung bezahlt:', orderDetails);
     io.emit('orderPaid', orderDetails);
   });
 
-  // Wenn der Benutzer die Verbindung trennt
+  // Benutzer trennt Verbindung
   socket.on('disconnect', () => {
-    console.log('Ein Benutzer hat die Verbindung getrennt.');
+    console.log('⚠️ Ein Benutzer hat die Verbindung getrennt.');
   });
 });
 
-// Server starten und auf Anfragen hören
+// Server starten
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`Server läuft auf Port ${PORT}`);
+  console.log(`🚀 Server läuft auf Port ${PORT}`);
 });
