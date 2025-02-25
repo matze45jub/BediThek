@@ -97,30 +97,26 @@
     // Empfang der Information, dass eine Bestellung bezahlt wurde
     socket.on('orderPaid', (orderData) => {
       console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
-      // Bestellung als bezahlt markieren und rot färben
+      
+      // Suche nach Bestellungen und markiere sie als bezahlt
       const orderItems = document.querySelectorAll('.order-item');
       
       orderItems.forEach(item => {
-        // Versuche, die starken Elemente zu bekommen
-        const strongElements = item.querySelectorAll('strong');
-        
-        if (strongElements.length >= 3) {
-          // Stelle sicher, dass du die richtigen Werte extrahierst
-          const rowText = strongElements[0]?.textContent || '';
-          const tableText = strongElements[1]?.textContent || '';
-          const personText = strongElements[2]?.textContent || '';
+        // Holen Sie die Reihe, den Tisch und die Person
+        const row = item.querySelector('strong:nth-child(1)');
+        const table = item.querySelector('strong:nth-child(2)');
+        const person = item.querySelector('strong:nth-child(3)');
 
-          // Trenne den Text, wenn die Daten vorhanden sind
-          const row = rowText.split(":")[1]?.trim() || '';
-          const table = tableText.split(":")[1]?.trim() || '';
-          const person = personText.split(":")[1]?.trim() || '';
+        if (row && table && person) {
+          // Vergleiche mit den erhaltenen Daten
+          const rowText = row.textContent.split(":")[1]?.trim();
+          const tableText = table.textContent.split(":")[1]?.trim();
+          const personText = person.textContent.split(":")[1]?.trim();
 
-          // Überprüfe, ob der Inhalt der Bestellung mit den empfangenen Daten übereinstimmt
-          if (row === orderData.row && table === orderData.table && person === orderData.person) {
-            item.classList.add('paid'); // Bestellung rot färben
+          // Wenn die Daten übereinstimmen, wird das Element rot eingefärbt
+          if (rowText === orderData.row && tableText === orderData.table && personText === orderData.person) {
+            item.classList.add('paid'); // Bestellung als bezahlt markieren
           }
-        } else {
-          console.warn('❌ Fehler: Die strong-Elemente sind nicht wie erwartet vorhanden!');
         }
       });
     });
@@ -128,7 +124,7 @@
     function addOrderToList(orderData) {
       const orderList = document.getElementById('orderList');
       
-      // Debugging - Überprüfe, ob der Timestamp korrekt übergeben wird
+      // Überprüfe, ob der Timestamp korrekt übergeben wird
       console.log('Timestamp:', orderData.timestamp);
 
       if (!orderData || !orderData.order) {
