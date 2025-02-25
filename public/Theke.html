@@ -8,7 +8,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
       background-color: #f8f9fa;
     }
 
@@ -70,6 +70,11 @@
       background-color: #dc3545;
       color: white;
     }
+
+    .order-info {
+      margin-bottom: 10px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -95,14 +100,26 @@
     });
 
     socket.on('neworder', (orderData) => {
-      console.log('📩 Bestellung in Theke empfangen:', orderData); // Debugging
-      addOrderToList(orderData); // Funktion für die Anzeige von Bestellungen aufrufen
+      console.log('📩 Bestellung in Theke empfangen:', orderData);
+      addOrderToList(orderData);
     });
+
+    function formatDate(date) {
+      if (!(date instanceof Date) || isNaN(date)) {
+        return "Ungültiges Datum";
+      }
+      return date.toLocaleString('de-DE', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    }
 
     function addOrderToList(orderData) {
       const orderList = document.getElementById('orderList');
       
-      // Überprüfe, ob das orderData-Objekt gültig ist
       console.log('📦 Empfangene Bestellung:', orderData);
 
       if (!orderData || !orderData.order) {
@@ -116,10 +133,15 @@
         orderElement.classList.add(orderData.status);
       }
 
+      const bedienungName = orderData.bedienung || "Unbekannt";
+      const bestellzeit = formatDate(new Date(orderData.timestamp));
+
       orderElement.innerHTML = `
+        <div class="order-info">
+          Bedienung: ${bedienungName} | Bestellzeit: ${bestellzeit}
+        </div>
         <div>
           <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
-          Bestellzeit: ${new Date(orderData.timestamp).toLocaleString()}<br>
           Produkte: ${Object.values(orderData.order).map(item => `${item.quantity}x ${item.name}`).join(', ')}
         </div>
         <div class="button-container">
