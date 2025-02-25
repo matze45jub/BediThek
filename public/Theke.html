@@ -8,7 +8,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 10px;
+      padding: 20px;
       background-color: #f8f9fa;
     }
 
@@ -104,10 +104,8 @@
       addOrderToList(orderData);
     });
 
-    function formatDate(date) {
-      if (!(date instanceof Date) || isNaN(date)) {
-        return "Ungültiges Datum";
-      }
+    function formatDate(timestamp) {
+      const date = new Date(Number(timestamp));
       return date.toLocaleString('de-DE', { 
         year: 'numeric', 
         month: '2-digit', 
@@ -134,7 +132,7 @@
       }
 
       const bedienungName = orderData.bedienung || "Unbekannt";
-      const bestellzeit = formatDate(new Date(orderData.timestamp));
+      const bestellzeit = formatDate(orderData.timestamp);
 
       orderElement.innerHTML = `
         <div class="order-info">
