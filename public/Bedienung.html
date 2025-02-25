@@ -423,6 +423,15 @@
   <script>
    const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
 
+     
+    socket.on('connect', () => {
+      console.log('✅ Bedienung-Verbindung zum Server hergestellt.');
+    });
+
+    socket.on('disconnect', () => {
+      console.warn('⚠️ Bedienung-Verbindung zum Server verloren.');
+    });
+
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
       { name: "Bratwurst mit Kraut", price: 8.5, category: "essen" },
