@@ -8,7 +8,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 10px;
+      padding: 20px;
       background-color: #f8f9fa;
     }
 
@@ -116,29 +116,16 @@
         orderElement.classList.add(orderData.status);
       }
 
-   orderElement.innerHTML = `
-  <div>
-    <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
-    Bestellzeit: ${formatDate(orderData.timestamp)}<br>
-    Produkte: ${Object.values(orderData.order).map(item => `${item.quantity}x ${item.name}`).join(', ')}
-  </div>
-  <div class="button-container">
-    <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
-    <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Bezahlt</button>
-  </div>
-`;
-
-function formatDate(timestamp) {
-  const date = new Date(Number(timestamp));
-  return date.toLocaleString('de-DE', { 
-    year: 'numeric', 
-    month: '2-digit', 
-    day: '2-digit', 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
-}
-
+      orderElement.innerHTML = `
+        <div>
+          <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
+          Bestellzeit: ${new Date(orderData.timestamp).toLocaleString()}<br>
+          Produkte: ${Object.values(orderData.order).map(item => `${item.quantity}x ${item.name}`).join(', ')}
+        </div>
+        <div class="button-container">
+          <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
+          <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Bezahlt</button>
+        </div>
       `;
 
       console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
