@@ -41,13 +41,13 @@
     }
 
     .order-item.completed {
-      background-color: #d4edda;
+      background-color: #d4edda; /* Grün für ausgegebene Bestellungen */
     }
 
     .order-item.paid {
-  background-color: #f8d7da; /* Rot für bezahlte Bestellungen */
-  border-color: #f5c6cb;
-}
+      background-color: #f8d7da; /* Rot für bezahlte Bestellungen */
+      border-color: #f5c6cb;
+    }
 
     .button-container {
       margin-top: 10px;
@@ -95,9 +95,26 @@
       console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
+    // Empfang von neuen Bestellungen
     socket.on('neworder', (orderData) => {
-      console.log('📩 Bestellung in Theke empfangen:', orderData); // Debugging
-      addOrderToList(orderData); // Funktion für die Anzeige von Bestellungen aufrufen
+      console.log('📩 Bestellung in Theke empfangen:', orderData); 
+      addOrderToList(orderData); // Bestellungen zur Anzeige hinzufügen
+    });
+
+    // Empfang der Information, dass eine Bestellung bezahlt wurde
+    socket.on('orderPaid', (orderData) => {
+      console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
+      // Bestellung als bezahlt markieren und rot färben
+      const orderItems = document.querySelectorAll('.order-item');
+      orderItems.forEach(item => {
+        const row = item.querySelector('strong').textContent.split(":")[1].trim();
+        const table = item.querySelector('strong').textContent.split(":")[2].trim();
+        const person = item.querySelector('strong').textContent.split(":")[3].trim();
+        
+        if (row === orderData.row && table === orderData.table && person === orderData.person) {
+          item.classList.add('paid'); // Bestellung rot färben
+        }
+      });
     });
 
     function addOrderToList(orderData) {
@@ -127,7 +144,7 @@
         <div>
           <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
           Bestellzeit: ${timestamp}<br>
-          Bedienung: ${orderData.bedienung}<br>  <!-- Hier wird der Name der Bedienung hinzugefügt -->
+          Bestellt von: ${orderData.bedienung}<br> <!-- Bedienung anzeigen -->
           Produkte: ${Object.values(orderData.order)
             .map(item => `${item.quantity}x ${item.name}`)
             .join(', ')}
@@ -148,14 +165,11 @@
       orderItem.classList.add('completed');
     }
 
-   function markAsPaid(row, table, person, button) {
-  socket.emit('orderPaid', { row, table, person });
-  
-  const orderItem = button.closest('.order-item');
-  orderItem.classList.add('paid'); // Bestellung als bezahlt markieren
-
-  console.log(`Bestellung für Reihe: ${row}, Tisch: ${table}, Person: ${person} als bezahlt markiert.`);
-}
+    function markAsPaid(row, table, person, button) {
+      socket.emit('orderPaid', { row, table, person });
+      const orderItem = button.closest('.order-item');
+      orderItem.classList.add('paid'); // Bestellung als bezahlt markieren
+    }
   </script>
 
 </body>
