@@ -158,20 +158,6 @@
       text-align: center;
     }
 
-    .product-button.active {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.product-button:active {
-  transform: translateY(2px);
-}
-  
-      
-      
-      
-      
-      
     .essen-button {
       background-color: #E74C3C;
       color: white;
@@ -476,35 +462,6 @@ let sentOrders = {
 };
 
 
-  function checkProductAvailability() {
-  products.forEach(product => {
-    const button = document.querySelector(`.product-button:contains("${product.name}")`);
-    if (button) {
-      if (product.available) {
-        button.classList.remove('button-disabled');
-      } else {
-        button.classList.add('button-disabled');
-      }
-    }
-  });
-}
-    
-   function addProductToOrder(name) {
-  const product = products.find(p => p.name === name);
-  if (product) {
-    const personOrder = tables[currentTable].persons[currentPerson - 1];
-    if (personOrder[name]) {
-      personOrder[name].quantity++;
-    } else {
-      personOrder[name] = { ...product, quantity: 1 };
-    }
-    renderOrder();
-    saveOrdersToLocalStorage();
-  }
-}
-   
-      
-      
 
       function selectRow(rowNumber) {
   currentRow = rowNumber;
@@ -598,8 +555,7 @@ let sentOrders = {
     }
 
     function addProductToOrder(name) {
- console.log("Adding product to order:", name);
-        const product = products.find(p => p.name === name);
+      const product = products.find(p => p.name === name);
       if (product) {
         const personOrder = tables[currentTable].persons[currentPerson - 1];
         const existingProduct = personOrder[name];
@@ -626,55 +582,37 @@ let sentOrders = {
       }
     }
 
- function renderOrder() {
-  console.log("Rendering order");
+  function renderOrder() {
   const tbody = document.querySelector("#orderTable tbody");
-  const fragment = document.createDocumentFragment();
+  tbody.innerHTML = "";
+  const personOrder = tables[currentTable].persons[currentPerson - 1];
   
-  try {
-    const personOrder = tables[currentTable]?.persons[currentPerson - 1] || {};
+  // Iteriere über die Produkte und füge die Markierung für die ausgewählte Person hinzu
+  Object.values(personOrder).forEach(product => {
+    const row = document.createElement("tr");
+    row.classList.add('order-row'); // Standardklasse für eine Zeile
     
-    Object.values(personOrder).forEach(product => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${escapeHtml(product.name)}</td>
-        <td class="quantity-controls">
-          <button class="quantity-btn" data-product="${escapeHtml(product.name)}" data-action="decrease" aria-label="Menge verringern">-</button>
-          <span class="quantity">${product.quantity}</span>
-          <button class="quantity-btn" data-product="${escapeHtml(product.name)}" data-action="increase" aria-label="Menge erhöhen">+</button>
-        </td>
-        <td>${product.price.toFixed(2)}</td>
-        <td>${(product.price * product.quantity).toFixed(2)}</td>
-      ; 
-      fragment.appendChild(row);
-    });
+    // Hier wird überprüft, ob dieses Produkt für die aktuelle Person markiert werden soll
+    if (selectedPersons.includes(currentPerson)) {
+      row.classList.add('selected-order-row'); // Füge die Markierung hinzu
+    }
     
-    tbody.innerHTML = "";
-    tbody.appendChild(fragment);
+    row.innerHTML = `
+      <td>${product.name}</td>
+      <td class="quantity-controls">
+        <button onclick="adjustQuantity('${product.name}', -1)">-</button>
+        ${product.quantity}
+        <button onclick="adjustQuantity('${product.name}', 1)">+</button>
+      </td>
+      <td>${product.price.toFixed(2)}</td>
+      <td>${(product.price * product.quantity).toFixed(2)}</td>
+    `;
     
-    document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
-    
-    // Event-Listener für Mengenänderungen
-    tbody.querySelectorAll('.quantity-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        const product = this.dataset.product;
-        const action = this.dataset.action;
-        adjustQuantity(product, action === 'increase' ? 1 : -1);
-      });
-    });
-  } catch (error) {
-    console.error("Fehler beim Rendern der Bestellung:", error);
-    tbody.innerHTML = "<tr><td colspan='4'>Fehler beim Laden der Bestellung</td></tr>";
-  }
-
-
-function escapeHtml(unsafe) {
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    tbody.appendChild(row);
+  });
+  
+  // Berechne den Gesamtbetrag
+  document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
 }
 
     function calculateTotal() {
@@ -682,10 +620,10 @@ function escapeHtml(unsafe) {
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-function sendOrderToTheke() {
+  function sendOrderToTheke() {
   const orderData = {
-    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`,
-    row: currentRow,
+    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`, // Hier die Reihen-Nummer und die Tisch- sowie Person-Nummer hinzufügen
+    row: currentRow, // Hier die Reihen-Nummer
     table: currentTable,
     person: currentPerson,
     order: {}
@@ -707,7 +645,7 @@ function sendOrderToTheke() {
   }
 
   if (hasNewItems) {
-    socket.emit('neworder', orderData);
+    socket.emit('neworder', orderData); // Bestellung wird an die Theke gesendet
     console.log('Neue Bestellung gesendet:', orderData);
     alert('Bestellung wurde an die Theke gesendet.');
   } else {
@@ -715,7 +653,6 @@ function sendOrderToTheke() {
     alert('Keine neuen Produkte zum Senden.');
   }
 }
-
 
     function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
@@ -790,31 +727,26 @@ selectedPersons.forEach(person => {
       sentOrders = {};
     }
 
- function renderProductButtons() {
-  const essenButtons = document.getElementById("essenButtons");
-  const getraenkeButtons = document.getElementById("getraenkeButtons");
-  
-  essenButtons.innerHTML = '';
-  getraenkeButtons.innerHTML = '';
-  
-  products.forEach(product => {
-    const button = document.createElement("button");
-    button.textContent = product.name;
-    button.className = `product-button ${product.category}-button`;
-    button.onclick = () => {
-      addProductToOrder(product.name);
-      button.classList.add('active');
-      setTimeout(() => button.classList.remove('active'), 200);
-    };
-    
-    if (product.category === "essen") {
-      essenButtons.appendChild(button);
-    } else {
-      getraenkeButtons.appendChild(button);
+    function renderProductButtons() {
+      const essenButtons = document.getElementById("essenButtons");
+      const getraenkeButtons = document.getElementById("getraenkeButtons");
+      
+      essenButtons.innerHTML = '';
+      getraenkeButtons.innerHTML = '';
+      
+      products.forEach(product => {
+        const button = document.createElement("button");
+        button.textContent = product.name;
+        button.className = `product-button ${product.category}-button`;
+        button.onclick = () => addProductToOrder(product.name);
+        
+        if (product.category === "essen") {
+          essenButtons.appendChild(button);
+        } else {
+          getraenkeButtons.appendChild(button);
+        }
+      });
     }
-  });
-}
-
 
     function saveOrdersToLocalStorage() {
       localStorage.setItem('tables', JSON.stringify(tables));
@@ -828,25 +760,20 @@ selectedPersons.forEach(person => {
     }
 
     // Initialisierung
-window.onload = function() {
-  promptForBedienungName();
-  loadOrdersFromLocalStorage();
-  renderProductButtons();
-  renderPersonButtons();
-  selectTable(1);
-  checkProductAvailability();
+    window.onload = function() {
+      promptForBedienungName();
+      loadOrdersFromLocalStorage();
+      renderProductButtons();
+      renderPersonButtons();
+      selectTable(1);
 
-  document.getElementById('sendOrderButton').addEventListener('click', function(e) {
-    e.preventDefault();
-    this.disabled = true;
-    sendOrderToTheke();
-    setTimeout(() => this.disabled = false, 2000);
-  });
-
-  // Periodische Überprüfung der Produktverfügbarkeit
-  setInterval(checkProductAvailability, 60000); // Alle 60 Sekunden
-};
-
+      document.getElementById('sendOrderButton').addEventListener('click', function(e) {
+        e.preventDefault();
+        this.disabled = true;
+        sendOrderToTheke();
+        setTimeout(() => this.disabled = false, 2000); // Re-enable after 2 seconds
+      });
+    };
   </script>
 </body>
 </html>
