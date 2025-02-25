@@ -645,9 +645,9 @@ let sentOrders = {
         </td>
         <td>${product.price.toFixed(2)}</td>
         <td>${(product.price * product.quantity).toFixed(2)}</td>
-      ; 
+      `; 
       fragment.appendChild(row);
-    };
+    });
     
     tbody.innerHTML = "";
     tbody.appendChild(fragment);
@@ -666,9 +666,8 @@ let sentOrders = {
     console.error("Fehler beim Rendern der Bestellung:", error);
     tbody.innerHTML = "<tr><td colspan='4'>Fehler beim Laden der Bestellung</td></tr>";
   }
-}
 
-// Hilfsfunktion zum Escapen von HTML
+
 function escapeHtml(unsafe) {
   return unsafe
     .replace(/&/g, "&amp;")
@@ -677,7 +676,6 @@ function escapeHtml(unsafe) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
-
 
     function calculateTotal() {
       const personOrder = tables[currentTable].persons[currentPerson - 1];
