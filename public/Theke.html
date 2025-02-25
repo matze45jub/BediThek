@@ -116,17 +116,19 @@
         orderElement.classList.add(orderData.status);
       }
 
-const timestamp = orderData.timestamp 
-  ? new Date(Number(orderData.timestamp)).toLocaleString() 
-  : "Zeit unbekannt";
+      // Timestamp und Formatierung der Bestellzeit
+      const timestamp = orderData.timestamp 
+        ? new Date(Number(orderData.timestamp)).toLocaleString() 
+        : "Zeit unbekannt";
 
-orderElement.innerHTML = `
-  <div>
-    <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
-    Bestellzeit: ${timestamp}<br>
-    Produkte: ${Object.values(orderData.order)
-      .map(item => `${item.quantity}x ${item.name}`)
-      .join(', ')}
+      // Bestellung anzeigen
+      orderElement.innerHTML = `
+        <div>
+          <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
+          Bestellzeit: ${timestamp}<br>
+          Produkte: ${Object.values(orderData.order)
+            .map(item => `${item.quantity}x ${item.name}`)
+            .join(', ')}
         </div>
         <div class="button-container">
           <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
