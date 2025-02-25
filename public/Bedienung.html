@@ -158,6 +158,20 @@
       text-align: center;
     }
 
+    .product-button.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.product-button:active {
+  transform: translateY(2px);
+}
+  
+      
+      
+      
+      
+      
     .essen-button {
       background-color: #E74C3C;
       color: white;
@@ -462,6 +476,22 @@ let sentOrders = {
 };
 
 
+  function checkProductAvailability() {
+  products.forEach(product => {
+    const button = document.querySelector(`.product-button:contains("${product.name}")`);
+    if (button) {
+      if (product.available) {
+        button.classList.remove('button-disabled');
+      } else {
+        button.classList.add('button-disabled');
+      }
+    }
+  });
+}
+    
+      
+      
+      
 
       function selectRow(rowNumber) {
   currentRow = rowNumber;
@@ -727,26 +757,31 @@ selectedPersons.forEach(person => {
       sentOrders = {};
     }
 
-    function renderProductButtons() {
-      const essenButtons = document.getElementById("essenButtons");
-      const getraenkeButtons = document.getElementById("getraenkeButtons");
-      
-      essenButtons.innerHTML = '';
-      getraenkeButtons.innerHTML = '';
-      
-      products.forEach(product => {
-        const button = document.createElement("button");
-        button.textContent = product.name;
-        button.className = `product-button ${product.category}-button`;
-        button.onclick = () => addProductToOrder(product.name);
-        
-        if (product.category === "essen") {
-          essenButtons.appendChild(button);
-        } else {
-          getraenkeButtons.appendChild(button);
-        }
-      });
+ function renderProductButtons() {
+  const essenButtons = document.getElementById("essenButtons");
+  const getraenkeButtons = document.getElementById("getraenkeButtons");
+  
+  essenButtons.innerHTML = '';
+  getraenkeButtons.innerHTML = '';
+  
+  products.forEach(product => {
+    const button = document.createElement("button");
+    button.textContent = product.name;
+    button.className = `product-button ${product.category}-button`;
+    button.onclick = () => {
+      addProductToOrder(product.name);
+      button.classList.add('active');
+      setTimeout(() => button.classList.remove('active'), 200);
+    };
+    
+    if (product.category === "essen") {
+      essenButtons.appendChild(button);
+    } else {
+      getraenkeButtons.appendChild(button);
     }
+  });
+}
+
 
     function saveOrdersToLocalStorage() {
       localStorage.setItem('tables', JSON.stringify(tables));
@@ -760,20 +795,25 @@ selectedPersons.forEach(person => {
     }
 
     // Initialisierung
-    window.onload = function() {
-      promptForBedienungName();
-      loadOrdersFromLocalStorage();
-      renderProductButtons();
-      renderPersonButtons();
-      selectTable(1);
+window.onload = function() {
+  promptForBedienungName();
+  loadOrdersFromLocalStorage();
+  renderProductButtons();
+  renderPersonButtons();
+  selectTable(1);
+  checkProductAvailability();
 
-      document.getElementById('sendOrderButton').addEventListener('click', function(e) {
-        e.preventDefault();
-        this.disabled = true;
-        sendOrderToTheke();
-        setTimeout(() => this.disabled = false, 2000); // Re-enable after 2 seconds
-      });
-    };
+  document.getElementById('sendOrderButton').addEventListener('click', function(e) {
+    e.preventDefault();
+    this.disabled = true;
+    sendOrderToTheke();
+    setTimeout(() => this.disabled = false, 2000);
+  });
+
+  // Periodische Überprüfung der Produktverfügbarkeit
+  setInterval(checkProductAvailability, 60000); // Alle 60 Sekunden
+};
+
   </script>
 </body>
 </html>
