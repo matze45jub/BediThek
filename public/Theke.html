@@ -85,6 +85,11 @@
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
+    // Pull-to-Refresh deaktivieren
+    document.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
     const socket = io('https://bedithek.onrender.com'); 
 
     socket.on('connect', () => {
