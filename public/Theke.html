@@ -114,7 +114,7 @@
           const personText = person.textContent.split(":")[1]?.trim();
 
           // Wenn die Daten übereinstimmen, wird das Element rot eingefärbt
-          if (rowText === orderData.row && tableText === orderData.table && personText === orderData.person) {
+          if (rowText === orderData.row.toString() && tableText === orderData.table.toString() && personText === orderData.person.toString()) {
             item.classList.add('paid'); // Bestellung als bezahlt markieren
           }
         }
