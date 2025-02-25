@@ -51,7 +51,7 @@
     .button-container {
       margin-top: 10px;
       display: flex;
-      gap: 10px;
+      gap: 20px;
     }
 
     .complete-btn, .paid-btn {
@@ -116,11 +116,17 @@
         orderElement.classList.add(orderData.status);
       }
 
-      orderElement.innerHTML = `
-        <div>
-          <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
-          Bestellzeit: ${new Date(orderData.timestamp).toLocaleString()}<br>
-          Produkte: ${Object.values(orderData.order).map(item => `${item.quantity}x ${item.name}`).join(', ')}
+const timestamp = orderData.timestamp 
+  ? new Date(Number(orderData.timestamp)).toLocaleString() 
+  : "Zeit unbekannt";
+
+orderElement.innerHTML = `
+  <div>
+    <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
+    Bestellzeit: ${timestamp}<br>
+    Produkte: ${Object.values(orderData.order)
+      .map(item => `${item.quantity}x ${item.name}`)
+      .join(', ')}
         </div>
         <div class="button-container">
           <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
