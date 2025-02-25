@@ -626,28 +626,56 @@ let sentOrders = {
       }
     }
 
-  function renderOrder() {
+ function renderOrder() {
   console.log("Rendering order");
-      const tbody = document.querySelector("#orderTable tbody");
-  tbody.innerHTML = "";
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
+  const tbody = document.querySelector("#orderTable tbody");
+  const fragment = document.createDocumentFragment();
   
-  Object.values(personOrder).forEach(product => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${product.name}</td>
-      <td class="quantity-controls">
-        <button onclick="adjustQuantity('${product.name}', -1)">-</button>
-        ${product.quantity}
-        <button onclick="adjustQuantity('${product.name}', 1)">+</button>
-      </td>
-      <td>${product.price.toFixed(2)}</td>
-      <td>${(product.price * product.quantity).toFixed(2)}</td>
-    `;
-    tbody.appendChild(row);
-  });
-  
-  document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
+  try {
+    const personOrder = tables[currentTable]?.persons[currentPerson - 1] || {};
+    
+    Object.values(personOrder).forEach(product => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${escapeHtml(product.name)}</td>
+        <td class="quantity-controls">
+          <button class="quantity-btn" data-product="${escapeHtml(product.name)}" data-action="decrease" aria-label="Menge verringern">-</button>
+          <span class="quantity">${product.quantity}</span>
+          <button class="quantity-btn" data-product="${escapeHtml(product.name)}" data-action="increase" aria-label="Menge erhöhen">+</button>
+        </td>
+        <td>${product.price.toFixed(2)}</td>
+        <td>${(product.price * product.quantity).toFixed(2)}</td>
+      ; 
+      fragment.appendChild(row);
+    };
+    
+    tbody.innerHTML = "";
+    tbody.appendChild(fragment);
+    
+    document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
+    
+    // Event-Listener für Mengenänderungen
+    tbody.querySelectorAll('.quantity-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const product = this.dataset.product;
+        const action = this.dataset.action;
+        adjustQuantity(product, action === 'increase' ? 1 : -1);
+      });
+    });
+  } catch (error) {
+    console.error("Fehler beim Rendern der Bestellung:", error);
+    tbody.innerHTML = "<tr><td colspan='4'>Fehler beim Laden der Bestellung</td></tr>";
+  }
+}
+
+// Hilfsfunktion zum Escapen von HTML
+function escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 
@@ -656,10 +684,10 @@ let sentOrders = {
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-  function sendOrderToTheke() {
+function sendOrderToTheke() {
   const orderData = {
-    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`, // Hier die Reihen-Nummer und die Tisch- sowie Person-Nummer hinzufügen
-    row: currentRow, // Hier die Reihen-Nummer
+    bedienung: `${bedienungName} (Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson})`,
+    row: currentRow,
     table: currentTable,
     person: currentPerson,
     order: {}
@@ -681,7 +709,7 @@ let sentOrders = {
   }
 
   if (hasNewItems) {
-    socket.emit('neworder', orderData); // Bestellung wird an die Theke gesendet
+    socket.emit('neworder', orderData);
     console.log('Neue Bestellung gesendet:', orderData);
     alert('Bestellung wurde an die Theke gesendet.');
   } else {
@@ -689,6 +717,7 @@ let sentOrders = {
     alert('Keine neuen Produkte zum Senden.');
   }
 }
+
 
     function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
