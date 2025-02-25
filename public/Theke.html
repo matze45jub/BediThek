@@ -87,11 +87,11 @@
     const socket = io('https://bedithek.onrender.com'); 
 
     socket.on('connect', () => {
-      console.log('✅ Verbindung zum Server hergestellt.');
+      console.log('✅ Theke-Verbindung zum Server hergestellt.');
     });
 
     socket.on('disconnect', () => {
-      console.warn('⚠️ Verbindung zum Server verloren.');
+      console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
     socket.on('neworder', (orderData) => {
