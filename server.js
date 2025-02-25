@@ -40,17 +40,18 @@ io.on('connection', (socket) => {
   // Bestellung als erledigt markieren
   socket.on('markOrderCompleted', (orderDetails) => {
     console.log('✅ Bestellung erledigt:', orderDetails);
-    io.emit('orderCompleted', orderDetails);
+    io.emit('orderCompleted', orderDetails); // Sende das Event an die Theke, um sie als erledigt zu markieren
   });
 
-// Empfang von 'orderPaid' Event vom Bedienung
-socket.on('orderPaid', (orderData) => {
-  // Bestellung als bezahlt markieren
-  console.log('Bestellung bezahlt:', orderData);
+  // Empfang von 'orderPaid' Event vom Bedienung
+  socket.on('orderPaid', (orderData) => {
+    // Bestellung als bezahlt markieren
+    console.log('Bestellung bezahlt:', orderData);
 
-  // Sende an die Theke, dass die Bestellung bezahlt wurde
-  io.emit('orderPaid', orderData); // Sende die Bestellung an alle verbundenen Clients (Theke)
-});
+    // Sende an die Theke, dass die Bestellung bezahlt wurde
+    io.emit('orderPaid', orderData); // Sende die Bestellung an alle verbundenen Clients (Theke)
+  });
+
   // Benutzer trennt Verbindung
   socket.on('disconnect', () => {
     console.log('⚠️ Ein Benutzer hat die Verbindung getrennt.');
