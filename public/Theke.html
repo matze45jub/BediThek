@@ -45,8 +45,9 @@
     }
 
     .order-item.paid {
-      background-color: #f8d7da;
-    }
+  background-color: #f8d7da; /* Rot für bezahlte Bestellungen */
+  border-color: #f5c6cb;
+}
 
     .button-container {
       margin-top: 10px;
@@ -147,11 +148,14 @@
       orderItem.classList.add('completed');
     }
 
-    function markAsPaid(row, table, person, button) {
-      socket.emit('orderPaid', { row, table, person });
-      const orderItem = button.closest('.order-item');
-      orderItem.classList.add('paid');
-    }
+   function markAsPaid(row, table, person, button) {
+  socket.emit('orderPaid', { row, table, person });
+  
+  const orderItem = button.closest('.order-item');
+  orderItem.classList.add('paid'); // Bestellung als bezahlt markieren
+
+  console.log(`Bestellung für Reihe: ${row}, Tisch: ${table}, Person: ${person} als bezahlt markiert.`);
+}
   </script>
 
 </body>
