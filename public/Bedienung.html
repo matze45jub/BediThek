@@ -768,6 +768,18 @@ selectedPersons.forEach(person => {
       });
     }
 
+function markOrderAsPaid() {
+  const orderData = {
+    row: currentRow,
+    table: currentTable,
+    person: currentPerson
+  };
+
+  socket.emit('orderPaid', orderData); // Bestellung als bezahlt markieren
+  console.log(`Bestellung für Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson} wurde als bezahlt markiert.`);
+}
+    
+
     function saveOrdersToLocalStorage() {
       localStorage.setItem('tables', JSON.stringify(tables));
     }
