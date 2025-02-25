@@ -8,7 +8,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
+      padding: 10px;
       background-color: #f8f9fa;
     }
 
@@ -70,11 +70,6 @@
       background-color: #dc3545;
       color: white;
     }
-
-    .order-info {
-      margin-bottom: 10px;
-      font-style: italic;
-    }
   </style>
 </head>
 <body>
@@ -100,24 +95,14 @@
     });
 
     socket.on('neworder', (orderData) => {
-      console.log('📩 Bestellung in Theke empfangen:', orderData);
-      addOrderToList(orderData);
+      console.log('📩 Bestellung in Theke empfangen:', orderData); // Debugging
+      addOrderToList(orderData); // Funktion für die Anzeige von Bestellungen aufrufen
     });
-
-    function formatDate(timestamp) {
-      const date = new Date(Number(timestamp));
-      return date.toLocaleString('de-DE', { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit', 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      });
-    }
 
     function addOrderToList(orderData) {
       const orderList = document.getElementById('orderList');
       
+      // Überprüfe, ob das orderData-Objekt gültig ist
       console.log('📦 Empfangene Bestellung:', orderData);
 
       if (!orderData || !orderData.order) {
@@ -131,21 +116,29 @@
         orderElement.classList.add(orderData.status);
       }
 
-      const bedienungName = orderData.bedienung || "Unbekannt";
-      const bestellzeit = formatDate(orderData.timestamp);
+   orderElement.innerHTML = `
+  <div>
+    <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
+    Bestellzeit: ${formatDate(orderData.timestamp)}<br>
+    Produkte: ${Object.values(orderData.order).map(item => `${item.quantity}x ${item.name}`).join(', ')}
+  </div>
+  <div class="button-container">
+    <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
+    <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Bezahlt</button>
+  </div>
+`;
 
-      orderElement.innerHTML = `
-        <div class="order-info">
-          Bedienung: ${bedienungName} | Bestellzeit: ${bestellzeit}
-        </div>
-        <div>
-          <strong>Reihe: ${orderData.row}</strong> - Tisch: ${orderData.table} - Person: ${orderData.person}<br>
-          Produkte: ${Object.values(orderData.order).map(item => `${item.quantity}x ${item.name}`).join(', ')}
-        </div>
-        <div class="button-container">
-          <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
-          <button class="paid-btn" onclick="markAsPaid('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Bezahlt</button>
-        </div>
+function formatDate(timestamp) {
+  const date = new Date(Number(timestamp));
+  return date.toLocaleString('de-DE', { 
+    year: 'numeric', 
+    month: '2-digit', 
+    day: '2-digit', 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  });
+}
+
       `;
 
       console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
