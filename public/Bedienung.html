@@ -489,7 +489,20 @@ let sentOrders = {
   });
 }
     
-      
+   function addProductToOrder(name) {
+  const product = products.find(p => p.name === name);
+  if (product) {
+    const personOrder = tables[currentTable].persons[currentPerson - 1];
+    if (personOrder[name]) {
+      personOrder[name].quantity++;
+    } else {
+      personOrder[name] = { ...product, quantity: 1 };
+    }
+    renderOrder();
+    saveOrdersToLocalStorage();
+  }
+}
+   
       
       
 
@@ -585,7 +598,8 @@ let sentOrders = {
     }
 
     function addProductToOrder(name) {
-      const product = products.find(p => p.name === name);
+ console.log("Adding product to order:", name);
+        const product = products.find(p => p.name === name);
       if (product) {
         const personOrder = tables[currentTable].persons[currentPerson - 1];
         const existingProduct = personOrder[name];
@@ -613,20 +627,13 @@ let sentOrders = {
     }
 
   function renderOrder() {
-  const tbody = document.querySelector("#orderTable tbody");
+  console.log("Rendering order");
+      const tbody = document.querySelector("#orderTable tbody");
   tbody.innerHTML = "";
   const personOrder = tables[currentTable].persons[currentPerson - 1];
   
-  // Iteriere über die Produkte und füge die Markierung für die ausgewählte Person hinzu
   Object.values(personOrder).forEach(product => {
     const row = document.createElement("tr");
-    row.classList.add('order-row'); // Standardklasse für eine Zeile
-    
-    // Hier wird überprüft, ob dieses Produkt für die aktuelle Person markiert werden soll
-    if (selectedPersons.includes(currentPerson)) {
-      row.classList.add('selected-order-row'); // Füge die Markierung hinzu
-    }
-    
     row.innerHTML = `
       <td>${product.name}</td>
       <td class="quantity-controls">
@@ -637,13 +644,12 @@ let sentOrders = {
       <td>${product.price.toFixed(2)}</td>
       <td>${(product.price * product.quantity).toFixed(2)}</td>
     `;
-    
     tbody.appendChild(row);
   });
   
-  // Berechne den Gesamtbetrag
   document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
 }
+
 
     function calculateTotal() {
       const personOrder = tables[currentTable].persons[currentPerson - 1];
