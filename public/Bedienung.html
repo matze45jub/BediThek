@@ -10,6 +10,9 @@
       font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 0;
+      max-width: 100%;
+  overflow-x: hidden; /* Deaktiviert horizontales Scrollen */
+  overscroll-behavior-x: contain; /* Verhindert, dass der Browser horizontal "nachzieht" */
       background-color: #f4f4f4;
       color: #333;
     }
@@ -828,12 +831,6 @@ function markOrderAsPaid() {
         tables = JSON.parse(savedTables);
       }
     }
-
-    document.addEventListener('touchmove', function(event) {
-  if (window.scrollY === 0) {
-    event.preventDefault();
-  }
-}, { passive: false });
 
     
     // Initialisierung
