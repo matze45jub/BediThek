@@ -38,25 +38,25 @@
       border-radius: 5px;
       position: relative;
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-      font-size: 1.5em;
-      text-align: center;
+      font-size: 1.5em; /* Schriftgröße um 50% vergrößern */
+      text-align: center; /* Text zentrieren */
     }
 
     .order-item.completed {
-      background-color: #d4edda;
+      background-color: #d4edda; /* Grün für ausgegebene Bestellungen */
     }
 
     .order-item.paid {
-      background-color: #f8d7da;
+      background-color: #f8d7da; /* Rot für bezahlte Bestellungen */
       border-color: #f5c6cb;
     }
 
     .order-details {
-      margin-bottom: 15px;
+      margin-bottom: 15px; /* Abstand zwischen Details und Button */
     }
 
     .product-list {
-      font-weight: bold;
+      font-weight: bold; /* Produkte fett darstellen */
     }
 
     .button-container {
@@ -87,31 +87,41 @@
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
-    const socket = io('https://bedithek.onrender.com');
-    let allOrders = {};
+    const socket = io('https://bedithek.onrender.com'); 
+    let allOrders = {}; // Speichert alle Bestellungen
 
+    // Verbindung herstellen
     socket.on('connect', () => {
       console.log('✅ Theke-Verbindung zum Server hergestellt.');
     });
 
+    // Verbindung verloren
     socket.on('disconnect', () => {
       console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
-    socket.on('sendOrder', (orderData) => {
+    // Empfang von neuen Bestellungen
+    socket.on('neworder', (orderData) => {
       console.log('📩 Bestellung in Theke empfangen:', orderData);
+      
       const { row, table, person, order } = orderData;
+
+      // Bestellungen in allOrders speichern
       if (!allOrders[row]) allOrders[row] = {};
       if (!allOrders[row][table]) allOrders[row][table] = {};
+      
       allOrders[row][table][person] = order;
-      
+
+      // Anzeige aktualisieren
       updateOrderDisplay();
-      
+
+      // Update an alle Bedienungen senden
       socket.emit('orderUpdate', allOrders);
     });
 
+    // Empfang der Information, dass eine Bestellung bezahlt wurde
     socket.on('orderPaid', (orderData) => {
-      console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
+      console.log(`Bestellung bezahlt: Reihe ${orderData.row}, Tisch ${orderData.table}, Person ${orderData.person}`);
       
       const orderItems = document.querySelectorAll('.order-item');
       
@@ -126,29 +136,42 @@
           const personText = person.textContent.split(":")[1]?.trim();
 
           if (rowText === orderData.row.toString() && tableText === orderData.table.toString() && personText === orderData.person.toString()) {
-            item.classList.add('paid');
+            item.classList.add('paid'); // Bestellung als bezahlt markieren
           }
         }
       });
     });
 
+    // Anfrage nach initialen Daten
     socket.on('requestInitialData', () => {
       socket.emit('initialData', allOrders);
     });
 
+    // Aktualisiert die Anzeige aller Bestellungen
     function updateOrderDisplay() {
       const orderList = document.getElementById('orderList');
+      
+      // Bestehende Anzeige leeren
       orderList.innerHTML = '';
       
       for (const [row, tables] of Object.entries(allOrders)) {
         for (const [table, persons] of Object.entries(tables)) {
           for (const [person, order] of Object.entries(persons)) {
-            addOrderToList({row, table, person, order});
+            const orderData = {
+              row,
+              table,
+              person,
+              order,
+              timestamp: order.timestamp,
+              bedienung: order.bedienung
+            };
+            addOrderToList(orderData); // Bestellung zur Anzeige hinzufügen
           }
         }
       }
     }
 
+    // Fügt eine Bestellung zur Anzeige hinzu
     function addOrderToList(orderData) {
       const orderList = document.getElementById('orderList');
       
@@ -158,8 +181,12 @@
         console.error('❌ Fehler: orderData.order ist nicht definiert!');
         return;
       }
+
       const orderElement = document.createElement('div');
+      
+      // Bestellungselement erstellen
       orderElement.classList.add('order-item');
+      
       if (orderData.status) {
         orderElement.classList.add(orderData.status);
       }
@@ -168,34 +195,36 @@
         ? new Date(Number(orderData.timestamp)).toLocaleString() 
         : "Zeit unbekannt";
 
+      // HTML-Inhalt der Bestellung
       orderElement.innerHTML = `
-    <div class="order-details">
-      <strong>Reihe: ${orderData.row}</strong> - 
-      <strong>Tisch: ${orderData.table}</strong> - 
-      <strong>Person: ${orderData.person}</strong><br>
-      Bestellzeit: ${timestamp}<br>
-      Bestellt von: ${orderData.bedienung}<br>
-      <div class="product-list">
-        ${Object.values(orderData.order)
-          .map(item => `${item.quantity}x ${item.name}`)
-          .join('<br>')}
-      </div>
-    </div>
-    <div class="button-container">
-      <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
-    </div>
-  `;
+        <div class="order-details">
+          <strong>Reihe ${orderData.row}</strong> - 
+          <strong>Tisch ${orderData.table}</strong> - 
+          <strong>Person ${orderData.person}</strong><br>
+          Bestellzeit: ${timestamp}<br>
+          Bestellt von: ${orderData.bedienung}<br>
+          <div class="product-list">
+            ${Object.values(orderData.order)
+              .map(item => `${item.quantity}x ${item.name}`)
+              .join('<br>')}
+          </div>
+        </div>
+        <div class="button-container">
+          <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
+        </div>
+     `;
 
-      console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
-      orderList.insertBefore(orderElement, orderList.firstChild);
-    }
+     console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
+     orderList.insertBefore(orderElement, orderList.firstChild); // Bestellung oben einfügen
+   }
 
-    function markAsCompleted(row, table, person, button) {
-      socket.emit('markOrderCompleted', { row, table, person });
-      const orderItem = button.closest('.order-item');
-      orderItem.classList.add('completed');
-    }
-  </script>
+   // Markiert eine Bestellung als ausgegeben
+   function markAsCompleted(row, table, person, button) {
+     socket.emit('markOrderCompleted', { row, table, person });
+     const orderItem = button.closest('.order-item');
+     orderItem.classList.add('completed');
+   }
+ </script>
 
 </body>
 </html>
