@@ -38,6 +38,8 @@
       border-radius: 5px;
       position: relative;
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+      font-size: 1.5em; /* Schriftgröße um 50% vergrößern */
+      text-align: center; /* Text zentrieren */
     }
 
     .order-item.completed {
@@ -49,6 +51,15 @@
       border-color: #f5c6cb;
     }
 
+.order-details {
+  margin-bottom: 15px; /* Abstand zwischen Details und Button */
+}
+
+.product-list {
+  font-weight: bold; /* Produkte fett darstellen */
+}
+
+    
     .button-container {
       margin-top: 10px;
       display: flex;
@@ -143,22 +154,24 @@
 
       // Bestellung anzeigen
       orderElement.innerHTML = `
-        <div>
-          <strong>Reihe: ${orderData.row}</strong> - 
-          <strong>Tisch: ${orderData.table}</strong> - 
-          <strong>Person: ${orderData.person}</strong><br>
-          Bestellzeit: ${timestamp}<br>
-          Bestellt von: ${orderData.bedienung}<br> <!-- Bedienung anzeigen -->
-          Produkte: ${Object.values(orderData.order)
-            .map(item => `${item.quantity}x ${item.name}`)
-            .join(', ')}
-        </div>
-        <div class="button-container">
-          <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
-        </div>
-      `;
+    <div class="order-details">
+      <strong>Reihe: ${orderData.row}</strong> - 
+      <strong>Tisch: ${orderData.table}</strong> - 
+      <strong>Person: ${orderData.person}</strong><br>
+      Bestellzeit: ${timestamp}<br>
+      Bestellt von: ${orderData.bedienung}<br>
+      <div class="product-list">
+        ${Object.values(orderData.order)
+          .map(item => `${item.quantity}x ${item.name}`)
+          .join('<br>')}
+      </div>
+    </div>
+    <div class="button-container">
+      <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
+    </div>
+  `;
 
-     console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
+  console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
   orderList.insertBefore(orderElement, orderList.firstChild);
 }
 
