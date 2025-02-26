@@ -32,67 +32,24 @@
   margin: 0; /* Falls nötig, den Standardabstand entfernen */
 }
       
-  .selected-order-row {
+.selected-order-row {
   background-color: yellow; /* Gelber Hintergrund */
   color: black; /* Schwarze Schrift */
 }
-      
-      
-.row-buttons {
+
+.row-buttons,
+.table-selection,
+.person-container {
   display: flex;
   justify-content: center; 
-  flex-wrap: wrap; /* Stellt sicher, dass Buttons umbrechen */
-  justify-content: center;
+  flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 10px;
 }
 
-.row-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #ffcc00; /* Gelb */
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  flex: 1 1 150px; /* Erhöht den Flexwert, damit die Schaltflächen gleich groß sind */
-  min-width: 100px;
-  max-width: 150px;
-}
-
-    
-.button-disabled {
-  background-color: #d3d3d3; /* Grauer Hintergrund */
-  color: #808080; /* Graue Schriftfarbe */
-  cursor: not-allowed; /* Zeigt an, dass der Button nicht aktiv ist */
-  pointer-events: none; /* Deaktiviert den Klick auf den Button */
-}      
-      
-           
-      
-.row-button.active {
-  background-color: #ddd; /* Helles Grau */
-  color: #000; /* Textfarbe für aktive Auswahl */
-}
-      
-      
-.row-button:hover {
-  background-color: #d0d0d0; /* Hintergrundfarbe beim Hover */
-  color: #000; /* Textfarbe beim Hover */
-  cursor: pointer; /* Zeiger-Cursor anzeigen */
-}
-
-            
- .table-selection, .person-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin: 10px 0;
-}
-
-
-.table-button, .person-button {
+.row-button,
+.table-button,
+.person-button {
   padding: 10px 20px;
   font-size: 16px;
   border: none;
@@ -103,15 +60,43 @@
   max-width: 150px;
 }
 
+.row-button {
+  background-color: #ffcc00; /* Gelb */
+  color: white;
+}
+
 .table-button {
-  background-color: #3498db;
+  background-color: #3498db; /* Blau */
   color: white;
 }
 
 .person-button {
-  background-color: #2ecc71;
+  background-color: #2ecc71; /* Grün */
   color: white;
 }
+
+.button-disabled {
+  background-color: #d3d3d3;
+  color: #808080;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.row-button.active,
+.table-button.active,
+.person-button.active {
+  background-color: #ddd;
+  color: #000;
+}
+
+.row-button:hover,
+.table-button:hover,
+.person-button:hover {
+  opacity: 0.8;
+  color: #000;
+  cursor: pointer;
+}
+
 
     
 /* Hover-Effekt für Tisch */
