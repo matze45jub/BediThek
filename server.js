@@ -6,7 +6,10 @@ const socketIo = require('socket.io');
 // Initialisiere Express und den Server
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server); // ✅ Nur einmal definieren!
+const io = socketIo(server);
+
+// Speicher für alle Bestellungen
+let allOrders = {};
 
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
@@ -26,30 +29,47 @@ app.get('/theke', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'Theke.html'));
 });
 
-// ✅ WebSocket-Verbindung
+// WebSocket-Verbindung
 io.on('connection', (socket) => {
   console.log('🔗 Ein Client hat sich verbunden');
 
+  // Anfrage für initiale Daten
+  socket.on('requestInitialData', () => {
+    socket.emit('initialData', allOrders);
+  });
+
   // Bestellung empfangen
   socket.on('sendOrder', (orderData) => {
-    orderData.timestamp = Date.now(); // ✅ Zeitstempel hinzufügen
+    orderData.timestamp = Date.now();
     console.log('📦 Bestellung erhalten:', orderData);
-    io.emit('neworder', orderData); // ✅ Bestellung an alle Clients senden
+    
+    // Bestellung zum Gesamtspeicher hinzufügen
+    const { row, table, person, order } = orderData;
+    if (!allOrders[row]) allOrders[row] = {};
+    if (!allOrders[row][table]) allOrders[row][table] = {};
+    allOrders[row][table][person] = order;
+
+    io.emit('neworder', orderData);
+    io.emit('orderUpdate', allOrders);
   });
 
   // Bestellung als erledigt markieren
   socket.on('markOrderCompleted', (orderDetails) => {
     console.log('✅ Bestellung erledigt:', orderDetails);
-    io.emit('orderCompleted', orderDetails); // Sende das Event an die Theke, um sie als erledigt zu markieren
+    io.emit('orderCompleted', orderDetails);
   });
 
-  // Empfang von 'orderPaid' Event vom Bedienung
+  // Empfang von 'orderPaid' Event
   socket.on('orderPaid', (orderData) => {
-    // Bestellung als bezahlt markieren
     console.log('Bestellung bezahlt:', orderData);
-
-    // Sende an die Theke, dass die Bestellung bezahlt wurde
-    io.emit('orderPaid', orderData); // Sende die Bestellung an alle verbundenen Clients (Theke)
+    io.emit('orderPaid', orderData);
+    
+    // Entferne die bezahlte Bestellung aus allOrders
+    const { row, table, person } = orderData;
+    if (allOrders[row] && allOrders[row][table] && allOrders[row][table][person]) {
+      delete allOrders[row][table][person];
+      io.emit('orderUpdate', allOrders);
+    }
   });
 
   // Benutzer trennt Verbindung
