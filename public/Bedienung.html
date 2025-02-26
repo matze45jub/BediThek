@@ -420,16 +420,59 @@
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
    const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
+      let allOrders = {};
 
      
     socket.on('connect', () => {
       console.log('✅ Bedienung-Verbindung zum Server hergestellt.');
+         socket.emit('requestInitialData');
     });
+      
+      socket.on('initialData', (initialOrders) => {
+  allOrders = initialOrders;
+  renderAllOrders();
+});
+      
 
     socket.on('disconnect', () => {
       console.warn('⚠️ Bedienung-Verbindung zum Server verloren.');
     });
-
+      
+      
+      socket.on('orderUpdate', (updatedOrders) => {
+    allOrders = updatedOrders;
+    renderAllOrders();
+  });
+      
+       function renderAllOrders() {
+    const orderList = document.getElementById('orderList');
+    orderList.innerHTML = '';
+    
+    for (const [row, tables] of Object.entries(allOrders)) {
+      for (const [table, persons] of Object.entries(tables)) {
+        for (const [person, order] of Object.entries(persons)) {
+          const orderElement = createOrderElement(row, table, person, order);
+          orderList.appendChild(orderElement);
+        }
+      }
+    }
+  } 
+      
+  function createOrderElement(row, table, person, order) {
+    const element = document.createElement('div');
+    element.className = 'order-item';
+    element.innerHTML = `
+      <h4>Reihe ${row}, Tisch ${table}, Person ${person}</h4>
+      <ul>
+        ${Object.entries(order).map(([name, item]) => 
+          `<li>${item.quantity}x ${name}</li>`).join('')}
+      </ul>
+    `;
+    return element;
+  }
+      
+      
+      
     const products = [
       { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
       { name: "Bratwurst mit Kraut", price: 8.5, category: "essen" },
