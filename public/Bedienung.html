@@ -503,12 +503,12 @@ let sentOrders = {
     1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}  // Für Tische 1 bis 6
 };
 
-function selectPaymentRow(rowNumber) {
-  currentRow = rowNumber;
-  updatePaymentPersonSelection();
-  updatePaymentTotal();
-}
-
+  function selectPaymentRow(rowNumber) {
+      currentRow = rowNumber;
+      document.querySelectorAll('.row-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.row-button:nth-child(${rowNumber})`).classList.add('active');
+      updatePaymentPersonSelection();
+    }
 
       function selectRow(rowNumber) {
   currentRow = rowNumber;
@@ -516,7 +516,14 @@ function selectPaymentRow(rowNumber) {
   document.querySelector(`#row${rowNumber}`).classList.add('active');
   // Füge hier weitere Logik hinzu, um mit der Auswahl der Reihe fortzufahren
 }
-      
+
+      function selectPaymentTable(tableNumber) {
+      paymentDialogTable = tableNumber;
+      document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
+      updatePaymentPersonSelection();
+    }
+
     
       function selectTable(tableNumber) {
   currentTable = tableNumber;
