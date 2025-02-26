@@ -78,40 +78,37 @@
 }
 
             
-      .table-selection, .person-container {
-      text-align: center;
-      margin: 10px 0;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-    }
+ .table-selection, .person-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
 
-    .table-button {
+
+.table-button, .person-button {
   padding: 10px 20px;
   font-size: 16px;
-  background-color: #3498db; /* Helles Blau */
-  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  flex: 1 0 auto;
+  flex: 1 1 150px;
   min-width: 100px;
   max-width: 150px;
 }
+
+.table-button {
+  background-color: #3498db;
+  color: white;
+}
+
 .person-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #2ecc71; /* Helles Grün */
+  background-color: #2ecc71;
   color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  flex: 1 0 auto;
-  min-width: 100px;
-  max-width: 150px;
 }
 
+    
 /* Hover-Effekt für Tisch */
 .table-button:hover {
   background-color: #1f6d94; /* Dunkleres Blau */
