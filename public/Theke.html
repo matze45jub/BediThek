@@ -27,7 +27,7 @@
 
     h1 {
       text-align: center;
-      margin-top: 60px;
+      margin-top: 80px;
     }
 
     .order-item {
@@ -122,16 +122,14 @@
     });
 
     function addOrderToList(orderData) {
-      const orderList = document.getElementById('orderList');
-      
-      // Überprüfe, ob der Timestamp korrekt übergeben wird
-      console.log('Timestamp:', orderData.timestamp);
+  const orderList = document.getElementById('orderList');
+  
+  console.log('Timestamp:', orderData.timestamp);
 
-      if (!orderData || !orderData.order) {
-        console.error('❌ Fehler: orderData.order ist nicht definiert!');
-        return;
-      }
-
+  if (!orderData || !orderData.order) {
+    console.error('❌ Fehler: orderData.order ist nicht definiert!');
+    return;
+  }
       const orderElement = document.createElement('div');
       orderElement.classList.add('order-item');
       if (orderData.status) {
@@ -160,9 +158,9 @@
         </div>
       `;
 
-      console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
-      orderList.appendChild(orderElement);
-    }
+     console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
+  orderList.insertBefore(orderElement, orderList.firstChild);
+}
 
     function markAsCompleted(row, table, person, button) {
       socket.emit('markOrderCompleted', { row, table, person });
