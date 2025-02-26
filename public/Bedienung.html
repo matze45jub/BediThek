@@ -6,46 +6,50 @@
   <title>Abend der Blasmusik</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-body {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
-  color: #333;
-}
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      color: #333;
+    }
 
-html, body {
-  overscroll-behavior-y: none;
-}
+      html, body {
+    overscroll-behavior-y: none;
+  }
 
-.header {
-  text-align: center;
-  background-color: #101A4B;
-  color: white;
-  padding: 10px 0;
-}
+    
+    .header {
+      text-align: center;
+      background-color: #101A4B;
+      color: white;
+      padding: 10px 0;
+    }
 
-h1 {
-  font-size: 24px; 
-  line-height: 24px; 
-  margin: 0;
+ h1 {
+  font-size: 24px; /* Halbe Höhe durch kleinere Schriftgröße */
+  line-height: 24px; /* Zeilenhöhe ebenfalls anpassen */
+  margin: 0; /* Falls nötig, den Standardabstand entfernen */
 }
-
+      
 .selected-order-row {
-  background-color: yellow;
-  color: black;
+  background-color: yellow; /* Gelber Hintergrund */
+  color: black; /* Schwarze Schrift */
 }
 
-/* Einheitliches Layout für Reihen-, Tisch- und Personenauswahl */
-.button-group {
+.row-buttons,
+.table-selection,
+.person-container {
   display: flex;
-  justify-content: center;
+  justify-content: center; 
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 10px;
 }
 
-.row-button, .table-button, .person-button {
+.row-button,
+.table-button,
+.person-button {
   padding: 10px 20px;
   font-size: 16px;
   border: none;
@@ -54,13 +58,11 @@ h1 {
   flex: 1 1 150px;
   min-width: 100px;
   max-width: 150px;
-  text-align: center;
 }
 
-/* Farben für verschiedene Schaltflächen */
 .row-button {
   background-color: #ffcc00; /* Gelb */
-  color: black;
+  color: white;
 }
 
 .table-button {
@@ -73,28 +75,6 @@ h1 {
   color: white;
 }
 
-/* Hover-Effekte */
-.row-button:hover {
-  background-color: #e6b800;
-}
-
-.table-button:hover {
-  background-color: #217dbb;
-}
-
-.person-button:hover {
-  background-color: #27ae60;
-}
-
-/* Aktiver Button */
-.row-button.active, 
-.table-button.active, 
-.person-button.active {
-  background-color: #ddd;
-  color: black;
-}
-
-/* Deaktivierte Buttons */
 .button-disabled {
   background-color: #d3d3d3;
   color: #808080;
@@ -102,187 +82,225 @@ h1 {
   pointer-events: none;
 }
 
-.product-buttons-container {
-  margin: 2px;
-}
-
-.product-buttons-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.product-button {
-  padding: 12px 25px;
-  font-size: 14px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  width: 120px;
-  margin: 5px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.essen-button {
-  background-color: #E74C3C;
-  color: white;
-}
-
-.getraenke-button {
-  background-color: #377EBF;
-  color: white;
-}
-
-#orderTable {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 5px 0;
-}
-
-#orderTable th, #orderTable td {
-  padding: 5px;
-  border: 1px solid #ddd;
-  text-align: center;
-  font-size: 16px;
-  background-color: white;
-}
-
-.quantity-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-}
-
-.quantity-controls button {
+.row-button.active,
+.table-button.active,
+.person-button.active {
   background-color: #ddd;
-  border: none;
-  padding: 5px 10px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 5px;
+  color: #000;
 }
 
-.quantity-controls button:hover {
-  background-color: #bbb;
-}
-
-.centered-heading {
-  text-align: center;
-}
-
-.total-sum {
-  text-align: center;
-  font-size: 20px;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-.button-container {
-  text-align: center;
-  margin-top: 20px;
-}
-
-.button-container button {
-  padding: 12px 25px;
-  font-size: 14px;
-  background-color: #E74C3C;
-  color: white;
-  border: none;
-  border-radius: 5px;
+.row-button:hover,
+.table-button:hover,
+.person-button:hover {
+  opacity: 0.8;
+  color: #000;
   cursor: pointer;
 }
 
-.button-container button:hover {
-  background-color: #C0392B;
+
+    
+/* Hover-Effekt für Tisch */
+.table-button:hover {
+  background-color: #1f6d94; /* Dunkleres Blau */
 }
 
-.payment-dialog {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  z-index: 1000;
-  width: 80%;
-  max-width: 400px;
-  height: 80%;
-  max-height: 800px;
-  overflow-y: auto;
+/* Hover-Effekt für Person */
+.person-button:hover {
+  background-color: #27ae60; /* Dunkleres Grün */
 }
 
-.payment-dialog .table-selection,
-.payment-dialog .person-selection {
-  margin-bottom: 20px;
+.table-button.active,
+.person-button.active {
+  background-color: #f0f0f0; /* Beispielhafte Hervorhebung */
+  color: #000; /* Textfarbe für die aktive Auswahl */
 }
 
-.payment-dialog .person-selection {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
+.table-button:hover,
+.person-button:hover {
+  background-color: #ddd; /* Hover-Effekt */
 }
 
-.payment-dialog .person-button {
-  flex: 0 0 auto;
-}
+    .product-buttons-container {
+      margin: 2px;
+    }
 
-.payment-dialog h3 {
-  margin-top: 0;
-  text-align: center;
-}
+    .product-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
 
-.payment-dialog input {
-  width: 180px;
-  font-size: 24px;
-  text-align: right;
-  padding: 5px;
-}
+    .product-button {
+      padding: 12px 25px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 120px;
+      margin: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
 
-.calc-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 60px);
-  gap: 10px;
-  justify-content: center;
-  margin-top: 10px;
-}
+    .essen-button {
+      background-color: #E74C3C;
+      color: white;
+    }
 
-.calc-buttons button {
-  font-size: 20px;
-  padding: 10px;
-  border: none;
-  background-color: #ddd;
-  cursor: pointer;
-  border-radius: 5px;
-}
+    .getraenke-button {
+      background-color: #377EBF;
+      color: white;
+    }
 
-.calc-buttons button:hover {
-  background-color: #bbb;
-}
+    #orderTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5px 0;
+    }
 
-.close-button, .ok-button {
-  margin-top: 10px;
-  padding: 10px 20px;
-  background-color: #E74C3C;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+    #orderTable th, #orderTable td {
+      padding: 5px;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-size: 16px;
+      background-color: white;
+    }
 
-.close-button:hover, .ok-button:hover {
-  background-color: #C0392B;
-}
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .quantity-controls button {
+      background-color: #ddd;
+      border: none;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .quantity-controls button:hover {
+      background-color: #bbb;
+    }
+
+    .centered-heading {
+      text-align: center;
+    }
+
+    .total-sum {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .button-container button {
+      padding: 12px 25px;
+      font-size: 14px;
+      background-color: #E74C3C;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .button-container button:hover {
+      background-color: #C0392B;
+    }
+
+    .payment-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      z-index: 1000;
+      width: 80%;
+      max-width: 400px;
+      height: 80%;
+      max-height: 800px;
+      overflow-y: auto;
+    }
+
+    .payment-dialog .table-selection,
+    .payment-dialog .person-selection {
+      margin-bottom: 20px;
+    }
+
+    .payment-dialog .person-selection {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .payment-dialog .person-button {
+      flex: 0 0 auto;
+    }
+
+    .payment-dialog h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .payment-dialog input {
+      width: 180px;
+      font-size: 24px;
+      text-align: right;
+      padding: 5px;
+    }
+
+    .calc-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .calc-buttons button {
+      font-size: 20px;
+      padding: 10px;
+      border: none;
+      background-color: #ddd;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .calc-buttons button:hover {
+      background-color: #bbb;
+    }
+
+    .close-button, .ok-button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #E74C3C;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .close-button:hover, .ok-button:hover {
+      background-color: #C0392B;
+    }
   </style>
 </head>
 <body>
