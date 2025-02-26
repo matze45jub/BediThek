@@ -376,12 +376,12 @@
     <h3>Zahlung</h3>
       
   <div class="row-selection">
-  <button class="row-button" onclick="selectRow(1)">Reihe 1</button>
-  <button class="row-button" onclick="selectRow(2)">Reihe 2</button>
-  <button class="row-button" onclick="selectRow(3)">Reihe 3</button>
-  <button class="row-button" onclick="selectRow(4)">Reihe 4</button>
-  <button class="row-button" onclick="selectRow(5)">Reihe 5</button>
-  <button class="row-button" onclick="selectRow(6)">Reihe 6</button>
+  <button class="row-button" onclick="selectPaymentRow(1)">Reihe 1</button>
+  <button class="row-button" onclick="selectPaymentRow(2)">Reihe 2</button>
+  <button class="row-button" onclick="selectPaymentRow(3)">Reihe 3</button>
+  <button class="row-button" onclick="selectPaymentRow(4)">Reihe 4</button>
+  <button class="row-button" onclick="selectPaymentRow(5)">Reihe 5</button>
+  <button class="row-button" onclick="selectPaymentRow(6)">Reihe 6</button>
 </div>
       
       
@@ -471,6 +471,11 @@ let sentOrders = {
     1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}  // Für Tische 1 bis 6
 };
 
+function selectPaymentRow(rowNumber) {
+  currentRow = rowNumber;
+  updatePaymentPersonSelection();
+  updatePaymentTotal();
+}
 
 
       function selectRow(rowNumber) {
@@ -480,10 +485,7 @@ let sentOrders = {
   // Füge hier weitere Logik hinzu, um mit der Auswahl der Reihe fortzufahren
 }
       
-      
-      
-      
-      
+    
       function selectTable(tableNumber) {
   currentTable = tableNumber;
   currentPerson = 1;
@@ -715,7 +717,7 @@ let sentOrders = {
     }
 
     function completePayment() {
-      if (selectedPersons.length === 0) {
+      if (selectedPersons.lengath === 0) {
         alert("Bitte wählen Sie mindestens eine Person aus!");
         return;
       }
@@ -725,9 +727,9 @@ selectedPersons.forEach(person => {
         tables[paymentDialogTable].persons[person - 1] = {};
         // Signal an den Server senden, dass die Bestellung bezahlt wurde
         socket.emit('orderPaid', {
+            row: currentRow, // Zeilen-Nummer hinzufügen
             table: paymentDialogTable,
             person: person,
-            row: currentRow, // Zeilen-Nummer hinzufügen
         });
     });
       
