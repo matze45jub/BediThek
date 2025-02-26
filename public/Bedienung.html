@@ -31,9 +31,6 @@ h1 {
   margin: 0;
 }
 
-
-
-    
 .selected-order-row {
   background-color: yellow;
   color: black;
@@ -48,16 +45,15 @@ h1 {
   margin-bottom: 10px;
 }
 
-/* Alle Buttons gleich groß machen */
 .row-button, .table-button, .person-button {
-  padding: 15px 20px; /* Größer für bessere Bedienung */
+  padding: 10px 20px;
   font-size: 16px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  flex: 1 1 calc(33.33% - 20px); /* Maximal 3 Buttons pro Reihe */
-  min-width: 120px;
-  max-width: 180px;
+  flex: 1 1 150px;
+  min-width: 100px;
+  max-width: 150px;
   text-align: center;
 }
 
@@ -78,12 +74,22 @@ h1 {
 }
 
 /* Hover-Effekte */
-.row-button:hover { background-color: #e6b800; }
-.table-button:hover { background-color: #217dbb; }
-.person-button:hover { background-color: #27ae60; }
+.row-button:hover {
+  background-color: #e6b800;
+}
+
+.table-button:hover {
+  background-color: #217dbb;
+}
+
+.person-button:hover {
+  background-color: #27ae60;
+}
 
 /* Aktiver Button */
-.row-button.active, .table-button.active, .person-button.active {
+.row-button.active, 
+.table-button.active, 
+.person-button.active {
   background-color: #ddd;
   color: black;
 }
@@ -95,14 +101,8 @@ h1 {
   cursor: not-allowed;
   pointer-events: none;
 }
-/* Responsive Verhalten */
-@media (max-width: 600px) {
-  .row-button, .table-button, .person-button {
-    flex: 1 1 calc(50% - 20px); /* 2 Buttons pro Zeile bei kleinen Bildschirmen */
-  }
-}
 
-    .product-buttons-container {
+.product-buttons-container {
   margin: 2px;
 }
 
@@ -293,32 +293,25 @@ h1 {
   <div id="bedienungNameDisplay" style="text-align: center; margin: 10px 0; font-weight: bold;"></div>
     
     
-<div class="button-group">
-  <button class="row-button" onclick="selectRow(1)">Reihe 1</button>
-  <button class="row-button" onclick="selectRow(2)">Reihe 2</button>
-  <button class="row-button" onclick="selectRow(3)">Reihe 3</button>
-  <button class="row-button" onclick="selectRow(4)">Reihe 4</button>
-  <button class="row-button" onclick="selectRow(5)">Reihe 5</button>
-  <button class="row-button" onclick="selectRow(6)">Reihe 6</button>
+<div class="row-buttons">
+  <button class="row-button" id="row1" onclick="selectRow(1)">Reihe 1</button>
+  <button class="row-button" id="row2" onclick="selectRow(2)">Reihe 2</button>
+  <button class="row-button" id="row3" onclick="selectRow(3)">Reihe 3</button>
+  <button class="row-button" id="row4" onclick="selectRow(4)">Reihe 4</button>
+  <button class="row-button" id="row5" onclick="selectRow(5)">Reihe 5</button>
+  <button class="row-button" id="row6" onclick="selectRow(6)">Reihe 6</button>
+</div>
+    
+    
+ <div class="table-selection">
+    <button class="table-button" onclick="selectTable(1)">Tisch 1</button>
+    <button class="table-button" onclick="selectTable(2)">Tisch 2</button>
+    <button class="table-button" onclick="selectTable(3)">Tisch 3</button>
+    <button class="table-button" onclick="selectTable(4)">Tisch 4</button>
+    <button class="table-button" onclick="selectTable(5)">Tisch 5</button> <!-- Neuer Tisch 5 -->
+    <button class="table-button" onclick="selectTable(6)">Tisch 6</button> <!-- Neuer Tisch 6 -->
 </div>
 
-<div class="button-group">
-  <button class="table-button" onclick="selectTable(1)">Tisch 1</button>
-  <button class="table-button" onclick="selectTable(2)">Tisch 2</button>
-  <button class="table-button" onclick="selectTable(3)">Tisch 3</button>
-  <button class="table-button" onclick="selectTable(4)">Tisch 4</button>
-  <button class="table-button" onclick="selectTable(5)">Tisch 5</button>
-  <button class="table-button" onclick="selectTable(6)">Tisch 6</button>
-</div>
-
-<div class="button-group">
-  <button class="person-button" onclick="selectPerson(1)">Person 1</button>
-  <button class="person-button" onclick="selectPerson(2)">Person 2</button>
-  <button class="person-button" onclick="selectPerson(3)">Person 3</button>
-  <button class="person-button" onclick="selectPerson(4)">Person 4</button>
-  <button class="person-button" onclick="selectPerson(5)">Person 5</button>
-  <button class="person-button" onclick="selectPerson(6)">Person 6</button>
-</div>
   <div class="person-container" id="personSelection"></div>
 
   <div id="productButtons" class="product-buttons-container">
