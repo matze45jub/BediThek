@@ -14,10 +14,7 @@
       color: #333;
     }
 
-      html, body {
-    overscroll-behavior-y: none;
-  }
-
+  
     
     .header {
       text-align: center;
@@ -832,6 +829,13 @@ function markOrderAsPaid() {
       }
     }
 
+    document.addEventListener('touchmove', function(event) {
+  if (window.scrollY === 0) {
+    event.preventDefault();
+  }
+}, { passive: false });
+
+    
     // Initialisierung
     window.onload = function() {
       promptForBedienungName();
