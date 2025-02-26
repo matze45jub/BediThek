@@ -38,28 +38,27 @@
       border-radius: 5px;
       position: relative;
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-      font-size: 1.5em; /* Schriftgröße um 50% vergrößern */
-      text-align: center; /* Text zentrieren */
+      font-size: 1.5em;
+      text-align: center;
     }
 
     .order-item.completed {
-      background-color: #d4edda; /* Grün für ausgegebene Bestellungen */
+      background-color: #d4edda;
     }
 
     .order-item.paid {
-      background-color: #f8d7da; /* Rot für bezahlte Bestellungen */
+      background-color: #f8d7da;
       border-color: #f5c6cb;
     }
 
-.order-details {
-  margin-bottom: 15px; /* Abstand zwischen Details und Button */
-}
+    .order-details {
+      margin-bottom: 15px;
+    }
 
-.product-list {
-  font-weight: bold; /* Produkte fett darstellen */
-}
+    .product-list {
+      font-weight: bold;
+    }
 
-    
     .button-container {
       margin-top: 10px;
       display: flex;
@@ -74,7 +73,6 @@
       background-color: #28a745;
       color: white;
     }
-
   </style>
 </head>
 <body>
@@ -89,7 +87,8 @@
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
-    const socket = io('https://bedithek.onrender.com'); 
+    const socket = io('https://bedithek.onrender.com');
+    let allOrders = {};
 
     socket.on('connect', () => {
       console.log('✅ Theke-Verbindung zum Server hergestellt.');
@@ -99,60 +98,76 @@
       console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
-    // Empfang von neuen Bestellungen
-    socket.on('neworder', (orderData) => {
-      console.log('📩 Bestellung in Theke empfangen:', orderData); 
-      addOrderToList(orderData); // Bestellungen zur Anzeige hinzufügen
+    socket.on('sendOrder', (orderData) => {
+      console.log('📩 Bestellung in Theke empfangen:', orderData);
+      const { row, table, person, order } = orderData;
+      if (!allOrders[row]) allOrders[row] = {};
+      if (!allOrders[row][table]) allOrders[row][table] = {};
+      allOrders[row][table][person] = order;
+      
+      updateOrderDisplay();
+      
+      socket.emit('orderUpdate', allOrders);
     });
 
-    // Empfang der Information, dass eine Bestellung bezahlt wurde
     socket.on('orderPaid', (orderData) => {
       console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
       
-      // Suche nach Bestellungen und markiere sie als bezahlt
       const orderItems = document.querySelectorAll('.order-item');
       
       orderItems.forEach(item => {
-        // Holen Sie die Reihe, den Tisch und die Person
         const row = item.querySelector('strong:nth-child(1)');
         const table = item.querySelector('strong:nth-child(2)');
         const person = item.querySelector('strong:nth-child(3)');
 
         if (row && table && person) {
-          // Vergleiche mit den erhaltenen Daten
           const rowText = row.textContent.split(":")[1]?.trim();
           const tableText = table.textContent.split(":")[1]?.trim();
           const personText = person.textContent.split(":")[1]?.trim();
 
-          // Wenn die Daten übereinstimmen, wird das Element rot eingefärbt
           if (rowText === orderData.row.toString() && tableText === orderData.table.toString() && personText === orderData.person.toString()) {
-            item.classList.add('paid'); // Bestellung als bezahlt markieren
+            item.classList.add('paid');
           }
         }
       });
     });
 
-    function addOrderToList(orderData) {
-  const orderList = document.getElementById('orderList');
-  
-  console.log('Timestamp:', orderData.timestamp);
+    socket.on('requestInitialData', () => {
+      socket.emit('initialData', allOrders);
+    });
 
-  if (!orderData || !orderData.order) {
-    console.error('❌ Fehler: orderData.order ist nicht definiert!');
-    return;
-  }
+    function updateOrderDisplay() {
+      const orderList = document.getElementById('orderList');
+      orderList.innerHTML = '';
+      
+      for (const [row, tables] of Object.entries(allOrders)) {
+        for (const [table, persons] of Object.entries(tables)) {
+          for (const [person, order] of Object.entries(persons)) {
+            addOrderToList({row, table, person, order});
+          }
+        }
+      }
+    }
+
+    function addOrderToList(orderData) {
+      const orderList = document.getElementById('orderList');
+      
+      console.log('Timestamp:', orderData.timestamp);
+
+      if (!orderData || !orderData.order) {
+        console.error('❌ Fehler: orderData.order ist nicht definiert!');
+        return;
+      }
       const orderElement = document.createElement('div');
       orderElement.classList.add('order-item');
       if (orderData.status) {
         orderElement.classList.add(orderData.status);
       }
 
-      // Überprüfe, ob der Timestamp existiert und gültig ist
       const timestamp = orderData.timestamp 
         ? new Date(Number(orderData.timestamp)).toLocaleString() 
         : "Zeit unbekannt";
 
-      // Bestellung anzeigen
       orderElement.innerHTML = `
     <div class="order-details">
       <strong>Reihe: ${orderData.row}</strong> - 
@@ -171,9 +186,9 @@
     </div>
   `;
 
-  console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
-  orderList.insertBefore(orderElement, orderList.firstChild);
-}
+      console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
+      orderList.insertBefore(orderElement, orderList.firstChild);
+    }
 
     function markAsCompleted(row, table, person, button) {
       socket.emit('markOrderCompleted', { row, table, person });
