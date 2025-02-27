@@ -440,6 +440,14 @@
       const category = this.classList.contains('row-button') ? 'row-button' : 
                        this.classList.contains('table-button') ? 'table-button' : 'person-button';
       document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
+        
+     document.addEventListener('touchend', function(event) {
+            if (event.touches.length < 2) {
+                event.preventDefault();
+            }
+        }, false);   
+        
+        
       
       // Fügen Sie die Auswahl zum geklickten Button hinzu
       this.classList.add('selected');
@@ -469,10 +477,7 @@
   }
 });
      
-     
-     
-     
-      
+           
       
 const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
 let allOrders = {};
@@ -904,7 +909,9 @@ function markOrderAsPaid() {
       loadOrdersFromLocalStorage();
       renderProductButtons();
       renderPersonButtons();
-      selectTable(1);
+        selectRow(1);
+  selectTable(1);
+  selectPerson(1);
 
       document.getElementById('sendOrderButton').addEventListener('click', function(e) {
         e.preventDefault();
