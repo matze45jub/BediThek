@@ -608,7 +608,21 @@ let sentOrders = {
   }
 }
 
-    function renderPersonButtons() {
+
+
+      
+      function selectPerson(personNumber) {
+  currentPerson = personNumber;
+  document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
+  renderOrder();
+  // Initialisieren Sie sentOrders für die neue Person, falls noch nicht vorhanden
+  if (!sentOrders[currentTable][currentPerson]) {
+    sentOrders[currentTable][currentPerson] = {};
+  }
+}
+
+          function renderPersonButtons() {
       const personSelection = document.getElementById("personSelection");
       personSelection.innerHTML = "";
       for (let i = 1; i <= 6; i++) {
@@ -630,19 +644,8 @@ let sentOrders = {
         promptForBedienungName();
       }
     }
-
       
-      function selectPerson(personNumber) {
-  currentPerson = personNumber;
-  document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
-  renderOrder();
-  // Initialisieren Sie sentOrders für die neue Person, falls noch nicht vorhanden
-  if (!sentOrders[currentTable][currentPerson]) {
-    sentOrders[currentTable][currentPerson] = {};
-  }
-}
-
+      
     function togglePaymentDialog() {
       const dialog = document.getElementById("paymentDialog");
       paymentDialogTable = currentTable;
