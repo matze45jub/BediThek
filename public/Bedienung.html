@@ -17,7 +17,20 @@
       color: #333;
     }
 
-  
+      .unified-button {
+      width: 100px;
+      height: 40px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      color: white;
+    }
+    .person-button.selected {
+      border: 2px solid white;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
     
     .header {
       text-align: center;
@@ -362,27 +375,27 @@
   <div class="payment-dialog" id="paymentDialog">
     <h3>Zahlung</h3>
       
-  <div class="row-selection">
-  <button class="row-button" onclick="selectPaymentRow(1)">Reihe 1</button>
-  <button class="row-button" onclick="selectPaymentRow(2)">Reihe 2</button>
-  <button class="row-button" onclick="selectPaymentRow(3)">Reihe 3</button>
-  <button class="row-button" onclick="selectPaymentRow(4)">Reihe 4</button>
-  <button class="row-button" onclick="selectPaymentRow(5)">Reihe 5</button>
-  <button class="row-button" onclick="selectPaymentRow(6)">Reihe 6</button>
-</div>
-      
-      
-<!-- Für jede Reihe -->
-<div class="row-container" id="row1">
-  <div class="table-selection">
-    <button class="table-button" onclick="selectTable(1, 1)">Tisch 1</button>
-    <button class="table-button" onclick="selectTable(1, 2)">Tisch 2</button>
-    <button class="table-button" onclick="selectTable(1, 3)">Tisch 3</button>
-    <button class="table-button" onclick="selectTable(1, 4)">Tisch 4</button>
-    <button class="table-button" onclick="selectTable(1, 5)">Tisch 5</button>
-    <button class="table-button" onclick="selectTable(1, 6)">Tisch 6</button>
+<!-- Reihen (gelb) -->
+  <div class="button-group">
+    <button class="unified-button row-button" style="background-color: ffcc00;">Reihe 1</button>
+    <button class="unified-button row-button" style="background-color: ffcc00;">Reihe 2</button>
+    <button class="unified-button row-button" style="background-color: ffcc00;">Reihe 3</button>
+    <button class="unified-button row-button" style="background-color: ffcc00;">Reihe 4</button>
+    <button class="unified-button row-button" style="background-color: ffcc00;">Reihe 5</button>
+    <button class="unified-button row-button" style="background-color: ffcc00;">Reihe 6</button>
   </div>
- 
+
+  <!-- Tische (blau) -->
+  <div class="button-group">
+    <button class="unified-button table-button" style="background-color: 3498db;">Tisch 1</button>
+    <button class="unified-button table-button" style="background-color: 3498db;">Tisch 2</button>
+    <button class="unified-button table-button" style="background-color: 3498db;">Tisch 3</button>
+    <button class="unified-button table-button" style="background-color: 3498db;">Tisch 4</button>
+    <button class="unified-button table-button" style="background-color: 3498db;">Tisch 5</button>
+    <button class="unified-button table-button" style="background-color: 3498db;">Tisch 6</button>
+  </div>
+
+  
     
     <div class="person-selection" id="paymentPersonSelection"></div>
     
@@ -408,7 +421,24 @@
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    
+    
+    
   <script>
+      
+      
+  document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.person-button').forEach(button => {
+        button.addEventListener('click', function() {
+          this.classList.toggle('selected');
+        });
+      });
+    });    
+      
+      
+      
+      
+      
 const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
 let allOrders = {};
 
