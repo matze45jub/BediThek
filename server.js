@@ -33,10 +33,8 @@ app.get('/theke', (req, res) => {
 io.on('connection', (socket) => {
   console.log('🔗 Ein Client hat sich verbunden');
 
-  // Anfrage für initiale Daten
-  socket.on('requestInitialData', () => {
-    socket.emit('initialData', allOrders);
-  });
+  // Sende sofort die aktuellen Daten an den neuen Client
+  socket.emit('initialData', allOrders);
 
   // Bestellung empfangen
   socket.on('sendOrder', (orderData) => {
@@ -49,6 +47,7 @@ io.on('connection', (socket) => {
     if (!allOrders[row][table]) allOrders[row][table] = {};
     allOrders[row][table][person] = order;
 
+    // Sende die neue Bestellung und das aktualisierte allOrders an alle Clients
     io.emit('neworder', orderData);
     io.emit('orderUpdate', allOrders);
   });
