@@ -37,20 +37,22 @@ io.on('connection', (socket) => {
   socket.emit('initialData', allOrders);
 
   // Bestellung empfangen
-  socket.on('sendOrder', (orderData) => {
-    orderData.timestamp = Date.now();
-    console.log('📦 Bestellung erhalten:', orderData);
-    
-    // Bestellung zum Gesamtspeicher hinzufügen
-    const { row, table, person, order } = orderData;
-    if (!allOrders[row]) allOrders[row] = {};
-    if (!allOrders[row][table]) allOrders[row][table] = {};
-    allOrders[row][table][person] = order;
+socket.on('sendOrder', (orderData) => {
+  orderData.timestamp = Date.now();
+  orderData.bedienung = orderData.bedienung || 'Unbekannt'; // Fügen Sie diese Zeile hinzu
+  console.log('📦 Bestellung erhalten:', orderData);
+  
+  // Bestellung zum Gesamtspeicher hinzufügen
+  const { row, table, person, order, bedienung } = orderData; // Fügen Sie 'bedienung' hier hinzu
+  if (!allOrders[row]) allOrders[row] = {};
+  if (!allOrders[row][table]) allOrders[row][table] = {};
+  allOrders[row][table][person] = { ...order, bedienung }; // Speichern Sie 'bedienung' mit der Bestellung
 
-    // Sende die neue Bestellung und das aktualisierte allOrders an alle Clients
-    io.emit('neworder', orderData);
-    io.emit('orderUpdate', allOrders);
-  });
+  // Sende die neue Bestellung und das aktualisierte allOrders an alle Clients
+  io.emit('neworder', orderData);
+  io.emit('orderUpdate', allOrders);
+});
+
 
   // Bestellung als erledigt markieren
   socket.on('markOrderCompleted', (orderDetails) => {
