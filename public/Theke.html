@@ -112,11 +112,16 @@
 
     socket.on('orderUpdate', (updatedOrders) => {
       console.log('📊 Aktualisierte Bestellungen empfangen:', updatedOrders);
-      allOrders = Object.values(updatedOrders).flatMap(row =>
-        Object.values(row).flatMap(table =>
-          Object.values(table).map(order => order)
-        )
-      );
+      allOrders = [];
+      
+      for (const row in updatedOrders) {
+        for (const table in updatedOrders[row]) {
+          for (const person in updatedOrders[row][table]) {
+            allOrders.push(updatedOrders[row][table][person]);
+          }
+        }
+      }
+
       updateOrderDisplay();
     });
 
