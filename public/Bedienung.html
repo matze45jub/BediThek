@@ -474,14 +474,15 @@
      
       
       
-const socket = io('https://bedithek.onrender.com');
+const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
 let allOrders = {};
 
 socket.on('connect', () => {
   console.log('✅ Bedienung-Verbindung zum Server hergestellt.');
+  socket.emit('requestInitialData');
 });
 
-socket.on('initialData', (data) => {
+socket.on("initialData", (data) => {
   allOrders = data;
   updateOrderDisplay();
 });
@@ -495,9 +496,7 @@ socket.on('orderUpdate', (updatedOrders) => {
   updateOrderDisplay();
 });
 
-
 function updateOrderDisplay() {
-  // Aktualisiere die Gesamtübersicht aller Bestellungen
   const orderList = document.getElementById('orderList');
   orderList.innerHTML = '';
   
@@ -509,43 +508,8 @@ function updateOrderDisplay() {
       }
     }
   }
-
-  // Aktualisiere die detaillierte Anzeige für die aktuelle Auswahl
-  updateCurrentOrderDisplay();
-
-  // Aktualisiere die Bestelltabelle
-  renderOrder();
-
-  // Aktualisiere den Gesamtbetrag
-  updateTotalSum();
 }
 
-      function updateCurrentOrderDisplay() {
-  const orderArea = document.querySelector('#order');
-  const selectedRow = document.querySelector('.row-button.selected');
-  const selectedTable = document.querySelector('.table-button.selected');
-  const selectedPerson = document.querySelector('.person-button.selected');
-
-  let orderText = 'Bestellung für: ';
-  if (selectedRow) orderText += selectedRow.textContent + ' ';
-  if (selectedTable) orderText += selectedTable.textContent + ' ';
-  if (selectedPerson) orderText += selectedPerson.textContent;
-
-  const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
-  orderInfo.className = 'order-info';
-  orderInfo.textContent = orderText;
-  orderArea.insertBefore(orderInfo, orderArea.firstChild);
-}
-
-function updateTotalSum() {
-  const total = calculateTotal();
-  document.getElementById("totalSum").textContent = total.toFixed(2);
-}
-
-      
-      
-      
-      
 function createOrderElement(row, table, person, order) {
   const element = document.createElement('div');
   element.className = 'order-item';
@@ -767,17 +731,12 @@ let sentOrders = {
   document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
 }
 
- function calculateTotal() {
-  if (currentRow && currentTable && currentPerson && 
-      allOrders[currentRow] && allOrders[currentRow][currentTable] && allOrders[currentRow][currentTable][currentPerson]) {
-    const personOrder = allOrders[currentRow][currentTable][currentPerson];
-    return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
-  }
-  return 0;
-}
+    function calculateTotal() {
+      const personOrder = tables[currentTable].persons[currentPerson - 1];
+      return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
+    }
 
-
-function sendOrderToTheke() {
+ function sendOrderToTheke() {
   if (!currentRow || !currentTable || !currentPerson) {
     console.error("❌ Fehler: Reihen-, Tisch- oder Person-Nummer fehlt!");
     alert("Bitte Reihe, Tisch und Person auswählen!");
@@ -789,12 +748,12 @@ function sendOrderToTheke() {
   if (!sentOrders[currentTable][currentPerson]) sentOrders[currentTable][currentPerson] = {};
 
   const orderData = {
-    bedienung: bedienungName || "Unbekannt",
-    timestamp: Date.now(),
-    row: currentRow,
-    table: currentTable,
-    person: currentPerson,
-    order: {}
+    bedienung: bedienungName || "Unbekannt", // Falls nicht gesetzt, "Unbekannt" als Fallback
+    timestamp: Date.now(), // ✅ Aktuelle Zeit als Timestamp hinzufügen
+    row: currentRow,       // ✅ Reihen-Nummer
+    table: currentTable,   // ✅ Tisch-Nummer
+    person: currentPerson, // ✅ Personen-Nummer
+    order: {}              // ✅ Bestellung wird hier gefüllt
   };
 
   const personOrder = tables[currentTable].persons[currentPerson - 1];
@@ -813,7 +772,7 @@ function sendOrderToTheke() {
   }
 
   if (hasNewItems) {
-    socket.emit("sendOrder", orderData);
+    socket.emit("sendOrder", orderData); // ✅ Bestellung wird an die Theke gesendet
     console.log("📦 Neue Bestellung gesendet:", orderData);
     alert("Bestellung wurde an die Theke gesendet.");
   } else {
@@ -821,7 +780,6 @@ function sendOrderToTheke() {
     alert("Keine neuen Produkte zum Senden.");
   }
 }
-
     function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
       updatePaymentPersonSelection();
@@ -862,28 +820,29 @@ function sendOrderToTheke() {
       updateChange();
     }
 
-   function completePayment() {
-  if (selectedPersons.length === 0) {
-    alert("Bitte wählen Sie mindestens eine Person aus!");
-    return;
-  }
+    function completePayment() {
+      if (selectedPersons.lengath === 0) {
+        alert("Bitte wählen Sie mindestens eine Person aus!");
+        return;
+      }
 
-  selectedPersons.forEach(person => {
-    socket.emit('orderPaid', {
-      row: currentRow,
-      table: paymentDialogTable,
-      person: person,
+selectedPersons.forEach(person => {
+        // Bestellung für die Person löschen
+        tables[paymentDialogTable].persons[person - 1] = {};
+        // Signal an den Server senden, dass die Bestellung bezahlt wurde
+        socket.emit('orderPaid', {
+            row: currentRow, // Zeilen-Nummer hinzufügen
+            table: paymentDialogTable,
+            person: person,
+        });
     });
-    tables[paymentDialogTable].persons[person - 1] = {};
-  });
-  
-  saveOrdersToLocalStorage();
-  alert(`Zahlung für Tisch ${paymentDialogTable}, Personen ${selectedPersons.join(', ')} abgeschlossen!`);
-  selectedPersons = [];
-  updateOrderDisplay();
-  togglePaymentDialog();
-}
-
+      
+      saveOrdersToLocalStorage();
+      alert(`Zahlung für Tisch ${paymentDialogTable}, Personen ${selectedPersons.join(', ')} abgeschlossen!`);
+      selectedPersons = [];
+      renderOrder();
+      togglePaymentDialog();
+    }
 
     function resetOrder() {
       tables[currentTable].persons[currentPerson - 1] = {};
@@ -947,8 +906,6 @@ function markOrderAsPaid() {
       renderPersonButtons();
       selectRow(1);
       selectTable(1);
-        socket.emit('requestInitialData');
-
 
       document.getElementById('sendOrderButton').addEventListener('click', function(e) {
         e.preventDefault();
