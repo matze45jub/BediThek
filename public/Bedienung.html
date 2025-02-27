@@ -904,6 +904,7 @@ function markOrderAsPaid() {
       loadOrdersFromLocalStorage();
       renderProductButtons();
       renderPersonButtons();
+      selectRow(1);
       selectTable(1);
 
       document.getElementById('sendOrderButton').addEventListener('click', function(e) {
