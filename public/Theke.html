@@ -109,6 +109,13 @@
     socket.on('disconnect', () => {
       console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
+      
+      socket.on('orderUpdate', (updatedOrders) => {
+  console.log('📊 Aktualisierte Bestellungen empfangen:', updatedOrders);
+  allOrders = updatedOrders;
+  updateOrderDisplay();
+});
+
 
     socket.on('neworder', (orderData) => {
       console.log('📩 Bestellung in Theke empfangen:', orderData);
@@ -129,6 +136,21 @@
       return orders ? JSON.parse(orders) : {};
     }
 
+      function updateOrderDisplay() {
+  const orderList = document.getElementById('orderList');
+  orderList.innerHTML = '';
+  
+  for (const [row, tables] of Object.entries(allOrders)) {
+    for (const [table, persons] of Object.entries(tables)) {
+      for (const [person, order] of Object.entries(persons)) {
+        addOrderToList({row, table, person, order});
+      }
+    }
+  }
+}
+
+      
+      
     function addOrderToList(orderData) {
       const orderList = document.getElementById('orderList');
       
@@ -211,16 +233,11 @@
       console.log('🗑️ Speicher wurde geleert');
     }
 
-    window.onload = function() {
-      allOrders = loadOrdersFromLocalStorage();
-      for (const [row, tables] of Object.entries(allOrders)) {
-        for (const [table, persons] of Object.entries(tables)) {
-          for (const [person, order] of Object.entries(persons)) {
-            addOrderToList({row, table, person, order});
-          }
-        }
-      }
-    };
+   window.onload = function() {
+  allOrders = loadOrdersFromLocalStorage();
+  updateOrderDisplay();
+};
+
   </script>
 
 </body>
