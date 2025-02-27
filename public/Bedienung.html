@@ -44,7 +44,13 @@
   line-height: 24px; /* Zeilenhöhe ebenfalls anpassen */
   margin: 0; /* Falls nötig, den Standardabstand entfernen */
 }
+ 
       
+      .selected {
+  opacity: 0.5;
+  background-color: #ccc !important;
+}
+
 .selected-order-row {
   background-color: yellow; /* Gelber Hintergrund */
   color: black; /* Schwarze Schrift */
@@ -365,7 +371,8 @@
   </table>
 
   <h3 class="total-sum">Gesamtsumme (€): <span id="totalSum">0.00</span>€</h3>
-
+    
+    
 <div class="button-container">
   <button id="sendOrderButton">Jetzt bestellen</button>
   <button onclick="togglePaymentDialog()">Zahlung</button>
@@ -421,22 +428,50 @@
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-    
-    
-    
+        
   <script>
       
       
-  document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('.person-button').forEach(button => {
-        button.addEventListener('click', function() {
-          this.classList.toggle('selected');
-        });
-      });
-    });    
+ document.addEventListener('DOMContentLoaded', function() {
+  const buttons = document.querySelectorAll('.unified-button');
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      // Entfernen Sie die Auswahl von allen Buttons derselben Kategorie
+      const category = this.classList.contains('row-button') ? 'row-button' : 
+                       this.classList.contains('table-button') ? 'table-button' : 'person-button';
+      document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
       
+      // Fügen Sie die Auswahl zum geklickten Button hinzu
+      this.classList.add('selected');
       
+      // Aktualisieren Sie die Anzeige im Bestellbereich
+      updateOrderDisplay();
+    });
+  });
       
+  
+       function updateOrderDisplay() {
+    const orderArea = document.querySelector('#order');
+    const selectedRow = document.querySelector('.row-button.selected');
+    const selectedTable = document.querySelector('.table-button.selected');
+    const selectedPerson = document.querySelector('.person-button.selected');
+
+    let orderText = 'Bestellung für: ';
+    if (selectedRow) orderText += selectedRow.textContent + ' ';
+    if (selectedTable) orderText += selectedTable.textContent + ' ';
+    if (selectedPerson) orderText += selectedPerson.textContent;
+
+    // Fügen Sie diesen Text zum Bestellbereich hinzu
+    const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
+    orderInfo.className = 'order-info';
+    orderInfo.textContent = orderText;
+    orderArea.insertBefore(orderInfo, orderArea.firstChild);
+  }
+});
+     
+     
+     
+     
       
       
 const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
