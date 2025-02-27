@@ -440,14 +440,6 @@
       const category = this.classList.contains('row-button') ? 'row-button' : 
                        this.classList.contains('table-button') ? 'table-button' : 'person-button';
       document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
-        
-     document.addEventListener('touchend', function(event) {
-            if (event.touches.length < 2) {
-                event.preventDefault();
-            }
-        }, false);   
-        
-        
       
       // Fügen Sie die Auswahl zum geklickten Button hinzu
       this.classList.add('selected');
@@ -477,7 +469,10 @@
   }
 });
      
-           
+     
+     
+     
+      
       
 const socket = io('https://bedithek.onrender.com'); // Verbindung zum Server herstellen
 let allOrders = {};
@@ -608,21 +603,7 @@ let sentOrders = {
   }
 }
 
-
-
-      
-      function selectPerson(personNumber) {
-  currentPerson = personNumber;
-  document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
-  document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
-  renderOrder();
-  // Initialisieren Sie sentOrders für die neue Person, falls noch nicht vorhanden
-  if (!sentOrders[currentTable][currentPerson]) {
-    sentOrders[currentTable][currentPerson] = {};
-  }
-}
-
-          function renderPersonButtons() {
+    function renderPersonButtons() {
       const personSelection = document.getElementById("personSelection");
       personSelection.innerHTML = "";
       for (let i = 1; i <= 6; i++) {
@@ -644,8 +625,19 @@ let sentOrders = {
         promptForBedienungName();
       }
     }
+
       
-      
+      function selectPerson(personNumber) {
+  currentPerson = personNumber;
+  document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
+  document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
+  renderOrder();
+  // Initialisieren Sie sentOrders für die neue Person, falls noch nicht vorhanden
+  if (!sentOrders[currentTable][currentPerson]) {
+    sentOrders[currentTable][currentPerson] = {};
+  }
+}
+
     function togglePaymentDialog() {
       const dialog = document.getElementById("paymentDialog");
       paymentDialogTable = currentTable;
@@ -912,9 +904,7 @@ function markOrderAsPaid() {
       loadOrdersFromLocalStorage();
       renderProductButtons();
       renderPersonButtons();
-        selectRow(1);
-  selectTable(1);
-  selectPerson(1);
+      selectTable(1);
 
       document.getElementById('sendOrderButton').addEventListener('click', function(e) {
         e.preventDefault();
