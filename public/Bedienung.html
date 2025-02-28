@@ -736,7 +736,7 @@ let sentOrders = {
       return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
     }
 
-function sendOrderToTheke() {
+ function sendOrderToTheke() {
   if (!currentRow || !currentTable || !currentPerson) {
     console.error("❌ Fehler: Reihen-, Tisch- oder Person-Nummer fehlt!");
     alert("Bitte Reihe, Tisch und Person auswählen!");
@@ -891,24 +891,11 @@ function markOrderAsPaid() {
     }
 
     function loadOrdersFromLocalStorage() {
-  const savedTables = localStorage.getItem('tables');
-  if (savedTables) {
-    try {
-      tables = JSON.parse(savedTables);
-    } catch (error) {
-      console.error("Fehler beim Parsen der Daten aus localStorage:", error);
-      // Setze 'tables' auf einen Standardwert, um den Fehler zu beheben
-      tables = {
-        1: { persons: [{}, {}, {}, {}, {}, {}] },
-        2: { persons: [{}, {}, {}, {}, {}, {}] },
-        3: { persons: [{}, {}, {}, {}, {}, {}] },
-        4: { persons: [{}, {}, {}, {}, {}, {}] },
-        5: { persons: [{}, {}, {}, {}, {}, {}] },
-        6: { persons: [{}, {}, {}, {}, {}, {}] }
-      };
+      const savedTables = localStorage.getItem('tables');
+      if (savedTables) {
+        tables = JSON.parse(savedTables);
+      }
     }
-  }
-}
 
     
     // Initialisierung
