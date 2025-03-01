@@ -329,6 +329,16 @@
 
   <div id="bedienungNameDisplay" style="text-align: center; margin: 10px 0; font-weight: bold;"></div>
     
+<div id="startDialog" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0px 4px 6px rgba(0,0,0,0.1);">
+    <p>Beginnst du jetzt oder hast du schon Bestellungen erfasst?</p>
+    <button onclick="startNewSession()">Ich beginne</button>
+    <button onclick="keepExistingOrders()">Habe schon Bestellungen</button>
+</div>
+
+
+    
+    
+    
     
 <div class="row-buttons">
   <button class="row-button" id="row1" onclick="selectRow(1)">Reihe 1</button>
@@ -894,26 +904,26 @@ function sendOrderToTheke() {
       sentOrders = {};
     }
 
-    function renderProductButtons() {
-      const essenButtons = document.getElementById("essenButtons");
-      const getraenkeButtons = document.getElementById("getraenkeButtons");
-      
-      essenButtons.innerHTML = '';
-      getraenkeButtons.innerHTML = '';
-      
-      products.forEach(product => {
+  function renderProductButtons() {
+    const essenButtons = document.getElementById("essenButtons");
+    const getraenkeButtons = document.getElementById("getraenkeButtons");
+    
+    essenButtons.innerHTML = '';
+    getraenkeButtons.innerHTML = '';
+    
+    products.forEach(product => {
         const button = document.createElement("button");
         button.textContent = product.name;
         button.className = `product-button ${product.category}-button`;
         button.onclick = () => addProductToOrder(product.name);
         
         if (product.category === "essen") {
-          essenButtons.appendChild(button);
-        } else {
-          getraenkeButtons.appendChild(button);
+            essenButtons.appendChild(button);
+        } else if (product.category === "getraenke") {
+            getraenkeButtons.appendChild(button);
         }
-      });
-    }
+    });
+}
 
 function markOrderAsPaid() {
   const orderData = {
@@ -926,6 +936,74 @@ function markOrderAsPaid() {
   console.log(`Bestellung für Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson} wurde als bezahlt markiert.`);
 }
     
+function startNewSession() {
+    console.log("startNewSession wurde aufgerufen!"); // Debug-Ausgabe
+
+    // Lösche alle gespeicherten Daten
+    localStorage.clear();
+    alert("Alle bisherigen Daten wurden gelöscht. Du kannst jetzt neu beginnen.");
+
+    // Setze alle relevanten Variablen und Datenstrukturen zurück
+    tables = {
+        1: { persons: [{}, {}, {}, {}, {}, {}] },
+        2: { persons: [{}, {}, {}, {}, {}, {}] },
+        3: { persons: [{}, {}, {}, {}, {}, {}] },
+        4: { persons: [{}, {}, {}, {}, {}, {}] },
+        5: { persons: [{}, {}, {}, {}, {}, {}] },
+        6: { persons: [{}, {}, {}, {}, {}, {}] }
+    };
+
+    sentOrders = {
+        1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}
+    };
+
+    // Leere die Bestelltabelle
+    const tbody = document.querySelector("#orderTable tbody");
+    if (tbody) {
+        tbody.innerHTML = "";
+    }
+
+    // Aktualisiere die Gesamtsumme
+    const totalSumElement = document.getElementById("totalSum");
+    if (totalSumElement) {
+        totalSumElement.textContent = "0.00";
+    }
+
+    // Verstecke den Dialog
+    const startDialog = document.getElementById('startDialog');
+    if (startDialog) {
+        startDialog.style.display = 'none'; // Verstecke den Dialog
+        console.log("Der Startdialog wurde ausgeblendet."); // Debug-Ausgabe
+    } else {
+        console.error("Das Element mit der ID 'startDialog' wurde nicht gefunden.");
+    }
+
+    // Initialisiere die Benutzeroberfläche neu
+    initializeUI();
+}
+
+
+      function keepExistingOrders() {
+    alert("Deine bisherigen Bestellungen bleiben erhalten.");
+    
+    // Verstecke den Dialog
+    const startDialog = document.getElementById('startDialog');
+    startDialog.style.display = 'none';
+
+    // Initialisiere die Benutzeroberfläche neu
+    initializeUI();
+}
+
+      
+      
+      
+          
+    function showStartDialog() {
+    const startDialog = document.getElementById('startDialog');
+    startDialog.style.display = 'block';
+       
+}
+  
 
     function saveOrdersToLocalStorage() {
       localStorage.setItem('tables', JSON.stringify(tables));
@@ -942,6 +1020,10 @@ function markOrderAsPaid() {
     // Initialisierung
     window.onload = function() {
       promptForBedienungName();
+        
+        
+        
+        showStartDialog(); // Zeige danach die zweite Abfrage
       loadOrdersFromLocalStorage();
       renderProductButtons();
       renderPersonButtons();
