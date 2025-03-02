@@ -52,6 +52,12 @@ io.on('connection', (socket) => {
     io.emit('neworder', orderData);
     io.emit('orderUpdate', allOrders);
   });
+  
+  socket.on('updateOrders', (updatedTables) => {
+  allOrders = updatedTables;
+  io.emit('orderUpdate', allOrders);
+});
+
 
   // Bestellung als erledigt markieren
   socket.on('markOrderCompleted', (orderDetails) => {
