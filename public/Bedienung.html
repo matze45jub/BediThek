@@ -716,33 +716,37 @@ let sentOrders = {
       document.getElementById("changeAmount").textContent = change.toFixed(2);
     }
 
-    function addProductToOrder(name) {
-      const product = products.find(p => p.name === name);
-      if (product) {
-        const personOrder = tables[currentTable].persons[currentPerson - 1];
-        const existingProduct = personOrder[name];
-        if (existingProduct) {
-          existingProduct.quantity++;
-        } else {
-          personOrder[name] = { ...product, quantity: 1 };
-        }
-        renderOrder();
-        saveOrdersToLocalStorage();
-      }
+   function addProductToOrder(name) {
+  const product = products.find(p => p.name === name);
+  if (product) {
+    const personOrder = tables[currentTable].persons[currentPerson - 1];
+    const existingProduct = personOrder[name];
+    if (existingProduct) {
+      existingProduct.quantity++;
+    } else {
+      personOrder[name] = { ...product, quantity: 1 };
     }
+    renderOrder();
+    saveOrdersToLocalStorage();
+    // Sende aktualisierte Daten an den Server
+    socket.emit('updateOrders', tables);
+  }
+}
 
-    function adjustQuantity(name, delta) {
-      const personOrder = tables[currentTable].persons[currentPerson - 1];
-      const product = personOrder[name];
-      if (product) {
-        product.quantity += delta;
-        if (product.quantity < 1) {
-          delete personOrder[name];
-        }
-        renderOrder();
-        saveOrdersToLocalStorage();
-      }
+function adjustQuantity(name, delta) {
+  const personOrder = tables[currentTable].persons[currentPerson - 1];
+  const product = personOrder[name];
+  if (product) {
+    product.quantity += delta;
+    if (product.quantity < 1) {
+      delete personOrder[name];
     }
+    renderOrder();
+    saveOrdersToLocalStorage();
+    // Sende aktualisierte Daten an den Server
+    socket.emit('updateOrders', tables);
+  }
+}
 
   function renderOrder() {
   const tbody = document.querySelector("#orderTable tbody");
@@ -777,14 +781,14 @@ let sentOrders = {
   document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
 }
 
- function calculateTotal() {
-  if (currentRow && currentTable && currentPerson && 
-      allOrders[currentRow] && allOrders[currentRow][currentTable] && allOrders[currentRow][currentTable][currentPerson]) {
-    const personOrder = allOrders[currentRow][currentTable][currentPerson];
+function calculateTotal() {
+  if (currentTable && currentPerson && tables[currentTable] && tables[currentTable].persons[currentPerson - 1]) {
+    const personOrder = tables[currentTable].persons[currentPerson - 1];
     return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
   }
   return 0;
 }
+
 
 
 function sendOrderToTheke() {
