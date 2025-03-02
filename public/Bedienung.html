@@ -608,7 +608,18 @@ function sendNewOrder(orderData) {
     5: { persons: [{}, {}, {}, {}, {}, {}] },  // Neuer Tisch 5
     6: { persons: [{}, {}, {}, {}, {}, {}] }   // Neuer Tisch 6
 };
-    let paymentDialogTable = 1;
+    
+      
+      
+      function initializeUI() {
+  renderPersonButtons();
+  renderProductButtons();
+  selectRow(1); // Standardreihe auswählen
+  selectTable(1); // Standardtisch auswählen
+}
+      
+      
+      let paymentDialogTable = 1;
     let selectedPersons = [];
 let sentOrders = {
     1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}  // Für Tische 1 bis 6
@@ -653,24 +664,42 @@ let sentOrders = {
       const personSelection = document.getElementById("personSelection");
       personSelection.innerHTML = "";
       for (let i = 1; i <= 6; i++) {
-        const button = document.createElement("button");
-        button.textContent = `Person ${i}`;
-        button.className = `person-button ${i === currentPerson ? 'active' : ''}`;
-        button.onclick = () => selectPerson(i);
-        personSelection.appendChild(button);
-      }
+    const button = document.createElement("button");
+    button.textContent = `Person ${i}`;
+    button.className = `person-button ${i === currentPerson ? 'active' : ''}`;
+    button.onclick = () => selectPerson(i);
+    personSelection.appendChild(button);
+  }
+        
+          // Überprüfen, ob das Element existiert
+  if (!personSelection) {
+    console.error("Das Element 'personSelection' wurde nicht gefunden!");
+    return;
+  }
     }
 
-    function promptForBedienungName() {
-      let name = prompt("Bitte geben Sie Ihren Namen ein:", "");
-      if (name != null && name.trim() !== "") {
-        bedienungName = name.trim();
-        document.getElementById('bedienungNameDisplay').textContent = `Bedienung: ${bedienungName}`;
-      } else {
-        alert("Bitte geben Sie einen gültigen Namen ein.");
-        promptForBedienungName();
-      }
+   function promptForBedienungName() {
+  let name;
+
+  while (!name || name.trim() === "") {
+    name = prompt("Bitte geben Sie Ihren Namen ein:", "");
+    
+    if (!name || name.trim() === "") {
+      alert("Bitte geben Sie einen gültigen Namen ein.");
     }
+  }
+
+  bedienungName = name.trim();
+  
+  const displayElement = document.getElementById('bedienungNameDisplay');
+  
+  if (displayElement) {
+    displayElement.textContent = `Bedienung: ${bedienungName}`;
+  } else {
+    console.error("Das Element 'bedienungNameDisplay' wurde nicht gefunden!");
+  }
+}
+
 
       
       function selectPerson(personNumber) {
@@ -684,14 +713,63 @@ let sentOrders = {
   }
 }
 
-    function togglePaymentDialog() {
-      const dialog = document.getElementById("paymentDialog");
-      paymentDialogTable = currentTable;
-      selectedPersons = [];
-      updatePaymentPersonSelection();
-      updatePaymentTotal();
-      dialog.style.display = (dialog.style.display === "none" || dialog.style.display === "") ? "block" : "none";
+   function togglePaymentDialog() {
+  const dialog = document.getElementById("paymentDialog");
+  
+  // Wenn das Fenster geöffnet wird
+  if (dialog.style.display === "none" || dialog.style.display === "") {
+    paymentDialogTable = currentTable;
+    selectedPersons = [];
+    updatePaymentPersonSelection();
+    updatePaymentTotal();
+
+    // Vorblenden der Bestellungen der ausgewählten Personen
+    previewSelectedOrders();
+
+    dialog.style.display = "block";
+  } else {
+    dialog.style.display = "none";
+    
+    // Leere den Betrag und das Rückgeld im Dialog
+    document.getElementById("paymentAmount").value = "";
+    document.getElementById("changeAmount").textContent = "0.00";
+  }
+}
+
+      
+      function previewSelectedOrders() {
+  const previewContainer = document.createElement("div");
+  
+  selectedPersons.forEach(person => {
+    const personOrder = tables[paymentDialogTable].persons[person - 1];
+    
+    if (Object.keys(personOrder).length > 0) {
+      const orderList = document.createElement("ul");
+      orderList.innerHTML = `<h4>Person ${person}:</h4>`;
+      
+      Object.entries(personOrder).forEach(([productName, product]) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = `${product.quantity}x ${productName} (${(product.price * product.quantity).toFixed(2)}€)`;
+        orderList.appendChild(listItem);
+      });
+      
+      previewContainer.appendChild(orderList);
     }
+  });
+
+  // Zeige die Vorschau im Zahlungsdialog an
+  const dialogBody = document.getElementById("paymentDialog");
+  
+  // Entferne vorherige Vorschau, falls vorhanden
+  const existingPreview = dialogBody.querySelector(".order-preview");
+  if (existingPreview) existingPreview.remove();
+
+  previewContainer.className = "order-preview";
+  dialogBody.insertBefore(previewContainer, dialogBody.firstChild);
+}
+
+      
+      
 
     function addNumber(num) {
       document.getElementById("paymentAmount").value += num;
@@ -748,21 +826,26 @@ function adjustQuantity(name, delta) {
   }
 }
 
-  function renderOrder() {
+function renderOrder() {
   const tbody = document.querySelector("#orderTable tbody");
   tbody.innerHTML = "";
+
+  // Überprüfen, ob die Person existiert
+  if (!tables[currentTable] || !tables[currentTable].persons[currentPerson - 1]) {
+    console.error("Ungültige Tabelle oder Person!");
+    return;
+  }
+
   const personOrder = tables[currentTable].persons[currentPerson - 1];
-  
-  // Iteriere über die Produkte und füge die Markierung für die ausgewählte Person hinzu
+
+  // Wenn keine Produkte vorhanden sind
+  if (Object.keys(personOrder).length === 0) {
+    document.getElementById("totalSum").textContent = "0.00";
+    return;
+  }
+
   Object.values(personOrder).forEach(product => {
     const row = document.createElement("tr");
-    row.classList.add('order-row'); // Standardklasse für eine Zeile
-    
-    // Hier wird überprüft, ob dieses Produkt für die aktuelle Person markiert werden soll
-    if (selectedPersons.includes(currentPerson)) {
-      row.classList.add('selected-order-row'); // Füge die Markierung hinzu
-    }
-    
     row.innerHTML = `
       <td>${product.name}</td>
       <td class="quantity-controls">
@@ -773,13 +856,13 @@ function adjustQuantity(name, delta) {
       <td>${product.price.toFixed(2)}</td>
       <td>${(product.price * product.quantity).toFixed(2)}</td>
     `;
-    
     tbody.appendChild(row);
   });
-  
+
   // Berechne den Gesamtbetrag
   document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
 }
+
 
 function calculateTotal() {
   if (currentTable && currentPerson && tables[currentTable] && tables[currentTable].persons[currentPerson - 1]) {
@@ -842,18 +925,26 @@ function sendOrderToTheke() {
       updatePaymentTotal();
     }
 
-    function updatePaymentPersonSelection() {
-      const container = document.getElementById("paymentPersonSelection");
-      container.innerHTML = "";
-      
-      for (let i = 1; i <= 6; i++) {
-        const button = document.createElement("button");
-        button.textContent = `Person ${i}`;
-        button.className = `person-button ${selectedPersons.includes(i) ? 'active' : ''}`;
-        button.onclick = () => togglePaymentPerson(i);
-        container.appendChild(button);
-      }
-    }
+  function updatePaymentPersonSelection() {
+  const container = document.getElementById("paymentPersonSelection");
+  
+  container.innerHTML = ""; // Alte Buttons entfernen
+  
+  for (let i = 1; i <= tables[paymentDialogTable].persons.length; i++) {
+    const button = document.createElement("button");
+    
+    button.textContent = `Person ${i}`;
+    button.className = `person-button ${selectedPersons.includes(i) ? 'active' : ''}`;
+    
+    button.onclick = () => {
+      togglePaymentPerson(i);
+      previewSelectedOrders(); // Aktualisiere die Vorschau nach Auswahl einer Person
+    };
+    
+    container.appendChild(button);
+  }
+}
+
 
     function togglePaymentPerson(personNumber) {
       const index = selectedPersons.indexOf(personNumber);
@@ -876,27 +967,55 @@ function sendOrderToTheke() {
       updateChange();
     }
 
-   function completePayment() {
+function completePayment() {
   if (selectedPersons.length === 0) {
     alert("Bitte wählen Sie mindestens eine Person aus!");
     return;
   }
 
+  // Berechnung und Anzeige des Rückgelds
+  const totalAmount = parseFloat(document.getElementById("paymentAmountToPay").textContent);
+  const paidAmount = parseFloat(document.getElementById("paymentAmount").value.replace(',', '.') || 0);
+  const change = paidAmount - totalAmount;
+
+  if (change < 0) {
+    alert("Der gezahlte Betrag reicht nicht aus!");
+    return;
+  }
+
+  // Entferne Bestellungen für alle ausgewählten Personen
   selectedPersons.forEach(person => {
     socket.emit('orderPaid', {
       row: currentRow,
       table: paymentDialogTable,
       person: person,
     });
+
+    // Leere lokale Bestellungen
     tables[paymentDialogTable].persons[person - 1] = {};
   });
+
+  saveOrdersToLocalStorage(); // Speichere aktualisierte Daten lokal
+
+  // Aktualisiere die Anzeige
+  alert(`Zahlung abgeschlossen! Rückgeld: ${change.toFixed(2)}€`);
   
-  saveOrdersToLocalStorage();
-  alert(`Zahlung für Tisch ${paymentDialogTable}, Personen ${selectedPersons.join(', ')} abgeschlossen!`);
-  selectedPersons = [];
-  updateOrderDisplay();
+  // Schließe das Zahlungsdialogfenster
   togglePaymentDialog();
+
+  // Leere die Bestelltabelle
+  renderOrder();
+  
+  // Benenne den OK-Button in "Bezahlt" um
+  const okButton = document.querySelector(".ok-button");
+  if (okButton) {
+    okButton.textContent = "Bezahlt";
+    setTimeout(() => {
+      okButton.textContent = "OK"; // Nach kurzer Zeit wieder zurücksetzen
+    }, 2000);
+  }
 }
+
 
 
     function resetOrder() {
@@ -912,21 +1031,27 @@ function sendOrderToTheke() {
     const essenButtons = document.getElementById("essenButtons");
     const getraenkeButtons = document.getElementById("getraenkeButtons");
     
-    essenButtons.innerHTML = '';
-    getraenkeButtons.innerHTML = '';
-    
-    products.forEach(product => {
-        const button = document.createElement("button");
-        button.textContent = product.name;
-        button.className = `product-button ${product.category}-button`;
-        button.onclick = () => addProductToOrder(product.name);
-        
-        if (product.category === "essen") {
-            essenButtons.appendChild(button);
-        } else if (product.category === "getraenke") {
-            getraenkeButtons.appendChild(button);
-        }
-    });
+        // Überprüfen, ob die Elemente existieren
+  if (!essenButtons || !getraenkeButtons) {
+    console.error("Die Elemente 'essenButtons' oder 'getraenkeButtons' wurden nicht gefunden!");
+    return;
+  }
+      
+    essenButtons.innerHTML = "";
+  getraenkeButtons.innerHTML = "";
+
+  products.forEach(product => {
+    const button = document.createElement("button");
+    button.textContent = product.name;
+    button.className = `product-button ${product.category}-button`;
+    button.onclick = () => addProductToOrder(product.name);
+
+    if (product.category === "essen") {
+      essenButtons.appendChild(button);
+    } else if (product.category === "getraenke") {
+      getraenkeButtons.appendChild(button);
+    }
+  });
 }
 
 function markOrderAsPaid() {
@@ -1024,15 +1149,15 @@ function startNewSession() {
     // Initialisierung
     window.onload = function() {
       promptForBedienungName();
-        
-        
-        
-        showStartDialog(); // Zeige danach die zweite Abfrage
+     showStartDialog(); // Zeige danach die zweite Abfrage
       loadOrdersFromLocalStorage();
       renderProductButtons();
       renderPersonButtons();
       selectRow(1);
       selectTable(1);
+        
+         initializeUI(); // Benutzeroberfläche initialisieren
+        
         socket.emit('requestInitialData');
 
 
