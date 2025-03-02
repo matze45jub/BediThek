@@ -973,7 +973,7 @@ function completePayment() {
     return;
   }
 
-  // Berechnung und Anzeige des Rückgelds
+  // Berechnung des gezahlten Betrags und Rückgelds
   const totalAmount = parseFloat(document.getElementById("paymentAmountToPay").textContent);
   const paidAmount = parseFloat(document.getElementById("paymentAmount").value.replace(',', '.') || 0);
   const change = paidAmount - totalAmount;
@@ -985,28 +985,39 @@ function completePayment() {
 
   // Entferne Bestellungen für alle ausgewählten Personen
   selectedPersons.forEach(person => {
+    // Sende an den Server, dass die Bestellung bezahlt wurde
     socket.emit('orderPaid', {
       row: currentRow,
       table: paymentDialogTable,
       person: person,
     });
 
-    // Leere lokale Bestellungen
+    // Lösche die Bestellung aus dem lokalen Speicher
     tables[paymentDialogTable].persons[person - 1] = {};
+
+    // Entferne auch die gespeicherten gesendeten Bestellungen
+    if (sentOrders[paymentDialogTable] && sentOrders[paymentDialogTable][person]) {
+      delete sentOrders[paymentDialogTable][person];
+    }
   });
 
-  saveOrdersToLocalStorage(); // Speichere aktualisierte Daten lokal
+  // Aktualisiere die lokale Speicherung
+  saveOrdersToLocalStorage();
 
-  // Aktualisiere die Anzeige
+  // Aktualisiere die Benutzeroberfläche
+  renderOrder();
+
+  // Zeige eine Erfolgsmeldung an
   alert(`Zahlung abgeschlossen! Rückgeld: ${change.toFixed(2)}€`);
-  
+
   // Schließe das Zahlungsdialogfenster
   togglePaymentDialog();
 
-  // Leere die Bestelltabelle
-  renderOrder();
-  
-  // Benenne den OK-Button in "Bezahlt" um
+  // Leere das Zahlungsfeld und setze das Rückgeld zurück
+  document.getElementById("paymentAmount").value = "";
+  document.getElementById("changeAmount").textContent = "0.00";
+
+  // Optional: Button kurz als "Bezahlt" anzeigen
   const okButton = document.querySelector(".ok-button");
   if (okButton) {
     okButton.textContent = "Bezahlt";
@@ -1015,6 +1026,7 @@ function completePayment() {
     }, 2000);
   }
 }
+
 
 
 
