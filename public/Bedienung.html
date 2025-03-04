@@ -667,13 +667,69 @@ function sendNewOrder(orderData) {
     let currentTable = 1;
     let currentPerson = 1;
   let tables = {
-    1: { persons: [{}, {}, {}, {}, {}, {}] },
-    2: { persons: [{}, {}, {}, {}, {}, {}] },
-    3: { persons: [{}, {}, {}, {}, {}, {}] },
-    4: { persons: [{}, {}, {}, {}, {}, {}] },
-    5: { persons: [{}, {}, {}, {}, {}, {}] },  // Neuer Tisch 5
-    6: { persons: [{}, {}, {}, {}, {}, {}] }   // Neuer Tisch 6
-};
+    "1": { // Reihe 1
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+    "2": { // Reihe 2
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+    "3": { // Reihe 3
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+    "4": { // Reihe 4
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+     
+      "5": { // Reihe 5
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },  
+         "6": { // Reihe 6
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+  };
+
     
       
       
@@ -698,12 +754,18 @@ let sentOrders = {
       updatePaymentPersonSelection();
     }
 
-      function selectRow(rowNumber) {
-  currentRow = rowNumber;
+function selectRow(rowNumber) {
+  currentRow = String(rowNumber); // Konvertiere rowNumber zu einem String
+
   document.querySelectorAll('.row-button').forEach(btn => btn.classList.remove('active'));
+  
   document.querySelector(`#row${rowNumber}`).classList.add('active');
-  // Füge hier weitere Logik hinzu, um mit der Auswahl der Reihe fortzufahren
+  
+  renderPersonButtons();
 }
+
+
+
 
       function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
@@ -713,18 +775,17 @@ let sentOrders = {
     }
 
     
-      function selectTable(tableNumber) {
+function selectTable(tableNumber) {
   currentTable = tableNumber;
-  currentPerson = 1;
+
   document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+  
   document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
+  
   renderPersonButtons();
-  renderOrder();
-  // Initialisieren Sie sentOrders für den neuen Tisch, falls noch nicht vorhanden
-  if (!sentOrders[currentTable]) {
-    sentOrders[currentTable] = {};
-  }
 }
+
+
 
     function renderPersonButtons() {
       const personSelection = document.getElementById("personSelection");
@@ -768,16 +829,17 @@ let sentOrders = {
 
 
       
-      function selectPerson(personNumber) {
+function selectPerson(personNumber) {
   currentPerson = personNumber;
+
   document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
+  
   document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
+  
   renderOrder();
-  // Initialisieren Sie sentOrders für die neue Person, falls noch nicht vorhanden
-  if (!sentOrders[currentTable][currentPerson]) {
-    sentOrders[currentTable][currentPerson] = {};
-  }
 }
+
+
 
    function togglePaymentDialog() {
   const dialog = document.getElementById("paymentDialog");
@@ -803,29 +865,29 @@ let sentOrders = {
 }
 
       
-      function previewSelectedOrders() {
+function previewSelectedOrders() {
   const previewContainer = document.createElement("div");
-  
+
   selectedPersons.forEach(person => {
-    const personOrder = tables[paymentDialogTable].persons[person - 1];
-    
-    if (Object.keys(personOrder).length > 0) {
+    const personOrder = tables[paymentDialogTable]?.persons?.[person - 1];
+
+    if (personOrder && Object.keys(personOrder).length > 0) {
       const orderList = document.createElement("ul");
       orderList.innerHTML = `<h4>Person ${person}:</h4>`;
-      
+
       Object.entries(personOrder).forEach(([productName, product]) => {
         const listItem = document.createElement("li");
         listItem.textContent = `${product.quantity}x ${productName} (${(product.price * product.quantity).toFixed(2)}€)`;
         orderList.appendChild(listItem);
       });
-      
+
       previewContainer.appendChild(orderList);
     }
   });
 
   // Zeige die Vorschau im Zahlungsdialog an
   const dialogBody = document.getElementById("paymentDialog");
-  
+
   // Entferne vorherige Vorschau, falls vorhanden
   const existingPreview = dialogBody.querySelector(".order-preview");
   if (existingPreview) existingPreview.remove();
@@ -833,6 +895,7 @@ let sentOrders = {
   previewContainer.className = "order-preview";
   dialogBody.insertBefore(previewContainer, dialogBody.firstChild);
 }
+
 
       
       
@@ -860,83 +923,142 @@ let sentOrders = {
       document.getElementById("changeAmount").textContent = change.toFixed(2);
     }
 
-   function addProductToOrder(name) {
+function addProductToOrder(name) {
   const product = products.find(p => p.name === name);
+
   if (product) {
-    const personOrder = tables[currentTable].persons[currentPerson - 1];
-    const existingProduct = personOrder[name];
-    if (existingProduct) {
-      existingProduct.quantity++;
+    // Initialisiere die Datenstruktur für die aktuelle Reihe
+    if (!tables[currentRow]) {
+      tables[currentRow] = { persons: [] };
+    }
+
+    // Initialisiere die Datenstruktur für den aktuellen Tisch
+    if (!tables[currentRow].persons[currentTable - 1]) {
+      tables[currentRow].persons[currentTable - 1] = [ {}, {}, {}, {}, {}, {} ];
+    }
+
+    // Initialisiere die Datenstruktur für die aktuelle Person
+    if (!tables[currentRow].persons[currentTable - 1][currentPerson - 1]) {
+      tables[currentRow].persons[currentTable - 1][currentPerson - 1] = {};
+    }
+
+    const personOrder = tables[currentRow].persons[currentTable - 1][currentPerson - 1];
+
+    // Füge das Produkt hinzu oder erhöhe die Menge
+    if (personOrder[name]) {
+      personOrder[name].quantity++;
     } else {
       personOrder[name] = { ...product, quantity: 1 };
     }
+
+    // Aktualisiere die Anzeige der Bestellung
     renderOrder();
     saveOrdersToLocalStorage();
+
     // Sende aktualisierte Daten an den Server
     socket.emit('updateOrders', tables);
   }
 }
+
+
+
 
 function adjustQuantity(name, delta) {
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
-  const product = personOrder[name];
-  if (product) {
-    product.quantity += delta;
-    if (product.quantity < 1) {
+  console.log("adjustQuantity aufgerufen:", name, delta); // Debugging-Ausgabe
+
+  const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[currentPerson - 1];
+
+  if (personOrder && personOrder[name]) {
+    console.log("Produkt gefunden:", personOrder[name]);
+    
+    personOrder[name].quantity += delta;
+
+    // Wenn die Menge < 1 ist, das Produkt aus der Bestellung entfernen
+    if (personOrder[name].quantity < 1) {
       delete personOrder[name];
     }
+
+    // Aktualisiere die Bestellanzeige
     renderOrder();
+
+    // Speichere die Änderungen im lokalen Speicher
     saveOrdersToLocalStorage();
+
     // Sende aktualisierte Daten an den Server
     socket.emit('updateOrders', tables);
+  } else {
+    console.error(`Produkt "${name}" nicht gefunden oder ungültige Datenstruktur.`);
   }
 }
 
+
+
+
+
 function renderOrder() {
+  console.log("Aktuelle Bestellung:", tables[currentRow]?.persons?.[currentTable - 1]?.[currentPerson - 1]);
+
   const tbody = document.querySelector("#orderTable tbody");
   tbody.innerHTML = "";
 
-  // Überprüfen, ob die Person existiert
-  if (!tables[currentTable] || !tables[currentTable].persons[currentPerson - 1]) {
-    console.error("Ungültige Tabelle oder Person!");
+  // Überprüfen, ob die aktuelle Bestellung existiert
+  if (
+    !tables[currentRow] || 
+    !tables[currentRow].persons[currentTable - 1] || 
+    !tables[currentRow].persons[currentTable - 1][currentPerson - 1]
+  ) {
+    console.error("Keine Bestellung gefunden.");
     return;
   }
 
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
+  const personOrder = tables[currentRow].persons[currentTable - 1][currentPerson - 1];
 
-  // Wenn keine Produkte vorhanden sind
-  if (Object.keys(personOrder).length === 0) {
-    document.getElementById("totalSum").textContent = "0.00";
-    return;
-  }
+  Object.entries(personOrder).forEach(([name, product]) => {
+    console.log("Produkt:", name, product); // Debugging-Ausgabe
 
-  Object.values(personOrder).forEach(product => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${product.name}</td>
       <td class="quantity-controls">
-        <button onclick="adjustQuantity('${product.name}', -1)">-</button>
+        <button onclick="adjustQuantity('${name}', -1)">-</button>
         ${product.quantity}
-        <button onclick="adjustQuantity('${product.name}', 1)">+</button>
+        <button onclick="adjustQuantity('${name}', 1)">+</button>
       </td>
       <td>${product.price.toFixed(2)}</td>
       <td>${(product.price * product.quantity).toFixed(2)}</td>
-    `;
+    `; // Hier wird das Template Literal korrekt geschlossen
     tbody.appendChild(row);
   });
 
-  // Berechne den Gesamtbetrag
   document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
 }
 
 
+
+
 function calculateTotal() {
-  if (currentTable && currentPerson && tables[currentTable] && tables[currentTable].persons[currentPerson - 1]) {
-    const personOrder = tables[currentTable].persons[currentPerson - 1];
-    return Object.values(personOrder).reduce((sum, product) => sum + product.price * product.quantity, 0);
+  if (
+    currentRow && 
+    currentTable && 
+    currentPerson && 
+    tables[currentRow] && 
+    tables[currentRow].persons[currentTable - 1] && 
+    tables[currentRow].persons[currentTable - 1][currentPerson - 1]
+  ) {
+    const personOrder = tables[currentRow].persons[currentTable - 1][currentPerson - 1];
+    
+    return Object.values(personOrder).reduce((sum, product) => {
+      if (product.price && product.quantity) { // Sicherstellen, dass Preis und Menge existieren
+        return sum + product.price * product.quantity;
+      }
+      return sum;
+    }, 0);
   }
+  
   return 0;
 }
+
+
 
 
 
@@ -947,9 +1069,13 @@ function sendOrderToTheke() {
     return;
   }
 
-  // Sicherstellen, dass sentOrders[currentTable][currentPerson] existiert
-  if (!sentOrders[currentTable]) sentOrders[currentTable] = {};
-  if (!sentOrders[currentTable][currentPerson]) sentOrders[currentTable][currentPerson] = {};
+  // Sicherstellen, dass die Bestellung existiert
+  const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[currentPerson - 1];
+  
+  if (!personOrder || Object.keys(personOrder).length === 0) {
+    alert("Keine Bestellung vorhanden!");
+    return;
+  }
 
   const orderData = {
     bedienung: bedienungName || "Unbekannt",
@@ -957,33 +1083,17 @@ function sendOrderToTheke() {
     row: currentRow,
     table: currentTable,
     person: currentPerson,
-    order: {}
+    order: { ...personOrder } // Kopiere die Bestellung
   };
 
-  const personOrder = tables[currentTable].persons[currentPerson - 1];
-  let hasNewItems = false;
-
-  for (const [productName, product] of Object.entries(personOrder)) {
-    const orderId = `${productName}`;
-    const previousQuantity = sentOrders[currentTable][currentPerson][orderId] || 0;
-
-    if (product.quantity > previousQuantity) {
-      const newQuantity = product.quantity - previousQuantity;
-      orderData.order[productName] = { ...product, quantity: newQuantity };
-      sentOrders[currentTable][currentPerson][orderId] = product.quantity;
-      hasNewItems = true;
-    }
-  }
-
-  if (hasNewItems) {
-    socket.emit("sendOrder", orderData);
-    console.log("📦 Neue Bestellung gesendet:", orderData);
-    alert("Bestellung wurde an die Theke gesendet.");
-  } else {
-    console.log("⚠️ Keine neuen Produkte zum Senden.");
-    alert("Keine neuen Produkte zum Senden.");
-  }
+  // Sende die Bestellung an den Server
+  socket.emit("sendOrder", orderData);
+  
+  console.log("📦 Bestellung gesendet:", orderData);
+  
+  alert("Bestellung wurde erfolgreich an die Theke gesendet.");
 }
+
 
     function selectPaymentTable(tableNumber) {
       paymentDialogTable = tableNumber;
@@ -1220,16 +1330,20 @@ function startNewSession() {
 
       
 
-    function saveOrdersToLocalStorage() {
-      localStorage.setItem('tables', JSON.stringify(tables));
-    }
+function saveOrdersToLocalStorage() {
+  localStorage.setItem('tables', JSON.stringify(tables));
+}
 
-    function loadOrdersFromLocalStorage() {
-      const savedTables = localStorage.getItem('tables');
-      if (savedTables) {
-        tables = JSON.parse(savedTables);
-      }
-    }
+
+
+   function loadOrdersFromLocalStorage() {
+   const savedTables = localStorage.getItem('tables');
+   
+   if (savedTables) {
+       tables = JSON.parse(savedTables);
+   }
+}
+
 
     
     // Initialisierung
