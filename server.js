@@ -2,7 +2,20 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
- 
+
+
+
+
+function updateBestellungStatus(data, status) {
+  console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Personen ${data.persons ? data.persons.join(', ') : 'unbekannt'} Status aktualisiert auf: ${status}`);
+  // Hier können Sie weitere Logik zur Aktualisierung des Status implementieren
+}
+
+
+
+
+
+
 // Initialisiere Express und den Server
 const app = express();
 const server = http.createServer(app);
