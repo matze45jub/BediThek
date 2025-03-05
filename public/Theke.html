@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="de">
-<head> 
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Theke - Bestellungen</title>
@@ -11,7 +11,7 @@
       padding: 20px;
       background-color: #f8f9fa;
     }
- 
+
     .legend {
       position: fixed;
       top: 0;
@@ -77,6 +77,13 @@
       background-color: #28a745;
     }
 
+      .bezahlt {
+  background-color: #ffcccb; /* Hellrot */
+  color: #8b0000; /* Dunkelrot für Text */
+  border: 2px solid #8b0000; /* Optionaler roter Rahmen */
+}
+      
+      
     .clear-storage-btn {
       background-color: #dc3545;
       margin-bottom: 20px;
@@ -119,6 +126,23 @@
       console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
       markOrderAsPaid(orderData);
     });
+      
+      
+      
+      socket.on('bestellungStatusUpdate', function(data) {
+  if (data.status === 'bezahlt') {
+    data.persons.forEach(person => {
+      const bestellungElement = document.querySelector(`[data-bestellung-id="R${data.row}T${data.table}P${person}"]`);
+      if (bestellungElement) {
+        bestellungElement.classList.add('bezahlt');
+      }
+    });
+  }
+});
+
+      
+      
+      
 
     function saveOrdersToLocalStorage(orders) {
       localStorage.setItem('orders', JSON.stringify(orders));
