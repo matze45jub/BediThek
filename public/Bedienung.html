@@ -679,7 +679,17 @@ function updateTotalSum() {
   document.getElementById("totalSum").textContent = total.toFixed(2);
 }
 
-      
+  const socket = io('https://bedithek.onrender.com');
+
+function sendOrder(orderData) {
+  socket.emit('sendOrder', orderData);
+}
+
+socket.on('orderUpdate', (updatedOrders) => {
+  // Aktualisieren Sie die Benutzeroberfläche mit den neuen Bestellungen
+  updateOrderDisplay(updatedOrders);
+});
+    
       
       
       
@@ -1343,6 +1353,34 @@ function saveOrderToLocal(personNumber) {
     console.log(`Bestellung gespeichert für Schlüssel: ${localStorageKey}`);
   }
 }
+
+
+function showPaymentDialog(row, table, person) {
+  socket.emit('getPersonOrders', { row, table, person });
+}
+
+socket.on('personOrders', (orders) => {
+  displayPersonOrders(orders);
+});
+
+function displayPersonOrders(orders) {
+  const dialogBody = document.getElementById("paymentDialog");
+  const orderList = document.createElement("ul");
+  
+  orders.forEach(order => {
+    const listItem = document.createElement("li");
+    listItem.textContent = `${order.quantity}x ${order.product} (${order.price.toFixed(2)}€)`;
+    orderList.appendChild(listItem);
+  });
+
+  // Fügen Sie die Bestellliste zum Zahlungsdialog hinzu
+  dialogBody.appendChild(orderList);
+  
+  // Berechnen und anzeigen der Gesamtsumme
+  const total = orders.reduce((sum, order) => sum + order.price * order.quantity, 0);
+  document.getElementById("paymentAmountToPay").textContent = total.toFixed(2);
+}
+
 
 
 function showPersonOrderInModal(personNumber) {
