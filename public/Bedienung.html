@@ -610,6 +610,15 @@ socket.on('orderUpdate', (updatedOrders) => {
   updateOrderDisplay();
 });
 
+      
+      socket.on('bestellungStatusUpdate', function(data) {
+  if (data.status === 'ausgegeben') {
+    const bestellungElement = document.querySelector(`[data-bestellung-id="${data.id}"]`);
+    bestellungElement.style.backgroundColor = 'green';
+  }
+});
+
+      
 
 function updateOrderDisplay() {
   // Aktualisiere die Gesamtübersicht aller Bestellungen
@@ -1590,6 +1599,8 @@ function saveOrdersToLocalStorage() {
 }
 
 
+
+
    function loadOrdersFromLocalStorage() {
    const savedTables = localStorage.getItem('tables');
    
@@ -1597,6 +1608,7 @@ function saveOrdersToLocalStorage() {
        tables = JSON.parse(savedTables);
    }
 }
+
 
     
     // Initialisierung
