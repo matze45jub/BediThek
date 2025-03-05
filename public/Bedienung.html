@@ -1418,23 +1418,30 @@ function completePayment() {
   }
 
   selectedPersons.forEach(person => {
+    // Sende die korrekte Personennummer (1-6) an den Server
+    socket.emit('bestellungBezahlt', {
+      row: currentRow,
+      table: currentTable,
+      person: person + 1 // Hier wird die Personennummer um 1 erhöht
+    });
+    
     // Lösche die Bestellung aus der Datenstruktur `tables`
     tables[currentRow].persons[currentTable - 1][person] = {};
-
+    
     // Entferne gespeicherte gesendete Bestellungen aus `sentOrders`
     if (sentOrders[currentRow]?.[currentTable]?.[person]) {
       delete sentOrders[currentRow][currentTable][person];
     }
 
     // Entferne die Bestellung aus dem lokalen Speicher
-    const localStorageKey = `order_${currentRow}_${currentTable}_${person}`;
+    const localStorageKey = `order_${currentRow}_${currentTable}_${person + 1}`; // Hier ebenfalls um 1 erhöhen
     localStorage.removeItem(localStorageKey);
-
+    
     // Informiere den Server über die bezahlte Bestellung
     socket.emit('orderPaid', {
       row: currentRow,
       table: currentTable,
-      person: person,
+      person: person + 1 // Hier wird die Personennummer um 1 erhöht
     });
   });
 
@@ -1452,18 +1459,10 @@ function completePayment() {
   document.getElementById("changeAmount").textContent = "0.00";
   selectedPersons = [];
 
-
-  // Nachricht an Server senden
-  socket.emit('bestellungBezahlt', { 
-    row: currentRow, 
-    table: currentTable, 
-    persons: selectedPersons 
-  });
-
-
   // Aktualisiere die Anzeige der Bestellungen
   updateOrderDisplay();
 }
+
 
 
 
