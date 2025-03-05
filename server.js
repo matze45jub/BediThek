@@ -64,6 +64,16 @@ io.on('connection', (socket) => {
     console.log('✅ Bestellung erledigt:', orderDetails);
     io.emit('orderCompleted', orderDetails);
   });
+    
+    
+    socket.on('bestellungAusgegeben', function(data) {
+  // Aktualisieren Sie den Status in der Datenbank
+  updateBestellungStatus(data.id, 'ausgegeben');
+  
+  // Benachrichtigen Sie alle Clients
+  io.emit('bestellungStatusUpdate', { id: data.id, status: 'ausgegeben' });
+});
+    
 
   // Empfang von 'orderPaid' Event
   socket.on('orderPaid', (orderData) => {
