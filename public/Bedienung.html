@@ -169,7 +169,11 @@
 }
      
       
-      
+ .bezahlt {
+  background-color: #ffcccb; /* Hellrot */
+  color: #8b0000; /* Dunkelrot für Text */
+  border: 2px solid #8b0000; /* Optionaler roter Rahmen */
+}     
       
 .row-buttons,
 .table-selection,
@@ -1447,6 +1451,15 @@ function completePayment() {
   document.getElementById("paymentAmount").value = "";
   document.getElementById("changeAmount").textContent = "0.00";
   selectedPersons = [];
+
+
+  // Nachricht an Server senden
+  socket.emit('bestellungBezahlt', { 
+    row: currentRow, 
+    table: currentTable, 
+    persons: selectedPersons 
+  });
+
 
   // Aktualisiere die Anzeige der Bestellungen
   updateOrderDisplay();
