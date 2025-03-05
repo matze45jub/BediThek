@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
-
+ 
 // Initialisiere Express und den Server
 const app = express();
 const server = http.createServer(app);
