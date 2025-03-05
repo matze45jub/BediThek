@@ -15,8 +15,6 @@ function updateBestellungStatus(data, status) {
 
 
 
-
-
 // Initialisiere Express und den Server
 const app = express();
 const server = http.createServer(app);
@@ -95,9 +93,10 @@ socket.on('bestellungBezahlt', function(data) {
     status: 'bezahlt', 
     row: data.row, 
     table: data.table, 
-    person: data.person  // Änderung hier von 'persons' zu 'person'
+    person: data.person  // Hier wird die Person-Nummer direkt verwendet (1-6)
   });
 });
+
 
 
     
