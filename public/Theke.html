@@ -203,6 +203,13 @@
         }
       });
     }
+          
+          document.querySelector('.ausgegeben-button').addEventListener('click', function() {
+  const bestellungId = this.dataset.bestellungId;
+  socket.emit('bestellungAusgegeben', { id: bestellungId });
+});
+
+          
 
     function clearStorage() {
       localStorage.removeItem('orders');
