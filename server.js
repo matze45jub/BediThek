@@ -12,9 +12,6 @@ function updateBestellungStatus(data, status) {
 }
 
 
-
-
-
 // Initialisiere Express und den Server
 const app = express();
 const server = http.createServer(app);
