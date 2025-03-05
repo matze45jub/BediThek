@@ -7,9 +7,10 @@ const socketIo = require('socket.io');
 
 
 function updateBestellungStatus(data, status) {
-  console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Personen ${data.persons ? data.persons.join(', ') : 'unbekannt'} Status aktualisiert auf: ${status}`);
+  console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Person ${data.person} Status aktualisiert auf: ${status}`);
   // Hier können Sie weitere Logik zur Aktualisierung des Status implementieren
 }
+
 
 
 
@@ -85,7 +86,7 @@ io.on('connection', (socket) => {
 });
 
     
-    socket.on('bestellungBezahlt', function(data) {
+socket.on('bestellungBezahlt', function(data) {
   // Aktualisieren Sie den Status in der Datenbank, falls nötig
   updateBestellungStatus(data, 'bezahlt');
   
@@ -94,9 +95,10 @@ io.on('connection', (socket) => {
     status: 'bezahlt', 
     row: data.row, 
     table: data.table, 
-    persons: data.persons 
+    person: data.person  // Änderung hier von 'persons' zu 'person'
   });
 });
+
 
     
 
