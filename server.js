@@ -12,6 +12,20 @@ function updateBestellungStatus(data, status) {
 }
 
 
+io.on('connection', (socket) => {
+  // ... andere Event-Listener ...
+
+  socket.on('getPersonOrders', (data) => {
+    const personOrders = getOrdersForPerson(data.row, data.table, data.person);
+    socket.emit('personOrders', personOrders);
+  });
+});
+
+function getOrdersForPerson(row, table, person) {
+  // Implementieren Sie hier die Logik, um alle Bestellungen für eine bestimmte Person abzurufen
+  // Dies sollte alle Bestellungen unabhängig von der Bedienung zurückgeben
+  return orders[row]?.[table]?.[person] || [];
+}
 
 
 
@@ -22,6 +36,25 @@ const io = socketIo(server);
 
 // Speicher für alle Bestellungen
 let allOrders = {};
+
+
+
+const io = require('socket.io')(server);
+let orders = {};
+
+io.on('connection', (socket) => {
+  socket.on('sendOrder', (orderData) => {
+    // Fügen Sie die neue Bestellung hinzu
+    addOrder(orderData);
+    // Senden Sie die aktualisierte Bestellliste an alle Clients
+    io.emit('orderUpdate', orders);
+    // Benachrichtigen Sie die Theke über die neue Bestellung
+    io.emit('newOrder', orderData);
+  });
+});
+
+
+
 
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
