@@ -66,13 +66,11 @@ io.on('connection', (socket) => {
   });
     
     
-    socket.on('bestellungAusgegeben', function(data) {
-  // Aktualisieren Sie den Status in der Datenbank
-  updateBestellungStatus(data.id, 'ausgegeben');
-  
-  // Benachrichtigen Sie alle Clients
-  io.emit('bestellungStatusUpdate', { id: data.id, status: 'ausgegeben' });
+ socket.on('bestellungAusgegeben', function(data) {
+  updateBestellungStatus(data.id, 'ausgegeben'); // Datenbank aktualisieren
+  io.emit('bestellungStatusUpdate', { id: data.id, status: 'ausgegeben' }); // Benachrichtigung senden
 });
+
     
 
   // Empfang von 'orderPaid' Event
