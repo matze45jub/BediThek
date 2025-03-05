@@ -1,4 +1,4 @@
-const express = require('express'); 
+const express = require('express');
 const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -69,6 +69,20 @@ io.on('connection', (socket) => {
  socket.on('bestellungAusgegeben', function(data) {
   updateBestellungStatus(data.id, 'ausgegeben'); // Datenbank aktualisieren
   io.emit('bestellungStatusUpdate', { id: data.id, status: 'ausgegeben' }); // Benachrichtigung senden
+});
+
+    
+    socket.on('bestellungBezahlt', function(data) {
+  // Aktualisieren Sie den Status in der Datenbank, falls nötig
+  updateBestellungStatus(data, 'bezahlt');
+  
+  // Benachrichtigen Sie alle Clients
+  io.emit('bestellungStatusUpdate', { 
+    status: 'bezahlt', 
+    row: data.row, 
+    table: data.table, 
+    persons: data.persons 
+  });
 });
 
     
