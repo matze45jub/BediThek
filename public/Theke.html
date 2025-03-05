@@ -11,7 +11,7 @@
       padding: 20px;
       background-color: #f8f9fa;
     }
- 
+
     .legend {
       position: fixed;
       top: 0;
@@ -201,18 +201,6 @@
 
       saveOrdersToLocalStorage(allOrders);
     }
-      
-      
-      const socket = io('https://bedithek.onrender.com');
-
-socket.on('newOrder', (orderData) => {
-  // Fügen Sie die neue Bestellung zur Anzeige hinzu
-  displayNewOrder(orderData);
-});
-
-      
-      
-      
 
     function markAsCompleted(row, table, person, button) {
       socket.emit('markOrderCompleted', { row, table, person });
