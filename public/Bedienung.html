@@ -16,7 +16,7 @@
       background-color: #f4f4f4;
       color: #333;
     }
- 
+
       .unified-button {
       width: 100px;
       height: 40px;
@@ -522,10 +522,11 @@
   <div class="button-group table-buttons"></div>
   <div class="person-selection" id="paymentPersonSelection"></div>
       
-
+<div class="order-preview"></div>
  
     
-    <p>Zu zahlender Betrag: <span id="paymentAmountToPay">0.00</span>€</p>
+     <p><strong>Zu zahlender Betrag:</strong> <span id="paymentAmountToPay">0.00</span>€</p>
+      
     <input type="text" id="paymentAmount" readonly>
     <div class="calc-buttons">
       <button onclick="addNumber(7)">7</button>
@@ -974,6 +975,9 @@ function updatePaymentRowSelection() {
   }
   container.innerHTML = "";
   selectedPersons = []; // Zurücksetzen der ausgewählten Personen
+    
+      const maxRows = 6; // Explizite Begrenzung auf 6 Reihen
+    
 
   for (let i = 1; i <= Object.keys(tables).length; i++) {
     const button = document.createElement("button");
@@ -1029,8 +1033,6 @@ function updatePaymentPersonSelection() {
   }
   container.innerHTML = "";
 
- 
-
   if (currentRow && currentTable) {
     for (let i = 0; i < 6; i++) {
       const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[i];
@@ -1045,39 +1047,38 @@ function updatePaymentPersonSelection() {
   }
 }
 
-
-      
-         
 function previewSelectedOrders() {
-  const previewContainer = document.createElement("div");
+  const previewContainer = document.querySelector(".order-preview");
+  previewContainer.innerHTML = "";
 
-  selectedPersons.forEach(person => {
-    const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[person];
+  if (currentRow && currentTable && selectedPersons.length > 0) {
+    const orderList = document.createElement("ul");
+    orderList.innerHTML = `<h4>Reihe ${currentRow}, Tisch ${currentTable}</h4>`;
 
-    if (personOrder && Object.keys(personOrder).length > 0) {
-      const orderList = document.createElement("ul");
-      orderList.innerHTML = `<h4>Reihe ${currentRow}, Tisch ${currentTable}, Person ${parseInt(person) + 1}:</h4>`;
+    selectedPersons.forEach(person => {
+      const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[person];
+      if (personOrder && Object.keys(personOrder).length > 0) {
+        const personItem = document.createElement("li");
+        personItem.innerHTML = `<strong>Person ${parseInt(person) + 1}:</strong>`;
+        const productList = document.createElement("ul");
+        
+        Object.entries(personOrder).forEach(([productName, product]) => {
+          if (product && product.quantity && product.price) {
+            const listItem = document.createElement("li");
+            listItem.textContent = `${product.quantity}x ${productName} (${(product.price * product.quantity).toFixed(2)}€)`;
+            productList.appendChild(listItem);
+          }
+        });
+        
+        personItem.appendChild(productList);
+        orderList.appendChild(personItem);
+      }
+    });
 
-      Object.entries(personOrder).forEach(([productName, product]) => {
-        if (product && product.quantity && product.price) {
-          const listItem = document.createElement("li");
-          listItem.textContent = `${product.quantity}x ${productName} (${(product.price * product.quantity).toFixed(2)}€)`;
-          orderList.appendChild(listItem);
-        }
-      });
-
-      previewContainer.appendChild(orderList);
-    }
-  });
-
-  const dialogBody = document.getElementById("paymentDialog");
-  const existingPreview = dialogBody.querySelector(".order-preview");
-  
-  if (existingPreview) existingPreview.remove();
-
-  previewContainer.className = "order-preview";
-  dialogBody.insertBefore(previewContainer, dialogBody.firstChild);
+    previewContainer.appendChild(orderList);
+  }
 }
+
 
 
    
