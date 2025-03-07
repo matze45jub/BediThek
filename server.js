@@ -44,7 +44,10 @@ io.on('connection', (socket) => {
     if (!allOrders[row][table]) allOrders[row][table] = {};
     allOrders[row][table][person] = order;
 
-    io.emit('neworder', orderData);
+    // Speichern Sie die Bestellung in der Datenbank (falls vorhanden)
+    // Beispiel: saveOrderToDatabase(orderData);
+
+    // Senden Sie die aktualisierte Bestellung an alle verbundenen Clients
     io.emit('orderUpdate', allOrders);
   });
 
