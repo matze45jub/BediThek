@@ -117,10 +117,15 @@
       console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
-  socket.on('neworder', (orderData) => {
+socket.on('neworder', (orderData) => {
   console.log('📩 Bestellung in Theke empfangen:', orderData);
-  addOrderToList(orderData);
+  if (orderData && orderData.row && orderData.table && orderData.person) {
+    addOrderToList(orderData);
+  } else {
+    console.error('Ungültige Bestelldaten empfangen:', orderData);
+  }
 });
+
 
 socket.on('orderUpdate', (allOrders) => {
   console.log('🔄 Alle Bestellungen aktualisiert:', allOrders);
