@@ -10,7 +10,7 @@ const io = socketIo(server, {
     origin: "*",
     methods: ["GET", "POST"]
   }
-});
+}); 
 
 // Speicher für alle Bestellungen
 let allOrders = {};
