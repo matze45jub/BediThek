@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8">
@@ -184,48 +184,41 @@ function markOrderAsServed(data) {
       return orders ? JSON.parse(orders) : {};
     }
 
-    function addOrderToList(orderData) {
-      const orderList = document.getElementById('orderList');
-      
-      console.log('Timestamp:', orderData.timestamp);
+ function addOrderToList(orderData) {
+  const orderList = document.getElementById('orderList');
+  
+  if (!orderData || !orderData.order) {
+    console.error('❌ Fehler: Ungültige Bestelldaten:', orderData);
+    return;
+  }
 
-      if (!orderData || !orderData.order) {
-        console.error('❌ Fehler: orderData.order ist nicht definiert!');
-        return;
-      }
+  const orderElement = document.createElement('div');
+  orderElement.classList.add('order-item');
 
-      const { row, table, person, order } = orderData;
-      if (!allOrders[row]) allOrders[row] = {};
-      if (!allOrders[row][table]) allOrders[row][table] = {};
-      allOrders[row][table][person] = order;
+  const timestamp = orderData.timestamp 
+    ? new Date(orderData.timestamp).toLocaleString() 
+    : "Zeit unbekannt";
 
-      const orderElement = document.createElement('div');
-      orderElement.classList.add('order-item');
-      if (orderData.status) {
-        orderElement.classList.add(orderData.status);
-      }
+  orderElement.innerHTML = `
+    <div class="order-details">
+      <strong>Reihe: ${orderData.row}</strong> - 
+      <strong>Tisch: ${orderData.table}</strong> - 
+      <strong>Person: ${orderData.person}</strong><br>
+      Bestellzeit: ${timestamp}<br>
+      Bestellt von: ${orderData.bedienung || 'Unbekannt'}<br>
+      <div class="product-list">
+        ${Object.values(orderData.order)
+          .map(item => `${item.quantity}x ${item.name}`)
+          .join('<br>')}
+      </div>
+    </div>
+    <div class="button-container">
+      <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
+    </div>
+  `;
 
-      const timestamp = orderData.timestamp 
-        ? new Date(Number(orderData.timestamp)).toLocaleString() 
-        : "Zeit unbekannt";
-
-      orderElement.innerHTML = `
-        <div class="order-details">
-          <strong>Reihe: ${orderData.row}</strong> - 
-          <strong>Tisch: ${orderData.table}</strong> - 
-          <strong>Person: ${orderData.person}</strong><br>
-          Bestellzeit: ${timestamp}<br>
-          Bestellt von: ${orderData.bedienung}<br>
-          <div class="product-list">
-            ${Object.values(orderData.order)
-              .map(item => `${item.quantity}x ${item.name}`)
-              .join('<br>')}
-          </div>
-        </div>
-        <div class="button-container">
-          <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
-        </div>
-      `;
+  orderList.insertBefore(orderElement, orderList.firstChild);
+}
 
       console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
       orderList.insertBefore(orderElement, orderList.firstChild);
