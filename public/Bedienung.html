@@ -606,10 +606,18 @@ socket.on('connect', () => {
 });
 
 socket.on('initialData', (data) => {
-  allOrders = data;
+  // Zusammenführen der neuen Daten mit den lokalen Daten
+  mergeOrders(data);
   updateOrderDisplay();
 });
-
+      
+      
+function mergeOrders(newOrders) {
+  // Hier implementieren Sie die Logik zum Zusammenführen der Bestellungen
+  // Behalten Sie lokale Änderungen bei und aktualisieren Sie nur neue oder geänderte Bestellungen
+}
+      
+      
 socket.on('disconnect', () => {
   console.warn('⚠️ Bedienung-Verbindung zum Server verloren.');
 });
@@ -630,6 +638,13 @@ socket.on('bestellungStatusUpdate', function(data) {
   }
 });
 
+
+      
+      socket.on('orderUpdate', (orderData) => {
+  // Aktualisieren Sie die lokalen Daten mit der neuen Bestellung
+  updateLocalOrders(orderData);
+  updateOrderDisplay();
+});
 
       
 
@@ -872,6 +887,15 @@ function selectTable(tableNumber) {
   renderPersonButtons();
 }
 
+      
+      
+      function refreshOrdersWithoutReload() {
+  socket.emit('requestInitialData');
+}
+
+setInterval(refreshOrdersWithoutReload, 5000);
+
+      
 
 
     function renderPersonButtons() {
