@@ -117,7 +117,7 @@
       console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
-  ocket.on('neworder', (orderData) => {
+  socket.on('neworder', (orderData) => {
   console.log('📩 Bestellung in Theke empfangen:', orderData);
   addOrderToList(orderData);
 });
