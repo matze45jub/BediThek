@@ -117,30 +117,56 @@
       console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
-    socket.on('neworder', (orderData) => {
-      console.log('📩 Bestellung in Theke empfangen:', orderData);
-      addOrderToList(orderData);
-    });
+  ocket.on('neworder', (orderData) => {
+  console.log('📩 Bestellung in Theke empfangen:', orderData);
+  addOrderToList(orderData);
+});
 
-    socket.on('orderPaid', (orderData) => {
-      console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
-      markOrderAsPaid(orderData);
-    });
+socket.on('orderUpdate', (allOrders) => {
+  console.log('🔄 Alle Bestellungen aktualisiert:', allOrders);
+  updateAllOrders(allOrders);
+});
+
+socket.on('orderPaid', (orderData) => {
+  console.log(`💰 Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
+  markOrderAsPaid(orderData);
+});
       
       
       
-      socket.on('bestellungStatusUpdate', function(data) {
+ socket.on('bestellungStatusUpdate', function(data) {
   if (data.status === 'bezahlt') {
-    data.persons.forEach(person => {
-      const bestellungElement = document.querySelector(`[data-bestellung-id="R${data.row}T${data.table}P${person}"]`);
-      if (bestellungElement) {
-        bestellungElement.classList.add('bezahlt');
-      }
-    });
+    markOrderAsPaid(data);
+  } else if (data.status === 'ausgegeben') {
+    markOrderAsServed(data);
   }
 });
 
+
+     function updateAllOrders(allOrders) {
+  clearOrderList();
+  for (const [row, tables] of Object.entries(allOrders)) {
+    for (const [table, persons] of Object.entries(tables)) {
+      for (const [person, order] of Object.entries(persons)) {
+        addOrderToList({row, table, person, order});
+      }
+    }
+  }
+} 
       
+ function clearOrderList() {
+  const orderList = document.getElementById('orderList');
+  if (orderList) {
+    orderList.innerHTML = '';
+  }
+}
+
+function markOrderAsServed(data) {
+  const bestellungElement = document.querySelector(`[data-bestellung-id="R${data.row}T${data.table}P${data.person}"]`);
+  if (bestellungElement) {
+    bestellungElement.classList.add('ausgegeben');
+  }
+} 
       
       
 
@@ -209,24 +235,11 @@
     }
 
     function markOrderAsPaid(orderData) {
-      const orderItems = document.querySelectorAll('.order-item');
-      
-      orderItems.forEach(item => {
-        const row = item.querySelector('strong:nth-child(1)');
-        const table = item.querySelector('strong:nth-child(2)');
-        const person = item.querySelector('strong:nth-child(3)');
-
-        if (row && table && person) {
-          const rowText = row.textContent.split(":")[1]?.trim();
-          const tableText = table.textContent.split(":")[1]?.trim();
-          const personText = person.textContent.split(":")[1]?.trim();
-
-          if (rowText === orderData.row.toString() && tableText === orderData.table.toString() && personText === orderData.person.toString()) {
-            item.classList.add('paid');
-          }
-        }
-      });
-    }
+  const bestellungElement = document.querySelector(`[data-bestellung-id="R${orderData.row}T${orderData.table}P${orderData.person}"]`);
+  if (bestellungElement) {
+    bestellungElement.classList.add('bezahlt');
+  }
+}
           
           document.querySelector('.ausgegeben-button').addEventListener('click', function() {
   const bestellungId = this.dataset.bestellungId;
