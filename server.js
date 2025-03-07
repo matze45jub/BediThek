@@ -50,12 +50,32 @@ io.on('connection', (socket) => {
     // Senden Sie die aktualisierte Bestellung an alle verbundenen Clients
     io.emit('orderUpdate', allOrders);
   });
+    
+    
+    io.emit('neworder', {
+  row: orderData.row,
+  table: orderData.table,
+  person: orderData.person,
+  timestamp: Date.now(),
+  bedienung: orderData.bedienung || 'Unbekannt',
+  order: orderData.order
+});
+
+    
+    
+    
+    
 
   socket.on('updateOrders', (updatedTables) => {
     allOrders = updatedTables;
     io.emit('orderUpdate', allOrders);
   });
 
+    
+    
+    
+    
+    
   socket.on('markOrderCompleted', (orderDetails) => {
     console.log('✅ Bestellung erledigt:', orderDetails);
     io.emit('orderCompleted', orderDetails);
