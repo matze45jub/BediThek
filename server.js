@@ -10,7 +10,7 @@ const io = socketIo(server, {
     origin: "*",
     methods: ["GET", "POST"]
   }
-}); 
+});
 
 // Speicher für alle Bestellungen
 let allOrders = {};
@@ -36,32 +36,31 @@ io.on('connection', (socket) => {
   socket.on('requestInitialData', () => socket.emit('initialData', allOrders));
 
   socket.on('sendOrder', (orderData) => {
-    orderData.timestamp = Date.now();
-    console.log('📦 Bestellung erhalten:', orderData);
-    
-    const { row, table, person, order } = orderData;
-    if (!allOrders[row]) allOrders[row] = {};
-    if (!allOrders[row][table]) allOrders[row][table] = {};
-    allOrders[row][table][person] = order;
+  orderData.timestamp = Date.now();
+  console.log('📦 Bestellung erhalten:', orderData);
+  
+  const { row, table, person, order } = orderData;
+  if (!allOrders[row]) allOrders[row] = {};
+  if (!allOrders[row][table]) allOrders[row][table] = {};
+  allOrders[row][table][person] = order;
 
-    // Speichern Sie die Bestellung in der Datenbank (falls vorhanden)
-    // Beispiel: saveOrderToDatabase(orderData);
+  // Speichern Sie die Bestellung in der Datenbank (falls vorhanden)
+  // Beispiel: saveOrderToDatabase(orderData);
 
-    // Senden Sie die aktualisierte Bestellung an alle verbundenen Clients
-    io.emit('orderUpdate', allOrders);
+  // Senden Sie die aktualisierte Bestellung an alle verbundenen Clients
+  io.emit('orderUpdate', allOrders);
+
+  // Fügen Sie diesen Block hier ein
+  io.emit('neworder', {
+    row: orderData.row,
+    table: orderData.table,
+    person: orderData.person,
+    timestamp: Date.now(),
+    bedienung: orderData.bedienung || 'Unbekannt',
+    order: orderData.order
   });
-    
-    
-    io.emit('neworder', {
-  row: orderData.row,
-  table: orderData.table,
-  person: orderData.person,
-  timestamp: Date.now(),
-  bedienung: orderData.bedienung || 'Unbekannt',
-  order: orderData.order
 });
 
-    
     
     
     
