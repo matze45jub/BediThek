@@ -11,7 +11,6 @@ const io = socketIo(server);
 
 
 
-
 function updateBestellungStatus(data, status) {
   console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Person ${data.person} Status aktualisiert auf: ${status}`);
   // Hier können Sie weitere Logik zur Aktualisierung des Status implementieren
