@@ -11,6 +11,7 @@ const io = socketIo(server);
 
 
 
+
 function updateBestellungStatus(data, status) {
   console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Person ${data.person} Status aktualisiert auf: ${status}`);
   // Hier können Sie weitere Logik zur Aktualisierung des Status implementieren
@@ -136,7 +137,6 @@ socket.on('requestInitialData', () => {
   socket.on('disconnect', () => {
     console.log('⚠️ Ein Benutzer hat die Verbindung getrennt.');
   });
-});
 
 // Server starten
 const PORT = process.env.PORT || 3000;
