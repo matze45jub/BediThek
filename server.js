@@ -11,7 +11,7 @@ const io = socketIo(server, {
     methods: ["GET", "POST"]
   }
 });
-
+ 
 // Speicher für alle Bestellungen
 let allOrders = {};
 
