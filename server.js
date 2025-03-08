@@ -4,6 +4,13 @@ const http = require('http');
 const socketIo = require('socket.io');
 
 
+// Initialisiere Express und den Server
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
+
+
 
 function updateBestellungStatus(data, status) {
   console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Person ${data.person} Status aktualisiert auf: ${status}`);
@@ -11,13 +18,11 @@ function updateBestellungStatus(data, status) {
 }
 
 
-// Initialisiere Express und den Server
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
 
-// Speicher für alle Bestellungen
+// Globaler Speicher für alle Bestellungen
 let allOrders = {};
+
+
 
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
@@ -40,38 +45,42 @@ app.get('/theke', (req, res) => {
 // WebSocket-Verbindung
 io.on('connection', (socket) => {
   console.log('🔗 Ein Client hat sich verbunden');
+    
 
   // Anfrage für initiale Daten
   socket.on('requestInitialData', () => {
     socket.emit('initialData', allOrders);
   });
-
-  // Bestellung empfangen
-  socket.on('sendOrder', (orderData) => {
-    orderData.timestamp = Date.now();
-    console.log('📦 Bestellung erhalten:', orderData);
     
+    
+      // Senden Sie die initialen Daten, wenn ein Client sich verbindet
+  socket.emit('initialData', allOrders);
+    
+
     // Bestellung zum Gesamtspeicher hinzufügen
     const { row, table, person, order } = orderData;
     if (!allOrders[row]) allOrders[row] = {};
     if (!allOrders[row][table]) allOrders[row][table] = {};
-    allOrders[row][table][person] = order;
+    allOrders[row][table][person] = orderData;
 
+    // Senden Sie die neue Bestellung an alle Clients
     io.emit('neworder', orderData);
+    // Aktualisieren Sie alle Clients mit den neuesten Daten
     io.emit('orderUpdate', allOrders);
   });
-  
-  socket.on('updateOrders', (updatedTables) => {
-  allOrders = updatedTables;
-  io.emit('orderUpdate', allOrders);
-});
-
 
   // Bestellung als erledigt markieren
   socket.on('markOrderCompleted', (orderDetails) => {
     console.log('✅ Bestellung erledigt:', orderDetails);
+    const { row, table, person } = orderDetails;
+    if (allOrders[row] && allOrders[row][table] && allOrders[row][table][person]) {
+      allOrders[row][table][person].status = 'completed';
+    }
     io.emit('orderCompleted', orderDetails);
+    io.emit('orderUpdate', allOrders);
   });
+
+
     
     
  socket.on('bestellungAusgegeben', function(data) {
@@ -80,9 +89,18 @@ io.on('connection', (socket) => {
 });
 
     
-socket.on('bestellungBezahlt', function(data) {
-  // Aktualisieren Sie den Status in der Datenbank, falls nötig
-  updateBestellungStatus(data, 'bezahlt');
+ // Bestellung als bezahlt markieren
+  socket.on('orderPaid', (orderData) => {
+    console.log('💰 Bestellung bezahlt:', orderData);
+    const { row, table, person } = orderData;
+    if (allOrders[row] && allOrders[row][table] && allOrders[row][table][person]) {
+      allOrders[row][table][person].status = 'paid';
+    }
+    io.emit('orderPaid', orderData);
+    io.emit('orderUpdate', allOrders);
+  });
+
+
   
   // Benachrichtigen Sie alle Clients
   io.emit('bestellungStatusUpdate', { 
@@ -92,6 +110,7 @@ socket.on('bestellungBezahlt', function(data) {
     person: data.person  // Hier wird die Person-Nummer direkt verwendet (1-6)
   });
 });
+
 
 socket.on('requestInitialData', () => {
   console.log('Client fordert initiale Daten an');
