@@ -3,26 +3,18 @@ const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 
-
 // Initialisiere Express und den Server
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-
-
+// Globaler Speicher für alle Bestellungen
+let allOrders = {};
 
 function updateBestellungStatus(data, status) {
   console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Person ${data.person} Status aktualisiert auf: ${status}`);
   // Hier können Sie weitere Logik zur Aktualisierung des Status implementieren
 }
-
-
-
-// Globaler Speicher für alle Bestellungen
-let allOrders = {};
-
-
 
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
@@ -45,20 +37,20 @@ app.get('/theke', (req, res) => {
 // WebSocket-Verbindung
 io.on('connection', (socket) => {
   console.log('🔗 Ein Client hat sich verbunden');
-    
+
+  // Senden Sie die initialen Daten, wenn ein Client sich verbindet
+  socket.emit('initialData', allOrders);
 
   // Anfrage für initiale Daten
   socket.on('requestInitialData', () => {
+    console.log('Client fordert initiale Daten an');
     socket.emit('initialData', allOrders);
   });
-    
-    
-      // Senden Sie die initialen Daten, wenn ein Client sich verbindet
-  socket.emit('initialData', allOrders);
-    
 
-    // Bestellung zum Gesamtspeicher hinzufügen
-    const { row, table, person, order } = orderData;
+  // Neue Bestellung empfangen
+  socket.on('sendOrder', (orderData) => {
+    console.log('Neue Bestellung empfangen:', orderData);
+    const { row, table, person } = orderData;
     if (!allOrders[row]) allOrders[row] = {};
     if (!allOrders[row][table]) allOrders[row][table] = {};
     allOrders[row][table][person] = orderData;
@@ -80,63 +72,36 @@ io.on('connection', (socket) => {
     io.emit('orderUpdate', allOrders);
   });
 
+  socket.on('bestellungAusgegeben', function(data) {
+    updateBestellungStatus(data, 'ausgegeben'); // Datenbank aktualisieren
+    io.emit('bestellungStatusUpdate', { id: data.id, status: 'ausgegeben' }); // Benachrichtigung senden
+  });
 
-    
-    
- socket.on('bestellungAusgegeben', function(data) {
-  updateBestellungStatus(data.id, 'ausgegeben'); // Datenbank aktualisieren
-  io.emit('bestellungStatusUpdate', { id: data.id, status: 'ausgegeben' }); // Benachrichtigung senden
-});
-
-    
- // Bestellung als bezahlt markieren
+  // Bestellung als bezahlt markieren
   socket.on('orderPaid', (orderData) => {
     console.log('💰 Bestellung bezahlt:', orderData);
     const { row, table, person } = orderData;
     if (allOrders[row] && allOrders[row][table] && allOrders[row][table][person]) {
       allOrders[row][table][person].status = 'paid';
-    }
-    io.emit('orderPaid', orderData);
-    io.emit('orderUpdate', allOrders);
-  });
-
-
-  
-  // Benachrichtigen Sie alle Clients
-  io.emit('bestellungStatusUpdate', { 
-    status: 'bezahlt', 
-    row: data.row, 
-    table: data.table, 
-    person: data.person  // Hier wird die Person-Nummer direkt verwendet (1-6)
-  });
-});
-
-
-socket.on('requestInitialData', () => {
-  console.log('Client fordert initiale Daten an');
-  socket.emit('initialData', allOrders);
-});
-
-
-    
-
-  // Empfang von 'orderPaid' Event
-  socket.on('orderPaid', (orderData) => {
-    console.log('Bestellung bezahlt:', orderData);
-    io.emit('orderPaid', orderData);
-    
-    // Entferne die bezahlte Bestellung aus allOrders
-    const { row, table, person } = orderData;
-    if (allOrders[row] && allOrders[row][table] && allOrders[row][table][person]) {
+      // Benachrichtigen Sie alle Clients
+      io.emit('bestellungStatusUpdate', { 
+        status: 'bezahlt', 
+        row: row, 
+        table: table, 
+        person: person
+      });
+      // Entferne die bezahlte Bestellung aus allOrders
       delete allOrders[row][table][person];
       io.emit('orderUpdate', allOrders);
     }
+    io.emit('orderPaid', orderData);
   });
 
   // Benutzer trennt Verbindung
   socket.on('disconnect', () => {
     console.log('⚠️ Ein Benutzer hat die Verbindung getrennt.');
   });
+});
 
 // Server starten
 const PORT = process.env.PORT || 3000;
