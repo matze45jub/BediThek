@@ -577,14 +577,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
     
-     setInterval(() => {
-    socket.emit('requestLatestOrders');
-  }, 30000); // Alle 30 Sekunden
+setInterval(() => {
+  socket.emit('requestLatestOrders');
+}, 15000); // Alle 15 Sekunden
+    
+    
+    
 
-  socket.on('latestOrders', (orders) => {
-    allOrders = orders;
-    updateOrderDisplay();
-  });
+socket.on('latestOrders', (data) => {
+  console.log('Aktualisierte Daten empfangen:', data);
+  allOrders = data;
+  updateOrderDisplay();
+});
     
     
     
@@ -627,13 +631,16 @@ let allOrders = {
 
 
 socket.on('connect', () => {
-  console.log('✅ Bedienung-Verbindung zum Server hergestellt.');
+  console.log('Verbindung zum Server hergestellt');
+  socket.emit('requestLatestOrders');
 });
 
 socket.on('initialData', (data) => {
+  console.log('Initiale Daten empfangen:', data);
   allOrders = data;
   updateOrderDisplay();
 });
+
 
 socket.on('disconnect', () => {
   console.warn('⚠️ Bedienung-Verbindung zum Server verloren.');
@@ -1276,6 +1283,9 @@ function calculateTotal() {
 
 
 
+
+
+
 function sendOrderToTheke() {
   if (!currentRow || !currentTable || !currentPerson) {
     console.error("❌ Fehler: Reihen-, Tisch- oder Person-Nummer fehlt!");
@@ -1417,6 +1427,9 @@ function updatePaymentTotal() {
   }
   document.getElementById("paymentAmountToPay").textContent = total.toFixed(2);
 }
+
+
+
 
 
 
@@ -1638,6 +1651,9 @@ function saveOrdersToLocalStorage() {
 
 
 
+
+
+
    function loadOrdersFromLocalStorage() {
    const savedTables = localStorage.getItem('tables');
    
@@ -1689,8 +1705,6 @@ function updateOrderDisplay() {
 }
 
 
-
-
 function createOrderElement(row, table, person, order) {
   const element = document.createElement('div');
   element.className = 'order-item';
@@ -1703,7 +1717,6 @@ function createOrderElement(row, table, person, order) {
   `;
   return element;
 }
-
 
     
     // Initialisierung
