@@ -126,26 +126,23 @@
 
     socket.on('initialData', (data) => {
       console.log('Initiale Daten empfangen:', data);
-      if (Object.keys(data).length === 0) {
-        console.log('Keine Bestellungen vorhanden');
-        return;
-      }
-      for (const [row, tables] of Object.entries(data)) {
-        for (const [table, persons] of Object.entries(tables)) {
-          for (const [person, order] of Object.entries(persons)) {
-            addOrderToList({row, table, person, order});
-          }
-        }
-      }
+      allOrders = data;
+      renderAllOrders();
     });
 
     socket.on('neworder', (orderData) => {
-      console.log('📩 Bestellung in Theke empfangen:', orderData);
+      console.log('📩 Neue Bestellung in Theke empfangen:', orderData);
       addOrderToList(orderData);
     });
 
+    socket.on('orderUpdate', (updatedOrders) => {
+      console.log('🔄 Bestellungen aktualisiert:', updatedOrders);
+      allOrders = updatedOrders;
+      renderAllOrders();
+    });
+
     socket.on('orderPaid', (orderData) => {
-      console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
+      console.log(`💰 Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
       markOrderAsPaid(orderData);
     });
       
@@ -160,13 +157,16 @@
       }
     });
 
-    function saveOrdersToLocalStorage(orders) {
-      localStorage.setItem('orders', JSON.stringify(orders));
-    }
-
-    function loadOrdersFromLocalStorage() {
-      const orders = localStorage.getItem('orders');
-      return orders ? JSON.parse(orders) : {};
+    function renderAllOrders() {
+      const orderList = document.getElementById('orderList');
+      orderList.innerHTML = '';
+      for (const [row, tables] of Object.entries(allOrders)) {
+        for (const [table, persons] of Object.entries(tables)) {
+          for (const [person, orderData] of Object.entries(persons)) {
+            addOrderToList(orderData);
+          }
+        }
+      }
     }
 
     function addOrderToList(orderData) {
@@ -182,11 +182,6 @@
           console.error('orderList-Element nicht gefunden');
           return;
         }
-
-        const { row, table, person, order } = orderData;
-        if (!allOrders[row]) allOrders[row] = {};
-        if (!allOrders[row][table]) allOrders[row][table] = {};
-        allOrders[row][table][person] = order;
 
         const orderElement = document.createElement('div');
         orderElement.classList.add('order-item');
@@ -218,8 +213,6 @@
 
         console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
         orderList.insertBefore(orderElement, orderList.firstChild);
-
-        saveOrdersToLocalStorage(allOrders);
       } catch (error) {
         console.error('Fehler beim Hinzufügen der Bestellung:', error);
       }
@@ -252,9 +245,9 @@
     }
           
     function clearStorage() {
-      localStorage.removeItem('orders');
+      socket.emit('clearAllOrders');
       allOrders = {};
-      document.getElementById('orderList').innerHTML = '';
+      renderAllOrders();
       console.log('🗑️ Speicher wurde geleert');
     }
 
@@ -267,14 +260,11 @@
         timestamp: Date.now(),
         bedienung: 'Testbedienung'
       };
-      addOrderToList(testOrder);
+      socket.emit('sendOrder', testOrder);
     }
 
-    window.onload = function() {
-      console.log('Seite geladen, fordere initiale Daten an...');
-      socket.emit('requestInitialData');
-    };
-
+    // Initialisierung
+    socket.emit('requestInitialData');
   </script>
 
 </body>
