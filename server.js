@@ -11,7 +11,7 @@ const io = socketIo(server, {
     methods: ["GET", "POST"]
   }
 });
- 
+
 // Speicher für alle Bestellungen
 let allOrders = {};
 
@@ -36,45 +36,40 @@ io.on('connection', (socket) => {
   socket.on('requestInitialData', () => socket.emit('initialData', allOrders));
 
   socket.on('sendOrder', (orderData) => {
-  orderData.timestamp = Date.now();
-  console.log('📦 Bestellung erhalten:', orderData);
-  
-  const { row, table, person, order } = orderData;
-  if (!allOrders[row]) allOrders[row] = {};
-  if (!allOrders[row][table]) allOrders[row][table] = {};
-  allOrders[row][table][person] = order;
+    orderData.timestamp = Date.now();
+    console.log('📦 Bestellung erhalten:', orderData);
+    
+    const { row, table, person, order } = orderData;
+    if (!row || !table || !person || !order) {
+      console.error('❌ Ungültige Bestelldaten:', orderData);
+      return;
+    }
 
-  // Speichern Sie die Bestellung in der Datenbank (falls vorhanden)
-  // Beispiel: saveOrderToDatabase(orderData);
+    if (!allOrders[row]) allOrders[row] = {};
+    if (!allOrders[row][table]) allOrders[row][table] = {};
+    allOrders[row][table][person] = order;
 
-  // Senden Sie die aktualisierte Bestellung an alle verbundenen Clients
-  io.emit('orderUpdate', allOrders);
+    // Senden Sie die aktualisierte Bestellung an alle verbundenen Clients
+    io.emit('orderUpdate', allOrders);
 
-  // Fügen Sie diesen Block hier ein
-  io.emit('neworder', {
-    row: orderData.row,
-    table: orderData.table,
-    person: orderData.person,
-    timestamp: Date.now(),
-    bedienung: orderData.bedienung || 'Unbekannt',
-    order: orderData.order
+    // Senden Sie die neue Bestellung an die Theke
+    io.emit('neworder', {
+      row: orderData.row,
+      table: orderData.table,
+      person: orderData.person,
+      timestamp: orderData.timestamp,
+      bedienung: orderData.bedienung || 'Unbekannt',
+      order: orderData.order
+    });
+
+    console.log('📤 "neworder" an alle Clients gesendet');
   });
-});
-
-    
-    
-    
 
   socket.on('updateOrders', (updatedTables) => {
     allOrders = updatedTables;
     io.emit('orderUpdate', allOrders);
   });
 
-    
-    
-    
-    
-    
   socket.on('markOrderCompleted', (orderDetails) => {
     console.log('✅ Bestellung erledigt:', orderDetails);
     io.emit('orderCompleted', orderDetails);
