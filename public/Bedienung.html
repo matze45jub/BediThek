@@ -624,16 +624,7 @@ socket.on('orderUpdate', (updatedOrders) => {
   updateOrderDisplay();
 });
       
-      
 
-socket.on('bestellungStatusUpdate', function(data) {
-  if (data.status === 'ausgegeben') {
-    const bestellungElement = document.querySelector(`[data-bestellung-id="${data.id}"]`);
-    if (bestellungElement) {
-      bestellungElement.classList.add('ausgegeben');
-    }
-  }
-});
 
 // Bestellstatus aktualisieren
     socket.on('orderPaid', (orderData) => {
@@ -677,18 +668,27 @@ socket.on('bestellungStatusUpdate', function(data) {
       
 
   // Funktion zur Anzeige der Bestellungen
-    function updateOrderDisplay() {
-      const orderList = document.getElementById('orderList');
-      orderList.innerHTML = ''; // Zuerst die Liste leeren
+function updateOrderDisplay() {
+   const orderArea = document.querySelector('#order');
+   const selectedRow = document.querySelector('.row-button.selected');
+   const selectedTable = document.querySelector('.table-button.selected');
+   const selectedPerson = document.querySelector('.person-button.selected');
 
-      for (const [row, tables] of Object.entries(allOrders)) {
-        for (const [table, persons] of Object.entries(tables)) {
-          for (const [person, order] of Object.entries(persons)) {
-            const orderElement = createOrderElement(row, table, person, order);
-            orderList.appendChild(orderElement);
-          }
-        }
-      }
+   if (!selectedRow || !selectedTable || !selectedPerson) {
+      // Wenn keine Auswahl getroffen wurde, nichts tun
+      return;
+   }
+
+   let orderText = 'Bestellung für: ';
+   if (selectedRow) orderText += selectedRow.textContent + ' ';
+   if (selectedTable) orderText += selectedTable.textContent + ' ';
+   if (selectedPerson) orderText += selectedPerson.textContent;
+
+   const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
+   orderInfo.className = 'order-info';
+   orderInfo.textContent = orderText;
+   orderArea.insertBefore(orderInfo, orderArea.firstChild);
+}
 
       // Aktualisiere die Details zur aktuellen Auswahl
       updateCurrentOrderDisplay();
