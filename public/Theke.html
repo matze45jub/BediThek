@@ -77,37 +77,21 @@
       background-color: #28a745;
     }
 
+      .bezahlt {
+  background-color: #ffcccb; /* Hellrot */
+  color: #8b0000; /* Dunkelrot für Text */
+  border: 2px solid #8b0000; /* Optionaler roter Rahmen */
+}
+      
+      
     .clear-storage-btn {
       background-color: #dc3545;
       margin-bottom: 20px;
     }
-
-    #loading {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: rgba(0, 0, 0, 0.7);
-      color: white;
-      padding: 20px;
-      border-radius: 5px;
-      z-index: 1001;
-    }
-
-    @media (max-width: 768px) {
-      .order-item {
-        font-size: 1em;
-        padding: 10px;
-      }
-
-      .button-container {
-        flex-direction: column;
-        gap: 10px;
-      }
-    }
   </style>
 </head>
 <body>
+
   <div class="legend">
     <p>Legende: <span style="color: white;">Weiß</span> = Eingegangen | <span style="color: #28a745;">Grün</span> = Ausgegeben | <span style="color: #dc3545;">Rot</span> = Bezahlt</p>
   </div>
@@ -121,84 +105,84 @@
   <div id="orderList"></div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-<script>
-  const socket = io('https://bedithek.onrender.com');
-  let allOrders = {};
-  const orderList = document.getElementById('orderList');
-
-    function showLoading() {
-      const loadingIndicator = document.createElement('div');
-      loadingIndicator.id = 'loading';
-      loadingIndicator.textContent = 'Lade Bestellungen...';
-      document.body.appendChild(loadingIndicator);
-    }
-
-    function hideLoading() {
-      const loadingIndicator = document.getElementById('loading');
-      if (loadingIndicator) {
-        loadingIndicator.remove();
-      }
-    }
+  <script>
+    const socket = io('http://localhost:3000');
+     let allOrders = {};
 
     socket.on('connect', () => {
       console.log('✅ Theke-Verbindung zum Server hergestellt.');
-      socket.emit('requestInitialData');
-      showLoading();
     });
 
     socket.on('disconnect', () => {
-      console.warn('⚠️ Theke-Verbindung zum Server verloren. Versuche erneut zu verbinden...');
-    });
-
-    socket.on('reconnect', () => {
-      console.log('✅ Verbindung wiederhergestellt.');
-      socket.emit('requestInitialData');
-    });
-
-    socket.on('initialData', (data) => {
-      hideLoading();
-      allOrders = data;
-      updateOrderList();
+      console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
     socket.on('neworder', (orderData) => {
-      try {
-        console.log('📩 Bestellung in Theke empfangen:', orderData);
-        addOrderToList(orderData);
-      } catch (error) {
-        console.error('❌ Fehler beim Verarbeiten der neuen Bestellung:', error);
-      }
+      console.log('📩 Bestellung in Theke empfangen:', orderData);
+      addOrderToList(orderData);   
     });
 
-    socket.on('orderUpdate', (data) => {
-      allOrders = data;
-      updateOrderList();
-    });
+      
+      socket.on('orderUpdate', (data) => {
+  // Verarbeiten Sie hier die empfangenen Daten
+});
 
+      
+      
     socket.on('orderPaid', (orderData) => {
-      console.log(`💰 Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
+      console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
       markOrderAsPaid(orderData);
     });
-
-    socket.on('bestellungStatusUpdate', function(data) {
-      if (data.status === 'bezahlt') {
-        data.persons.forEach(person => {
-          const bestellungElement = document.querySelector(`[data-bestellung-id="R${data.row}T${data.table}P${person}"]`);
-          if (bestellungElement) {
-            bestellungElement.classList.add('bezahlt');
-          }
-        });
+      
+      
+      
+      socket.on('bestellungStatusUpdate', function(data) {
+  if (data.status === 'bezahlt') {
+    data.persons.forEach(person => {
+      const bestellungElement = document.querySelector(`[data-bestellung-id="R${data.row}T${data.table}P${person}"]`);
+      if (bestellungElement) {
+        bestellungElement.classList.add('bezahlt');
       }
     });
+  }
+});
+
+      
+      
+      
+
+    function saveOrdersToLocalStorage(orders) {
+      localStorage.setItem('orders', JSON.stringify(orders));
+    }
+
+    function loadOrdersFromLocalStorage() {
+      const orders = localStorage.getItem('orders');
+      return orders ? JSON.parse(orders) : {};
+    }
 
     function addOrderToList(orderData) {
-      const fragment = document.createDocumentFragment();
+      const orderList = document.getElementById('orderList');
+      
+      console.log('Timestamp:', orderData.timestamp);
+
+      if (!orderData || !orderData.order) {
+        console.error('❌ Fehler: orderData.order ist nicht definiert!');
+        return;
+      }
+
+      const { row, table, person, order } = orderData;
+      if (!allOrders[row]) allOrders[row] = {};
+      if (!allOrders[row][table]) allOrders[row][table] = {};
+      allOrders[row][table][person] = order;
+
       const orderElement = document.createElement('div');
       orderElement.classList.add('order-item');
-      orderElement.setAttribute('data-bestellung-id', `R${orderData.row}T${orderData.table}P${orderData.person}`);
+      if (orderData.status) {
+        orderElement.classList.add(orderData.status);
+      }
 
       const timestamp = orderData.timestamp 
-        ? new Date(orderData.timestamp).toLocaleString() 
+        ? new Date(Number(orderData.timestamp)).toLocaleString() 
         : "Zeit unbekannt";
 
       orderElement.innerHTML = `
@@ -207,7 +191,7 @@
           <strong>Tisch: ${orderData.table}</strong> - 
           <strong>Person: ${orderData.person}</strong><br>
           Bestellzeit: ${timestamp}<br>
-          Bestellt von: ${orderData.bedienung || 'Unbekannt'}<br>
+          Bestellt von: ${orderData.bedienung}<br>
           <div class="product-list">
             ${Object.values(orderData.order)
               .map(item => `${item.quantity}x ${item.name}`)
@@ -215,34 +199,20 @@
           </div>
         </div>
         <div class="button-container">
-          <button class="complete-btn" data-row="${orderData.row}" data-table="${orderData.table}" data-person="${orderData.person}">Ausgegeben</button>
+          <button class="complete-btn" onclick="markAsCompleted('${orderData.row}', '${orderData.table}', '${orderData.person}', this)">Ausgegeben</button>
         </div>
       `;
 
-      fragment.appendChild(orderElement);
-      orderList.insertBefore(fragment, orderList.firstChild);
-    }
+      console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
+      orderList.insertBefore(orderElement, orderList.firstChild);
 
-    function updateOrderList() {
-      orderList.innerHTML = '';
-      for (const [row, tables] of Object.entries(allOrders)) {
-        for (const [table, persons] of Object.entries(tables)) {
-          for (const [person, order] of Object.entries(persons)) {
-            addOrderToList({row, table, person, order});
-          }
-        }
-      }
+      saveOrdersToLocalStorage(allOrders);
     }
 
     function markAsCompleted(row, table, person, button) {
-      socket.emit('markOrderCompleted', { row, table, person }, (response) => {
-        if (response && response.status === 'OK') {
-          console.log(`✅ Bestellung für Reihe ${row}, Tisch ${table}, Person ${person} als erledigt markiert.`);
-          button.closest('.order-item').classList.add('completed');
-        } else {
-          console.error(`❌ Fehler beim Markieren der Bestellung als erledigt:`, response ? response.error : 'Keine Antwort vom Server');
-        }
-      });
+      socket.emit('markOrderCompleted', { row, table, person });
+      const orderItem = button.closest('.order-item');
+      orderItem.classList.add('completed');
     }
 
     function markOrderAsPaid(orderData) {
@@ -264,29 +234,32 @@
         }
       });
     }
+          
+          document.querySelector('.ausgegeben-button').addEventListener('click', function() {
+  const bestellungId = this.dataset.bestellungId;
+  socket.emit('bestellungAusgegeben', { id: bestellungId });
+});
+
+          
 
     function clearStorage() {
       localStorage.removeItem('orders');
       allOrders = {};
-      orderList.innerHTML = '';
+      document.getElementById('orderList').innerHTML = '';
       console.log('🗑️ Speicher wurde geleert');
-      socket.emit('clearAllOrders');
     }
 
-    orderList.addEventListener('click', function(event) {
-      if (event.target.classList.contains('complete-btn')) {
-        const row = event.target.dataset.row;
-        const table = event.target.dataset.table;
-        const person = event.target.dataset.person;
-        markAsCompleted(row, table, person, event.target);
-      }
-    });
-
     window.onload = function() {
-      if (socket.connected) {
-        socket.emit('requestInitialData');
+      allOrders = loadOrdersFromLocalStorage();
+      for (const [row, tables] of Object.entries(allOrders)) {
+        for (const [table, persons] of Object.entries(tables)) {
+          for (const [person, order] of Object.entries(persons)) {
+            addOrderToList({row, table, person, order});
+          }
+        }
       }
     };
   </script>
+
 </body>
 </html>
