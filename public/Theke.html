@@ -109,13 +109,14 @@
     const socket = io('https://bedithek.onrender.com');
     let allOrders = {};
 
-    socket.on('connect', () => {
-      console.log('✅ Theke-Verbindung zum Server hergestellt.');
-    });
+socket.on('connect', () => {
+  console.log('✅ Theke-Verbindung zum Server hergestellt.');
+});
 
-    socket.on('disconnect', () => {
-      console.warn('⚠️ Theke-Verbindung zum Server verloren.');
-    });
+socket.on('disconnect', () => {
+  console.warn('⚠️ Theke-Verbindung zum Server verloren.');
+});
+
 
 socket.on('neworder', (orderData) => {
   console.log('📩 Bestellung in Theke empfangen:', orderData);
@@ -160,10 +161,10 @@ socket.on('orderPaid', (orderData) => {
 } 
       
  function clearOrderList() {
-  const orderList = document.getElementById('orderList');
-  if (orderList) {
-    orderList.innerHTML = '';
-  }
+const orderList = document.getElementById('orderList');
+if (!orderList) {
+  console.error('❌ Fehler: orderList Element nicht gefunden');
+  return;
 }
 
 function markOrderAsServed(data) {
@@ -176,17 +177,20 @@ function markOrderAsServed(data) {
       
 
     function saveOrdersToLocalStorage(orders) {
-      localStorage.setItem('orders', JSON.stringify(orders));
-    }
+  try {
+    localStorage.setItem('orders', JSON.stringify(orders));
+  } catch (error) {
+    console.error('❌ Fehler beim Speichern in localStorage:', error);
+  }
+}
+
 
     function loadOrdersFromLocalStorage() {
       const orders = localStorage.getItem('orders');
       return orders ? JSON.parse(orders) : {};
     }
 
- function addOrderToList(orderData) {
-  const orderList = document.getElementById('orderList');
-  
+function addOrderToList(orderData) {
   if (!orderData || !orderData.order) {
     console.error('❌ Fehler: Ungültige Bestelldaten:', orderData);
     return;
@@ -220,7 +224,8 @@ function markOrderAsServed(data) {
   orderList.insertBefore(orderElement, orderList.firstChild);
 }
 
-      console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderElement);
+      console.log('🔹 Bestellung wird zur Anzeige hinzugefügt:', orderData);
+
       orderList.insertBefore(orderElement, orderList.firstChild);
 
       saveOrdersToLocalStorage(allOrders);
@@ -267,4 +272,3 @@ function markOrderAsServed(data) {
 
 </body>
 </html>
- 
