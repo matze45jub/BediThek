@@ -459,10 +459,10 @@
   </div>
 </div>
 
-<div id="orderList"></div>
-<div class="order-preview"></div>
 
-
+    
+    
+    
     
 <div class="row-buttons">
   <button class="row-button" id="row1" onclick="selectRow(1)">Reihe 1</button>
@@ -606,28 +606,18 @@ socket.on('connect', () => {
 });
 
 socket.on('initialData', (data) => {
-  // Zusammenführen der neuen Daten mit den lokalen Daten
-  mergeOrders(data);
+  allOrders = data;
   updateOrderDisplay();
 });
-      
-      
-function mergeOrders(newOrders) {
-  // Hier implementieren Sie die Logik zum Zusammenführen der Bestellungen
-  // Behalten Sie lokale Änderungen bei und aktualisieren Sie nur neue oder geänderte Bestellungen
-}
-      
-      
+
 socket.on('disconnect', () => {
   console.warn('⚠️ Bedienung-Verbindung zum Server verloren.');
 });
-      
 
-socket.on('orderUpdate', (orderData) => {
-  allOrders = orderData;
+socket.on('orderUpdate', (updatedOrders) => {
+  allOrders = updatedOrders;
   updateOrderDisplay();
 });
-
       
       
 
@@ -639,9 +629,6 @@ socket.on('bestellungStatusUpdate', function(data) {
     }
   }
 });
-
-
-      
 
 
       
@@ -885,15 +872,6 @@ function selectTable(tableNumber) {
   renderPersonButtons();
 }
 
-      
-      
-      function refreshOrdersWithoutReload() {
-  socket.emit('requestInitialData');
-}
-
-setInterval(refreshOrdersWithoutReload, 5000);
-
-      
 
 
     function renderPersonButtons() {
@@ -1274,23 +1252,8 @@ function calculateTotal() {
 }
 
 
-  // Funktion zum Senden von Bestellaktualisierungen
-  function sendOrderUpdate(orderData) {
-    socket.emit('updateOrders', orderData);
-  }
 
 
-  // Empfangen von Bestellaktualisierungen
-  socket.on('ordersUpdated', (data) => {
-    // Aktualisieren Sie hier Ihre UI mit den neuen Daten
-    updateOrderDisplay(data);
-  });
-
-
-  // Implementieren Sie diese Funktion, um Ihre UI zu aktualisieren
-  function updateOrderDisplay(data) {
-    // Ihre Logik zur Aktualisierung der Bestellanzeige
-  }
 
 
 function sendOrderToTheke() {
