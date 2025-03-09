@@ -77,13 +77,6 @@
       background-color: #28a745;
     }
 
-      .bezahlt {
-  background-color: #ffcccb; /* Hellrot */
-  color: #8b0000; /* Dunkelrot für Text */
-  border: 2px solid #8b0000; /* Optionaler roter Rahmen */
-}
-      
-      
     .clear-storage-btn {
       background-color: #dc3545;
       margin-bottom: 20px;
@@ -106,8 +99,8 @@
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
   <script>
-    const socket = io('http://localhost:3000');
-     let allOrders = {};
+    const socket = io('https://bedithek.onrender.com');
+    let allOrders = {};
 
     socket.on('connect', () => {
       console.log('✅ Theke-Verbindung zum Server hergestellt.');
@@ -119,37 +112,13 @@
 
     socket.on('neworder', (orderData) => {
       console.log('📩 Bestellung in Theke empfangen:', orderData);
-      addOrderToList(orderData);   
+      addOrderToList(orderData);
     });
 
-      
-      socket.on('orderUpdate', (data) => {
-  // Verarbeiten Sie hier die empfangenen Daten
-});
-
-      
-      
     socket.on('orderPaid', (orderData) => {
       console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
       markOrderAsPaid(orderData);
     });
-      
-      
-      
-      socket.on('bestellungStatusUpdate', function(data) {
-  if (data.status === 'bezahlt') {
-    data.persons.forEach(person => {
-      const bestellungElement = document.querySelector(`[data-bestellung-id="R${data.row}T${data.table}P${person}"]`);
-      if (bestellungElement) {
-        bestellungElement.classList.add('bezahlt');
-      }
-    });
-  }
-});
-
-      
-      
-      
 
     function saveOrdersToLocalStorage(orders) {
       localStorage.setItem('orders', JSON.stringify(orders));
@@ -234,13 +203,6 @@
         }
       });
     }
-          
-          document.querySelector('.ausgegeben-button').addEventListener('click', function() {
-  const bestellungId = this.dataset.bestellungId;
-  socket.emit('bestellungAusgegeben', { id: bestellungId });
-});
-
-          
 
     function clearStorage() {
       localStorage.removeItem('orders');
