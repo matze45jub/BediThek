@@ -120,12 +120,14 @@ socket.on('disconnect', () => {
 
 socket.on('neworder', (orderData) => {
   console.log('📩 Bestellung in Theke empfangen:', orderData);
-  if (orderData && orderData.row && orderData.table && orderData.person) {
+  console.log('Bestellungsdetails:', JSON.stringify(orderData, null, 2));
+  if (orderData && orderData.row && orderData.table && orderData.person && orderData.order) {
     addOrderToList(orderData);
   } else {
-    console.error('Ungültige Bestelldaten empfangen:', orderData);
+    console.error('❌ Ungültige Bestelldaten empfangen:', orderData);
   }
 });
+
 
 
 socket.on('orderUpdate', (allOrders) => {
@@ -190,11 +192,13 @@ function markOrderAsServed(data) {
       return orders ? JSON.parse(orders) : {};
     }
 
-function addOrderToList(orderData) {
-  if (!orderData || !orderData.order) {
-    console.error('❌ Fehler: Ungültige Bestelldaten:', orderData);
+ffunction addOrderToList(orderData) {
+  const orderList = document.getElementById('orderList');
+  if (!orderList) {
+    console.error('❌ Fehler: orderList Element nicht gefunden');
     return;
   }
+
 
   const orderElement = document.createElement('div');
   orderElement.classList.add('order-item');
