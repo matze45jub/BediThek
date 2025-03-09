@@ -551,29 +551,30 @@
   <script>
       
       
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initiale Setup-Funktion für die Bedienung
+    promptForBedienungName();
+      
 
-      promptForBedienungName();
-    
-  
-
+    // Event-Listener für den Bezahl-Button
     const paymentButton = document.getElementById('paymentButton');
-  if (paymentButton) {
-    paymentButton.addEventListener('click', togglePaymentDialog);
-  }
-    
-        const buttons = document.querySelectorAll('.unified-button');
-        buttons.forEach(button => {
-            button.addEventListener('click', function() {
-                const category = this.classList.contains('row-button') ? 'row-button' : 
-                                 this.classList.contains('table-button') ? 'table-button' : 'person-button';
-                document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
-                
-                this.classList.add('selected');
-                  updatePaymentRowSelection();
-                updateOrderDisplay();
-            });
-        });
+    if (paymentButton) {
+      paymentButton.addEventListener('click', togglePaymentDialog);
+    }
+
+    // Event-Listener für alle Unified-Buttons
+    const buttons = document.querySelectorAll('.unified-button');
+    buttons.forEach(button => {
+      button.addEventListener('click', function() {
+        const category = this.classList.contains('row-button') ? 'row-button' : 
+                         this.classList.contains('table-button') ? 'table-button' : 'person-button';
+        document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
+        this.classList.add('selected');
+        updateOrderDisplay();
+      });
+    });
+      
+      
         
         function updateOrderDisplay() {
             const orderArea = document.querySelector('#order');
@@ -596,23 +597,27 @@ document.addEventListener('DOMContentLoaded', function() {
      
      
      
+    // Socket.io-Setup
+    const socket = io('https://bedithek.onrender.com');
+    let allOrders = {};
+
+    // Verbindung zum Server herstellen
+    socket.on('connect', () => {
+      console.log('✅ Bedienung-Verbindung zum Server hergestellt.');
+    });
+
+    // Daten bei Initialisierung empfangen
+    socket.on('initialData', (data) => {
+      allOrders = data;
+      updateOrderDisplay();
+    });
+
+    // Verbindung zum Server verloren
+    socket.on('disconnect', () => {
+      console.warn('⚠️ Bedienung-Verbindung zum Server verloren.');
+    });
       
       
-const socket = io('https://bedithek.onrender.com');
-let allOrders = {};
-
-socket.on('connect', () => {
-  console.log('✅ Bedienung-Verbindung zum Server hergestellt.');
-});
-
-socket.on('initialData', (data) => {
-  allOrders = data;
-  updateOrderDisplay();
-});
-
-socket.on('disconnect', () => {
-  console.warn('⚠️ Bedienung-Verbindung zum Server verloren.');
-});
 
 socket.on('orderUpdate', (updatedOrders) => {
   allOrders = updatedOrders;
@@ -630,26 +635,68 @@ socket.on('bestellungStatusUpdate', function(data) {
   }
 });
 
-
+// Bestellstatus aktualisieren
+    socket.on('orderPaid', (orderData) => {
+      console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
+      updateOrderStatus(orderData);
+    });
       
-
-function updateOrderDisplay() {
-  // Aktualisiere die Gesamtübersicht aller Bestellungen
-  const orderList = document.getElementById('orderList');
-  orderList.innerHTML = '';
+      
+        // Bestellstatus-Update erhalten
+    socket.on('bestellungStatusUpdate', function(data) {
+      if (data.status === 'ausgegeben') {
+        const bestellungElement = document.querySelector(`[data-bestellung-id="${data.id}"]`);
+        if (bestellungElement) {
+          bestellungElement.classList.add('ausgegeben');
+        }
+      }
+    });
+      
   
-  for (const [row, tables] of Object.entries(allOrders)) {
-    for (const [table, persons] of Object.entries(tables)) {
-      for (const [person, order] of Object.entries(persons)) {
-        const orderElement = createOrderElement(row, table, person, order);
-        orderList.appendChild(orderElement);
+  // Finde das entsprechende Bestell-Element
+  const orderItems = document.querySelectorAll('.order-item');
+  
+  orderItems.forEach(item => {
+    const row = item.querySelector('strong:nth-child(1)');
+    const table = item.querySelector('strong:nth-child(2)');
+    const person = item.querySelector('strong:nth-child(3)');
+    
+    // Überprüfen, ob es sich um die bezahlte Bestellung handelt
+    if (row && table && person) {
+      const rowText = row.textContent.split(":")[1]?.trim();
+      const tableText = table.textContent.split(":")[1]?.trim();
+      const personText = person.textContent.split(":")[1]?.trim();
+      
+      // Wenn Reihe, Tisch und Person übereinstimmen, Bestellung als bezahlt markieren
+      if (rowText === orderData.row.toString() && tableText === orderData.table.toString() && personText === orderData.person.toString()) {
+        item.classList.add('paid'); // Bestell-Element bekommt die 'paid' Klasse
       }
     }
-  }
+  });
+});
+      
 
-  // Aktualisiere die detaillierte Anzeige für die aktuelle Auswahl
-  updateCurrentOrderDisplay();
+  // Funktion zur Anzeige der Bestellungen
+    function updateOrderDisplay() {
+      const orderList = document.getElementById('orderList');
+      orderList.innerHTML = ''; // Zuerst die Liste leeren
 
+      for (const [row, tables] of Object.entries(allOrders)) {
+        for (const [table, persons] of Object.entries(tables)) {
+          for (const [person, order] of Object.entries(persons)) {
+            const orderElement = createOrderElement(row, table, person, order);
+            orderList.appendChild(orderElement);
+          }
+        }
+      }
+
+      // Aktualisiere die Details zur aktuellen Auswahl
+      updateCurrentOrderDisplay();
+      updateTotalSum();
+    }
+
+      
+      
   // Aktualisiere die Bestelltabelle
   renderOrder();
 
@@ -681,20 +728,88 @@ function updateTotalSum() {
 
       
       
-      
-      
-function createOrderElement(row, table, person, order) {
-  const element = document.createElement('div');
-  element.className = 'order-item';
-  element.innerHTML = `
-    <h4>Reihe ${row}, Tisch ${table}, Person ${person}</h4>
-    <ul>
-      ${Object.entries(order).map(([name, item]) => 
-        `<li>${item.quantity}x ${name}</li>`).join('')}
-    </ul>
-  `;
-  return element;
-}
+   // Funktion zur Erstellung eines Bestell-Elements
+    function createOrderElement(row, table, person, order) {
+      const orderElement = document.createElement('div');
+      orderElement.classList.add('order-item');
+      orderElement.setAttribute('data-bestellung-id', `${row}-${table}-${person}`);
+      orderElement.innerHTML = `
+        <strong>Reihe: ${row}</strong> | 
+        <strong>Tisch: ${table}</strong> | 
+        <strong>Person: ${person}</strong><br>
+        Bestellte Produkte: ${Object.values(order).map(item => `${item.quantity}x ${item.name}`).join(', ')}
+        <br>
+        <button class="complete-btn" onclick="markAsCompleted('${row}', '${table}', '${person}', this)">Ausgegeben</button>
+      `;
+      return orderElement;
+    }
+
+
+   // Funktion zum Aktualisieren der Bestellstatus
+    function updateOrderStatus(orderData) {
+      const orderItems = document.querySelectorAll('.order-item');
+      orderItems.forEach(item => {
+        const row = item.querySelector('strong:nth-child(1)');
+        const table = item.querySelector('strong:nth-child(2)');
+        const person = item.querySelector('strong:nth-child(3)');
+
+        if (row && table && person) {
+          const rowText = row.textContent.split(":")[1]?.trim();
+          const tableText = table.textContent.split(":")[1]?.trim();
+          const personText = person.textContent.split(":")[1]?.trim();
+
+          // Wenn die Reihen-, Tisch- und Personen-IDs übereinstimmen
+          if (rowText === orderData.row.toString() && tableText === orderData.table.toString() && personText === orderData.person.toString()) {
+            item.classList.add('paid'); // Die Klasse 'paid' hinzufügen, um den Status anzuzeigen
+          }
+        }
+      });
+    }
+
+
+  // Funktion zur Anzeige der aktuellen Bestellung
+    function updateCurrentOrderDisplay() {
+      const orderArea = document.querySelector('#order');
+      const selectedRow = document.querySelector('.row-button.selected');
+      const selectedTable = document.querySelector('.table-button.selected');
+      const selectedPerson = document.querySelector('.person-button.selected');
+
+      let orderText = 'Bestellung für: ';
+      if (selectedRow) orderText += selectedRow.textContent + ' ';
+      if (selectedTable) orderText += selectedTable.textContent + ' ';
+      if (selectedPerson) orderText += selectedPerson.textContent;
+
+      const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
+      orderInfo.className = 'order-info';
+      orderInfo.textContent = orderText;
+      orderArea.insertBefore(orderInfo, orderArea.firstChild);
+    }
+
+    // Funktion zur Berechnung des Gesamtbetrags
+    function updateTotalSum() {
+      const total = calculateTotal();
+      document.getElementById("totalSum").textContent = total.toFixed(2);
+    }
+
+    // Funktion zur Berechnung des Gesamtbetrags (Dummy-Implementierung, je nach Bedarf anpassen)
+    function calculateTotal() {
+      let total = 0;
+      for (const [row, tables] of Object.entries(allOrders)) {
+        for (const [table, persons] of Object.entries(tables)) {
+          for (const [person, order] of Object.entries(persons)) {
+            total += Object.values(order).reduce((sum, item) => sum + item.price * item.quantity, 0);
+          }
+        }
+      }
+      return total;
+    }
+
+    // Funktion für den Bezahl-Button
+    function togglePaymentDialog() {
+      // Funktionalität für den Dialog (zu definieren)
+    }
+  });
+
 
 function sendNewOrder(orderData) {
   socket.emit("sendOrder", orderData);
