@@ -102,33 +102,64 @@
     const socket = io('https://bedithek.onrender.com');
     let allOrders = {};
 
-    socket.on('connect', () => {
+       socket.on('connect', () => {
       console.log('✅ Theke-Verbindung zum Server hergestellt.');
+      socket.emit('requestInitialData');
     });
 
     socket.on('disconnect', () => {
       console.warn('⚠️ Theke-Verbindung zum Server verloren.');
     });
 
-    socket.on('neworder', (orderData) => {
-      console.log('📩 Bestellung in Theke empfangen:', orderData);
+      socket.on('initialData', (orders) => {
+      console.log('📊 Initiale Daten empfangen');
+      allOrders = orders;
+      renderAllOrders();
+    });
+
+    socket.on('orderUpdate', (updatedOrders) => {
+      console.log('🔄 Bestellungen aktualisiert');
+      allOrders = updatedOrders;
+      renderAllOrders();
+    });
+
+    socket.on('newOrder', (orderData) => {
+      console.log('📩 Neue Bestellung empfangen:', orderData);
       addOrderToList(orderData);
     });
+      
+          socket.on('orderCompleted', (orderDetails) => {
+      console.log('✅ Bestellung als erledigt markiert:', orderDetails);
+      markOrderAsCompleted(orderDetails);
+    });
+      
+      
+         socket.on('bestellungStatusUpdate', (data) => {
+      console.log('🔔 Bestellungsstatus aktualisiert:', data);
+      updateOrderStatus(data);
+    });
+      
+      
 
     socket.on('orderPaid', (orderData) => {
       console.log(`Bestellung bezahlt: Reihe: ${orderData.row}, Tisch: ${orderData.table}, Person: ${orderData.person}`);
       markOrderAsPaid(orderData);
     });
 
-    function saveOrdersToLocalStorage(orders) {
-      localStorage.setItem('orders', JSON.stringify(orders));
+    
+          function renderAllOrders() {
+      const orderList = document.getElementById('orderList');
+      orderList.innerHTML = '';
+      for (const [row, tables] of Object.entries(allOrders)) {
+        for (const [table, persons] of Object.entries(tables)) {
+          for (const [person, order] of Object.entries(persons)) {
+            addOrderToList({row, table, person, order});
+          }
+        }
+      }
     }
 
-    function loadOrdersFromLocalStorage() {
-      const orders = localStorage.getItem('orders');
-      return orders ? JSON.parse(orders) : {};
-    }
-
+      
     function addOrderToList(orderData) {
       const orderList = document.getElementById('orderList');
       
@@ -178,12 +209,44 @@
       saveOrdersToLocalStorage(allOrders);
     }
 
-    function markAsCompleted(row, table, person, button) {
+     function markAsCompleted(row, table, person, button) {
       socket.emit('markOrderCompleted', { row, table, person });
       const orderItem = button.closest('.order-item');
       orderItem.classList.add('completed');
     }
 
+    function markOrderAsCompleted(orderDetails) {
+      const orderItem = findOrderElement(orderDetails);
+      if (orderItem) {
+        orderItem.classList.add('completed');
+      }
+    }
+
+      
+          function updateOrderStatus(data) {
+      const orderItem = findOrderElement(data);
+      if (orderItem) {
+        orderItem.classList.remove('completed', 'paid');
+        orderItem.classList.add(data.status);
+      }
+    }
+
+    function findOrderElement(orderDetails) {
+      const orderItems = document.querySelectorAll('.order-item');
+      return Array.from(orderItems).find(item => {
+        const row = item.querySelector('strong:nth-child(1)').textContent.split(":")[1].trim();
+        const table = item.querySelector('strong:nth-child(2)').textContent.split(":")[1].trim();
+        const person = item.querySelector('strong:nth-child(3)').textContent.split(":")[1].trim();
+        return row === orderDetails.row.toString() &&
+               table === orderDetails.table.toString() &&
+               person === orderDetails.person.toString();
+      });
+    }
+      
+      
+      
+      
+      
     function markOrderAsPaid(orderData) {
       const orderItems = document.querySelectorAll('.order-item');
       
@@ -207,20 +270,12 @@
     function clearStorage() {
       localStorage.removeItem('orders');
       allOrders = {};
-      document.getElementById('orderList').innerHTML = '';
+      renderAllOrders();
       console.log('🗑️ Speicher wurde geleert');
     }
 
-    window.onload = function() {
-      allOrders = loadOrdersFromLocalStorage();
-      for (const [row, tables] of Object.entries(allOrders)) {
-        for (const [table, persons] of Object.entries(tables)) {
-          for (const [person, order] of Object.entries(persons)) {
-            addOrderToList({row, table, person, order});
-          }
-        }
-      }
-    };
+
+
   </script>
 
 </body>
