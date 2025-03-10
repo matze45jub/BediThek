@@ -460,7 +460,7 @@
 </div>
 
 
-
+    
     
     
     
@@ -552,82 +552,48 @@
       
       
 document.addEventListener('DOMContentLoaded', function() {
-    promptForBedienungName();
-    updateOrderDisplay();
+
+      promptForBedienungName();
+    
+  
 
     const paymentButton = document.getElementById('paymentButton');
-    if (paymentButton) {
-        paymentButton.addEventListener('click', togglePaymentDialog);
-    } else {
-        console.warn('Element mit ID "paymentButton" nicht gefunden.');
-    }
-
-    const buttons = document.querySelectorAll('.unified-button');
-    buttons.forEach(button => {
-        button.addEventListener('click', function() {
-            const category = this.classList.contains('row-button') ? 'row-button' : 
-                             this.classList.contains('table-button') ? 'table-button' : 'person-button';
-            document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
-
-            this.classList.add('selected');
-            updatePaymentRowSelection();
-            updateOrderDisplay();
+  if (paymentButton) {
+    paymentButton.addEventListener('click', togglePaymentDialog);
+  }
+    
+        const buttons = document.querySelectorAll('.unified-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.classList.contains('row-button') ? 'row-button' : 
+                                 this.classList.contains('table-button') ? 'table-button' : 'person-button';
+                document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
+                
+                this.classList.add('selected');
+                  updatePaymentRowSelection();
+                updateOrderDisplay();
+            });
         });
         
-        
-       
-  const sendOrderButton = document.getElementById('sendOrderButton');
-  if (sendOrderButton) {
-    sendOrderButton.addEventListener('click', sendOrderToTheke);
-  } else {
-    console.error('Schaltfläche "Jetzt bestellen" nicht gefunden.');
-  }
-});
+        function updateOrderDisplay() {
+            const orderArea = document.querySelector('#order');
+            const selectedRow = document.querySelector('.row-button.selected');
+            const selectedTable = document.querySelector('.table-button.selected');
+            const selectedPerson = document.querySelector('.person-button.selected');
 
+            let orderText = 'Bestellung für: ';
+            if (selectedRow) orderText += selectedRow.textContent + ' ';
+            if (selectedTable) orderText += selectedTable.textContent + ' ';
+            if (selectedPerson) orderText += selectedPerson.textContent;
+
+            const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
+            orderInfo.className = 'order-info';
+            orderInfo.textContent = orderText;
+            orderArea.insertBefore(orderInfo, orderArea.firstChild);
+        }
     });
-
-    function updateOrderDisplay() {
-        const orderList = document.getElementById('orderList');
-  if (!orderList) {
-    console.error('Element mit ID "orderList" nicht gefunden');
-    return;
-  }
-  orderList.innerHTML = '';
-        const orderArea = document.querySelector('#order');
-        if (!orderArea) {
-            console.error('Element mit ID "order" nicht gefunden.');
-            return;
-        }
-
-        const selectedRow = document.querySelector('.row-button.selected');
-        const selectedTable = document.querySelector('.table-button.selected');
-        const selectedPerson = document.querySelector('.person-button.selected');
-
-        let orderText = 'Bestellung für: ';
-        if (selectedRow) {
-            orderText += selectedRow.textContent + ' ';
-        } else {
-            console.warn('Kein ausgewählter Row-Button gefunden.');
-        }
-
-        if (selectedTable) {
-            orderText += selectedTable.textContent + ' ';
-        } else {
-            console.warn('Kein ausgewählter Table-Button gefunden.');
-        }
-
-        if (selectedPerson) {
-            orderText += selectedPerson.textContent;
-        } else {
-            console.warn('Keine ausgewählte Person-Button gefunden.');
-        }
-
-        const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
-        orderInfo.className = 'order-info';
-        orderInfo.textContent = orderText;
-        orderArea.insertBefore(orderInfo, orderArea.firstChild);
-    };
-
+     
+     
      
      
       
@@ -926,23 +892,28 @@ function selectTable(tableNumber) {
   }
     }
 
-function promptForBedienungName() {
-  let name = prompt("Bitte geben Sie Ihren Namen ein:", ""); // Erste und einzige Deklaration
+   function promptForBedienungName() {
+  let name;
 
-  if (name) {
-    name = name.trim();
-    bedienungName = name; // Zuweisung an die globale Variable bedienungName
-
-    const displayElement = document.getElementById('bedienungNameDisplay');
-    if (displayElement) {
-      displayElement.textContent = `Bedienung: ${bedienungName}`;
-    } else {
-      console.error("Das Element 'bedienungNameDisplay' wurde nicht gefunden!");
+  while (!name || name.trim() === "") {
+    name = prompt("Bitte geben Sie Ihren Namen ein:", "");
+    
+    if (!name || name.trim() === "") {
+      alert("Bitte geben Sie einen gültigen Namen ein.");
     }
+  }
+
+  bedienungName = name.trim();
+  
+  const displayElement = document.getElementById('bedienungNameDisplay');
+  
+  if (displayElement) {
+    displayElement.textContent = `Bedienung: ${bedienungName}`;
   } else {
-    console.warn("Kein Name eingegeben.");
+    console.error("Das Element 'bedienungNameDisplay' wurde nicht gefunden!");
   }
 }
+
 
       
 function selectPerson(personNumber) {
@@ -1049,6 +1020,7 @@ function updatePaymentTableSelection() {
 
    
       
+
 function updatePaymentPersonSelection() {
   const container = document.getElementById("paymentPersonSelection");
   if (!container) {
@@ -1057,23 +1029,21 @@ function updatePaymentPersonSelection() {
   }
   container.innerHTML = "";
 
+ 
+
   if (currentRow && currentTable) {
-    const tableOrders = tables[currentRow]?.persons?.[currentTable - 1];
-    if (tableOrders) {
-      tableOrders.forEach((personOrder, index) => {
-        if (personOrder && Object.values(personOrder).some(product => product.quantity > 0)) {
-          const button = document.createElement("button");
-          button.textContent = `Person ${index + 1}`;
-          button.className = `person-button ${selectedPersons.includes(index) ? 'selected' : ''}`;
-          button.onclick = () => togglePaymentPerson(index);
-          container.appendChild(button);
-        }
-      });
+    for (let i = 0; i < 6; i++) {
+      const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[i];
+      if (personOrder && Object.keys(personOrder).length > 0) {
+        const button = document.createElement("button");
+        button.textContent = `Person ${i + 1}`;
+        button.className = `person-button ${selectedPersons.includes(i) ? 'selected' : ''}`;
+        button.onclick = () => togglePaymentPerson(i);
+        container.appendChild(button);
+      }
     }
   }
 }
-
-
 
 
       
@@ -1685,10 +1655,5 @@ function saveOrdersToLocalStorage() {
       });
     };
   </script>
-
-<footer style="text-align: right; color: #C1351D; padding: 8px; font-size: 14px;">
-copyright @ M1Wundi
-</footer>
-
 </body>
 </html>
