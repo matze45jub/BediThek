@@ -14,6 +14,7 @@ let allOrders = {};
 // Funktion zur Aktualisierung des Bestellstatus
 function updateBestellungStatus(data, status) {
   console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Person ${data.person} Status aktualisiert auf: ${status}`);
+  // Hier könnte eine Datenbankaktualisierung erfolgen
 }
 
 // Statische Dateien servieren
@@ -47,10 +48,10 @@ io.on('connection', (socket) => {
     console.log('📦 Bestellung erhalten:', orderData);
 
     // Bestellung zum Gesamtspeicher hinzufügen
-    const { row, table, person, order } = orderData;
+    const { row, table, person, order, bedienung } = orderData;
     if (!allOrders[row]) allOrders[row] = {};
     if (!allOrders[row][table]) allOrders[row][table] = {};
-    allOrders[row][table][person] = order;
+    allOrders[row][table][person] = { order, bedienung, timestamp: orderData.timestamp };
 
     // Sende die neue Bestellung an alle verbundenen Clients
     io.emit('newOrder', orderData);
@@ -66,24 +67,20 @@ io.on('connection', (socket) => {
   // Bestellung als erledigt markieren
   socket.on('markOrderCompleted', (orderDetails) => {
     console.log('✅ Bestellung erledigt:', orderDetails);
+    updateBestellungStatus(orderDetails, 'erledigt');
     io.emit('orderCompleted', orderDetails);
   });
 
   // Status "ausgegeben" für eine Bestellung setzen
   socket.on('bestellungAusgegeben', (data) => {
-    updateBestellungStatus(data.id, 'ausgegeben'); // Datenbank aktualisieren
-    io.emit('bestellungStatusUpdate', { id: data.id, status: 'ausgegeben' }); // Benachrichtigung senden
+    updateBestellungStatus(data, 'ausgegeben');
+    io.emit('bestellungStatusUpdate', { ...data, status: 'ausgegeben' });
   });
 
   // Status "bezahlt" für eine Bestellung setzen
   socket.on('bestellungBezahlt', (data) => {
     updateBestellungStatus(data, 'bezahlt');
-    io.emit('bestellungStatusUpdate', { 
-      status: 'bezahlt',
-      row: data.row,
-      table: data.table,
-      person: data.person,
-    });
+    io.emit('bestellungStatusUpdate', { ...data, status: 'bezahlt' });
   });
 
   // Empfang von "orderPaid" Event und Entfernen der bezahlten Bestellung
