@@ -1656,8 +1656,1671 @@ function saveOrdersToLocalStorage() {
     };
   </script>
 
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abend der Blasmusik</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      max-width: 100%;
+  overflow-x: hidden; /* Deaktiviert horizontales Scrollen */
+  overscroll-behavior-x: contain; /* Verhindert, dass der Browser horizontal "nachzieht" */
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+      .unified-button {
+      width: 100px;
+      height: 40px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      color: white;
+    }
+    .person-button.selected {
+      border: 2px solid white;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    
+    .header {
+      text-align: center;
+      background-color: #101A4B;
+      color: white;
+      padding: 10px 0;
+    }
+
+ h1 {
+  font-size: 24px; /* Halbe Höhe durch kleinere Schriftgröße */
+  line-height: 24px; /* Zeilenhöhe ebenfalls anpassen */
+  margin: 0; /* Falls nötig, den Standardabstand entfernen */
+}
+ 
+   /* Allgemeines Styling für modale Dialoge */
+.modal-dialog {
+  display: none; /* Standardmäßig ausgeblendet */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Halbtransparenter Hintergrund */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Dialog-Inhalt */
+.dialog-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  max-width: 400px;
+  width: calc(100% - 40px);
+}
+
+/* Überschrift */
+.dialog-content h2 {
+  margin-top: 0;
+}
+
+/* Beschreibungstext */
+.dialog-content p {
+  font-size: 16px;
+}
+
+/* Button-Container */
+.dialog-buttons {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Buttons */
+.dialog-button {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.dialog-button.start-new {
+  background-color: #2ecc71; /* Grün */
+}
+
+.dialog-button.keep-existing {
+  background-color: #3498db; /* Blau */
+}
+
+.dialog-button:hover {
+  opacity: 0.8; /* Leichter Hover-Effekt */
+}
+      
+      
+      .selected {
+  opacity: 0.5;
+  background-color: #ccc !important;
+}
+
+.selected-order-row {
+  background-color: yellow; /* Gelber Hintergrund */
+  color: black; /* Schwarze Schrift */
+}
+
+.button-group .row-button,
+.button-group .table-button {
+  padding: 12px 20px;
+  font-size: 14px;
+  min-width: 80px;
+}      
+      
+ 
+      .button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+      .button-group .row-button.active,
+.button-group .table-button.active {
+  opacity: 0.8;
+  box-shadow: 0 0 5px rgba(0,0,0,0.3);
+}
+
+      
+      .button-group .row-button.selected,
+.button-group .table-button.selected {
+  background-color: #808080; /* Grau */
+  color: white;
+}
+
+  .ausgegeben {
+  background-color: #d7f8a7; /* Hellgrün */
+  color: #0c942b; /* Dunkelgrün für den Text */
+  border: 2px solid #0c942b; /* Optionaler grüner Rahmen */
+}
+    
+      
+      
+      .button-group .row-button:hover,
+.button-group .table-button:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
+}
+
+      
+ .payment-info {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+     
+      
+ .bezahlt {
+  background-color: #ffcccb; /* Hellrot */
+  color: #8b0000; /* Dunkelrot für Text */
+  border: 2px solid #8b0000; /* Optionaler roter Rahmen */
+}     
+      
+.row-buttons,
+.table-selection,
+.person-container {
+  display: flex;
+  justify-content: center; 
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.row-button,
+.table-button,
+.person-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  flex: 1 1 150px;
+  min-width: 100px;
+  max-width: 150px;
+}
+
+.row-button {
+  background-color: #ffcc00; /* Gelb */
+  color: white;
+}
+
+.table-button {
+  background-color: #3498db; /* Blau */
+  color: white;
+}
+
+.person-button {
+  background-color: #2ecc71; /* Grün */
+  color: white;
+}
+
+.button-disabled {
+  background-color: #d3d3d3;
+  color: #808080;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.row-button.active,
+.table-button.active,
+.person-button.active {
+  background-color: #ddd;
+  color: #000;
+}
+
+.row-button:hover,
+.table-button:hover,
+.person-button:hover {
+  opacity: 0.8;
+  color: #000;
+  cursor: pointer;
+}
+
+
+    
+/* Hover-Effekt für Tisch */
+.table-button:hover {
+  background-color: #1f6d94; /* Dunkleres Blau */
+}
+
+/* Hover-Effekt für Person */
+.person-button:hover {
+  background-color: #27ae60; /* Dunkleres Grün */
+}
+
+.table-button.active,
+.person-button.active {
+  background-color: #f0f0f0; /* Beispielhafte Hervorhebung */
+  color: #000; /* Textfarbe für die aktive Auswahl */
+}
+
+.table-button:hover,
+.person-button:hover {
+  background-color: #ddd; /* Hover-Effekt */
+}
+
+    .product-buttons-container {
+      margin: 2px;
+    }
+
+    .product-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .product-button {
+      padding: 12px 25px;
+      font-size: 14px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 120px;
+      margin: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .essen-button {
+      background-color: #E74C3C;
+      color: white;
+    }
+
+    .getraenke-button {
+      background-color: #377EBF;
+      color: white;
+    }
+
+    #orderTable {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 5px 0;
+    }
+
+    #orderTable th, #orderTable td {
+      padding: 5px;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-size: 16px;
+      background-color: white;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .quantity-controls button {
+      background-color: #ddd;
+      border: none;
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .quantity-controls button:hover {
+      background-color: #bbb;
+    }
+
+    .centered-heading {
+      text-align: center;
+    }
+
+    .total-sum {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .button-container button {
+      padding: 12px 25px;
+      font-size: 14px;
+      background-color: #E74C3C;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .button-container button:hover {
+      background-color: #C0392B;
+    }
+
+    .payment-dialog {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      z-index: 1000;
+      width: 80%;
+      max-width: 400px;
+      height: 80%;
+      max-height: 800px;
+      overflow-y: auto;
+    }
+
+    .payment-dialog .table-selection,
+    .payment-dialog .person-selection {
+      margin-bottom: 20px;
+    }
+
+    .payment-dialog .person-selection {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .payment-dialog .person-button {
+      flex: 0 0 auto;
+    }
+
+    .payment-dialog h3 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .payment-dialog input {
+      width: 180px;
+      font-size: 24px;
+      text-align: right;
+      padding: 5px;
+    }
+
+    .calc-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .calc-buttons button {
+      font-size: 20px;
+      padding: 10px;
+      border: none;
+      background-color: #ddd;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .calc-buttons button:hover {
+      background-color: #bbb;
+    }
+
+    .close-button, .ok-button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #E74C3C;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .close-button:hover, .ok-button:hover {
+      background-color: #C0392B;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>JBO Kürnach</h1>
+  </div>
+
+  <div id="bedienungNameDisplay" style="text-align: center; margin: 10px 0; font-weight: bold;"></div>
+    
+<div id="startDialog" class="modal-dialog">
+  <div class="dialog-content">
+    
+    <p>Beginnst du jetzt oder hast du schon Bestellungen erfasst?</p>
+    <div class="dialog-buttons">
+      <button class="dialog-button start-new" onclick="startNewSession()">Ich beginne</button>
+      <button class="dialog-button keep-existing" onclick="keepExistingOrders()">Ich habe schon Bestellungen</button>
+    </div>
+  </div>
+</div>
+
+
+    
+    
+    
+    
+<div class="row-buttons">
+  <button class="row-button" id="row1" onclick="selectRow(1)">Reihe 1</button>
+  <button class="row-button" id="row2" onclick="selectRow(2)">Reihe 2</button>
+  <button class="row-button" id="row3" onclick="selectRow(3)">Reihe 3</button>
+  <button class="row-button" id="row4" onclick="selectRow(4)">Reihe 4</button>
+  <button class="row-button" id="row5" onclick="selectRow(5)">Reihe 5</button>
+  <button class="row-button" id="row6" onclick="selectRow(6)">Reihe 6</button>
+</div>
+    
+    
+ <div class="table-selection">
+    <button class="table-button" onclick="selectTable(1)">Tisch 1</button>
+    <button class="table-button" onclick="selectTable(2)">Tisch 2</button>
+    <button class="table-button" onclick="selectTable(3)">Tisch 3</button>
+    <button class="table-button" onclick="selectTable(4)">Tisch 4</button>
+    <button class="table-button" onclick="selectTable(5)">Tisch 5</button> <!-- Neuer Tisch 5 -->
+    <button class="table-button" onclick="selectTable(6)">Tisch 6</button> <!-- Neuer Tisch 6 -->
+</div>
+
+  <div class="person-container" id="personSelection"></div>
+
+  <div id="productButtons" class="product-buttons-container">
+    <h3 class="centered-heading">Essen</h3>
+    <div class="product-buttons-row" id="essenButtons"></div>
+    <h3 class="centered-heading">Getränke</h3>
+    <div class="product-buttons-row" id="getraenkeButtons"></div>
+  </div>
+
+  <table id="orderTable">
+    <thead>
+      <tr>
+        <th>Produkt</th>
+        <th>Menge</th>
+        <th>Einzelpreis (€)</th>
+        <th>Gesamtpreis (€)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h3 class="total-sum">Gesamtsumme (€): <span id="totalSum">0.00</span>€</h3>
+    
+    
+<div class="button-container">
+  <button id="sendOrderButton">Jetzt bestellen</button>
+
+    <button id="paymentButton">Zahlung</button>
+
+  <button onclick="resetOrder()">Neuer Kunde</button>
+  </div>
+    
+  <div class="payment-dialog" id="paymentDialog">
+    <h3>Zahlung</h3>
+      
+      <div class="button-group row-buttons"></div>
+  <div class="button-group table-buttons"></div>
+  <div class="person-selection" id="paymentPersonSelection"></div>
+      
+
+ 
+    
+    <p>Zu zahlender Betrag: <span id="paymentAmountToPay">0.00</span>€</p>
+    <input type="text" id="paymentAmount" readonly>
+    <div class="calc-buttons">
+      <button onclick="addNumber(7)">7</button>
+      <button onclick="addNumber(8)">8</button>
+      <button onclick="addNumber(9)">9</button>
+      <button onclick="addNumber(4)">4</button>
+      <button onclick="addNumber(5)">5</button>
+      <button onclick="addNumber(6)">6</button>
+      <button onclick="addNumber(1)">1</button>
+      <button onclick="addNumber(2)">2</button>
+      <button onclick="addNumber(3)">3</button>
+      <button onclick="addNumber(0)">0</button>
+      <button onclick="addComma()">,</button>
+      <button onclick="clearPayment()">C</button>
+    </div>
+    <h4>Rückgeld: <span id="changeAmount">0.00</span>€</h4>
+    <button class="ok-button" onclick="completePayment()">Es wird gezahlt</button>
+    <button class="close-button" onclick="togglePaymentDialog()">Schließen</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+        
+  <script>
+      
+      
+document.addEventListener('DOMContentLoaded', function() {
+
+      promptForBedienungName();
+    
+  
+
+    const paymentButton = document.getElementById('paymentButton');
+  if (paymentButton) {
+    paymentButton.addEventListener('click', togglePaymentDialog);
+  }
+    
+        const buttons = document.querySelectorAll('.unified-button');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                const category = this.classList.contains('row-button') ? 'row-button' : 
+                                 this.classList.contains('table-button') ? 'table-button' : 'person-button';
+                document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
+                
+                this.classList.add('selected');
+                  updatePaymentRowSelection();
+                updateOrderDisplay();
+            });
+        });
+        
+        function updateOrderDisplay() {
+            const orderArea = document.querySelector('#order');
+            const selectedRow = document.querySelector('.row-button.selected');
+            const selectedTable = document.querySelector('.table-button.selected');
+            const selectedPerson = document.querySelector('.person-button.selected');
+
+            let orderText = 'Bestellung für: ';
+            if (selectedRow) orderText += selectedRow.textContent + ' ';
+            if (selectedTable) orderText += selectedTable.textContent + ' ';
+            if (selectedPerson) orderText += selectedPerson.textContent;
+
+            const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
+            orderInfo.className = 'order-info';
+            orderInfo.textContent = orderText;
+            orderArea.insertBefore(orderInfo, orderArea.firstChild);
+        }
+    });
+     
+     
+     
+     
+      
+      
+const socket = io('https://bedithek.onrender.com');
+let allOrders = {};
+
+socket.on('connect', () => {
+  console.log('✅ Bedienung-Verbindung zum Server hergestellt.');
+});
+
+socket.on('initialData', (data) => {
+  allOrders = data;
+  updateOrderDisplay();
+});
+
+socket.on('disconnect', () => {
+  console.warn('⚠️ Bedienung-Verbindung zum Server verloren.');
+});
+
+socket.on('orderUpdate', (updatedOrders) => {
+  allOrders = updatedOrders;
+  updateOrderDisplay();
+});
+      
+      
+
+socket.on('bestellungStatusUpdate', function(data) {
+  if (data.status === 'ausgegeben') {
+    const bestellungElement = document.querySelector(`[data-bestellung-id="${data.id}"]`);
+    if (bestellungElement) {
+      bestellungElement.classList.add('ausgegeben');
+    }
+  }
+});
+
+
+      
+
+function updateOrderDisplay() {
+  // Aktualisiere die Gesamtübersicht aller Bestellungen
+  const orderList = document.getElementById('orderList');
+  orderList.innerHTML = '';
+  
+  for (const [row, tables] of Object.entries(allOrders)) {
+    for (const [table, persons] of Object.entries(tables)) {
+      for (const [person, order] of Object.entries(persons)) {
+        const orderElement = createOrderElement(row, table, person, order);
+        orderList.appendChild(orderElement);
+      }
+    }
+  }
+
+  // Aktualisiere die detaillierte Anzeige für die aktuelle Auswahl
+  updateCurrentOrderDisplay();
+
+  // Aktualisiere die Bestelltabelle
+  renderOrder();
+
+  // Aktualisiere den Gesamtbetrag
+  updateTotalSum();
+}
+
+      function updateCurrentOrderDisplay() {
+  const orderArea = document.querySelector('#order');
+  const selectedRow = document.querySelector('.row-button.selected');
+  const selectedTable = document.querySelector('.table-button.selected');
+  const selectedPerson = document.querySelector('.person-button.selected');
+
+  let orderText = 'Bestellung für: ';
+  if (selectedRow) orderText += selectedRow.textContent + ' ';
+  if (selectedTable) orderText += selectedTable.textContent + ' ';
+  if (selectedPerson) orderText += selectedPerson.textContent;
+
+  const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
+  orderInfo.className = 'order-info';
+  orderInfo.textContent = orderText;
+  orderArea.insertBefore(orderInfo, orderArea.firstChild);
+}
+
+function updateTotalSum() {
+  const total = calculateTotal();
+  document.getElementById("totalSum").textContent = total.toFixed(2);
+}
+
+      
+      
+      
+      
+function createOrderElement(row, table, person, order) {
+  const element = document.createElement('div');
+  element.className = 'order-item';
+  element.innerHTML = `
+    <h4>Reihe ${row}, Tisch ${table}, Person ${person}</h4>
+    <ul>
+      ${Object.entries(order).map(([name, item]) => 
+        `<li>${item.quantity}x ${name}</li>`).join('')}
+    </ul>
+  `;
+  return element;
+}
+
+function sendNewOrder(orderData) {
+  socket.emit("sendOrder", orderData);
+}
+
+      
+      
+      
+    const products = [
+      { name: "Bratwurst, gezwickt", price: 3.5, category: "essen" },
+      { name: "Bratwurst mit Kraut", price: 8.5, category: "essen" },
+      { name: "Camenbert, gebacken", price: 4.2, category: "essen" },       
+      { name: "Obatzter", price: 3.2, category: "essen" },
+      { name: "Pommes", price: 2.5, category: "essen" },
+      { name: "Salat", price: 4.0, category: "essen" },
+      { name: "Alkoholfreies Bier", price: 3.6, category: "getraenke" },
+      { name: "Alkoholfreies Hefe", price: 3.6, category: "getraenke" }, 
+      { name: "Apfelschorle", price: 2.0, category: "getraenke" },
+      { name: "Bier", price: 4.8, category: "getraenke" },
+      { name: "Cola", price: 3.0, category: "getraenke" },
+      { name: "Fanta", price: 3.0, category: "getraenke" },
+      { name: "Hefeweizen", price: 3.8, category: "getraenke" },
+      { name: "Radler", price: 3.6, category: "getraenke" },
+      { name: "Spezi", price: 2.5, category: "getraenke" },
+      { name: "Wasser spritzig", price: 2.0, category: "getraenke" },
+      { name: "Wasser still", price: 2.0, category: "getraenke" }
+    ];
+
+    let bedienungName = ''; 
+      let currentRow = 1;
+    let currentTable = 1;
+    let currentPerson = 1;
+  let tables = {
+    "1": { // Reihe 1
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+    "2": { // Reihe 2
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+    "3": { // Reihe 3
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+    "4": { // Reihe 4
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+     
+      "5": { // Reihe 5
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },  
+         "6": { // Reihe 6
+      persons: [
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 1: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 2: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 3: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 4: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ], // Tisch 5: 6 Personen
+        [ {}, {}, {}, {}, {}, {} ]  // Tisch 6: 6 Personen
+      ]
+    },
+  };
+
+    
+      function updateOrderPreview() {
+  const previewContainer = document.querySelector("#paymentDialog .order-preview");
+  if (previewContainer) {
+    previewContainer.innerHTML = "";
+    if (currentRow && currentTable) {
+      const tableOrders = tables[currentRow]?.persons?.[currentTable - 1];
+      if (tableOrders) {
+        Object.entries(tableOrders).forEach(([personIndex, personOrder]) => {
+          if (Object.keys(personOrder).length > 0) {
+            const orderList = document.createElement("ul");
+            orderList.innerHTML = `<h4>Person ${parseInt(personIndex) + 1}:</h4>`;
+            Object.entries(personOrder).forEach(([productName, product]) => {
+              const listItem = document.createElement("li");
+              listItem.textContent = `${product.quantity}x ${productName} (${(product.price * product.quantity).toFixed(2)}€)`;
+              orderList.appendChild(listItem);
+            });
+            previewContainer.appendChild(orderList);
+          }
+        });
+      }
+    } else {
+      previewContainer.innerHTML = "<p>Bitte wählen Sie eine Reihe und einen Tisch aus.</p>";
+    }
+  }
+}
+
+      
+      
+      function initializeUI() {
+  renderPersonButtons();
+  renderProductButtons();
+  selectRow(1); // Standardreihe auswählen
+  selectTable(1); // Standardtisch auswählen
+}
+      
+      
+      let paymentDialogTable = 1;
+    let selectedPersons = [];
+let sentOrders = {
+    1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}  // Für Tische 1 bis 6
+};
+
+  function selectPaymentRow(rowNumber) {
+      currentRow = rowNumber;
+      document.querySelectorAll('.row-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.row-button:nth-child(${rowNumber})`).classList.add('active');
+      updatePaymentPersonSelection();
+    }
+
+function selectRow(rowNumber) {
+  currentRow = String(rowNumber); // Konvertiere rowNumber zu einem String
+
+  document.querySelectorAll('.row-button').forEach(btn => btn.classList.remove('active'));
+  
+  document.querySelector(`#row${rowNumber}`).classList.add('active');
+  
+  renderPersonButtons();
+}
+
+
+
+
+      function selectPaymentTable(tableNumber) {
+      paymentDialogTable = tableNumber;
+      document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
+      updatePaymentPersonSelection();
+    }
+
+    
+function selectTable(tableNumber) {
+  currentTable = tableNumber;
+
+  document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+  
+  document.querySelector(`.table-button:nth-child(${tableNumber})`).classList.add('active');
+  
+  renderPersonButtons();
+}
+
+
+
+    function renderPersonButtons() {
+      const personSelection = document.getElementById("personSelection");
+      personSelection.innerHTML = "";
+      for (let i = 1; i <= 6; i++) {
+    const button = document.createElement("button");
+    button.textContent = `Person ${i}`;
+    button.className = `person-button ${i === currentPerson ? 'active' : ''}`;
+    button.onclick = () => selectPerson(i);
+    personSelection.appendChild(button);
+  }
+        
+          // Überprüfen, ob das Element existiert
+  if (!personSelection) {
+    console.error("Das Element 'personSelection' wurde nicht gefunden!");
+    return;
+  }
+    }
+
+   function promptForBedienungName() {
+  let name;
+
+  while (!name || name.trim() === "") {
+    name = prompt("Bitte geben Sie Ihren Namen ein:", "");
+    
+    if (!name || name.trim() === "") {
+      alert("Bitte geben Sie einen gültigen Namen ein.");
+    }
+  }
+
+  bedienungName = name.trim();
+  
+  const displayElement = document.getElementById('bedienungNameDisplay');
+  
+  if (displayElement) {
+    displayElement.textContent = `Bedienung: ${bedienungName}`;
+  } else {
+    console.error("Das Element 'bedienungNameDisplay' wurde nicht gefunden!");
+  }
+}
+
+
+      
+function selectPerson(personNumber) {
+  currentPerson = personNumber;
+
+  document.querySelectorAll('.person-button').forEach(btn => btn.classList.remove('active'));
+  
+  document.querySelector(`.person-button:nth-child(${personNumber})`).classList.add('active');
+  
+  renderOrder();
+}
+
+function togglePaymentDialog() {
+  const dialog = document.getElementById("paymentDialog");
+  if (!dialog) {
+    console.error("Zahlungsdialog nicht gefunden");
+    return;
+  }
+  
+  if (dialog.style.display === "none" || dialog.style.display === "") {
+    // Öffnen des Dialogs
+    dialog.style.display = "block";
+    // Hier keine Vorauswahl treffen
+    currentRow = null;
+    currentTable = null;
+    selectedPersons = [];
+    updatePaymentRowSelection();
+    updatePaymentTableSelection();
+    updatePaymentPersonSelection();
+    updatePaymentTotal();
+    updateOrderPreview();
+  } else {
+    // Schließen des Dialogs
+    dialog.style.display = "none";
+    // Zurücksetzen aller Auswahlzustände
+    currentRow = null;
+    currentTable = null;
+    selectedPersons = [];
+    // Leeren der Eingabefelder und Anzeigen
+    document.getElementById("paymentAmount").value = "";
+    document.getElementById("changeAmount").textContent = "0.00";
+    document.getElementById("paymentAmountToPay").textContent = "0.00";
+    // Entfernen aller Auswahlmarkierungen
+    document.querySelectorAll('.button-group button').forEach(btn => btn.classList.remove('selected'));
+    // Leeren der Bestellübersicht
+    const previewContainer = dialog.querySelector(".order-preview");
+    if (previewContainer) previewContainer.innerHTML = "";
+  }
+}
+
+
+
+function updatePaymentRowSelection() {
+  const container = document.querySelector(".button-group.row-buttons");
+  if (!container) {
+    console.error("Container für Reihenauswahl nicht gefunden");
+    return;
+  }
+  container.innerHTML = "";
+  selectedPersons = []; // Zurücksetzen der ausgewählten Personen
+
+  for (let i = 1; i <= Object.keys(tables).length; i++) {
+    const button = document.createElement("button");
+    button.textContent = `Reihe ${i}`;
+    button.className = `row-button ${currentRow == i ? 'selected' : ''}`;
+    button.onclick = () => {
+      currentRow = String(i);
+        currentTable = null; // Zurücksetzen des Tisches bei Reihenwechsel
+         selectedPersons = [];
+      updatePaymentPersonSelection(); // Aktualisieren der Personenauswahl
+      updatePaymentTableSelection();
+      updatePaymentTotal();
+      updateOrderPreview(); // Aktualisieren der Bestellübersicht
+    };
+    container.appendChild(button);
+  }
+}
+
+function updatePaymentTableSelection() {
+  const container = document.querySelector(".button-group.table-buttons");
+  if (!container) {
+    console.error("Container für Tischauswahl nicht gefunden");
+    return;
+  }
+  container.innerHTML = "";
+  selectedPersons = []; // Zurücksetzen der ausgewählten Personen
+
+  if (currentRow) {
+    for (let i = 1; i <= tables[currentRow].persons.length; i++) {
+      const button = document.createElement("button");
+      button.textContent = `Tisch ${i}`;
+      button.className = `table-button ${currentTable == i ? 'selected' : ''}`;
+      button.onclick = () => {
+        currentTable = i;
+            selectedPersons = [];
+        updatePaymentPersonSelection(); // Aktualisieren der Personenauswahl
+        updatePaymentTotal();
+        updateOrderPreview(); // Aktualisieren der Bestellübersicht
+      };
+      container.appendChild(button);
+    }
+  }
+}
+
+   
+      
+
+function updatePaymentPersonSelection() {
+  const container = document.getElementById("paymentPersonSelection");
+  if (!container) {
+    console.error("Container für Personenauswahl nicht gefunden");
+    return;
+  }
+  container.innerHTML = "";
+
+ 
+
+  if (currentRow && currentTable) {
+    for (let i = 0; i < 6; i++) {
+      const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[i];
+      if (personOrder && Object.keys(personOrder).length > 0) {
+        const button = document.createElement("button");
+        button.textContent = `Person ${i + 1}`;
+        button.className = `person-button ${selectedPersons.includes(i) ? 'selected' : ''}`;
+        button.onclick = () => togglePaymentPerson(i);
+        container.appendChild(button);
+      }
+    }
+  }
+}
+
+
+      
+         
+function previewSelectedOrders() {
+  const previewContainer = document.createElement("div");
+
+  selectedPersons.forEach(person => {
+    const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[person];
+
+    if (personOrder && Object.keys(personOrder).length > 0) {
+      const orderList = document.createElement("ul");
+      orderList.innerHTML = `<h4>Reihe ${currentRow}, Tisch ${currentTable}, Person ${parseInt(person) + 1}:</h4>`;
+
+      Object.entries(personOrder).forEach(([productName, product]) => {
+        if (product && product.quantity && product.price) {
+          const listItem = document.createElement("li");
+          listItem.textContent = `${product.quantity}x ${productName} (${(product.price * product.quantity).toFixed(2)}€)`;
+          orderList.appendChild(listItem);
+        }
+      });
+
+      previewContainer.appendChild(orderList);
+    }
+  });
+
+  const dialogBody = document.getElementById("paymentDialog");
+  const existingPreview = dialogBody.querySelector(".order-preview");
+  
+  if (existingPreview) existingPreview.remove();
+
+  previewContainer.className = "order-preview";
+  dialogBody.insertBefore(previewContainer, dialogBody.firstChild);
+}
+
+
+   
+      
+
+    function addNumber(num) {
+      document.getElementById("paymentAmount").value += num;
+      updateChange();
+    }
+
+    function addComma() {
+      const input = document.getElementById("paymentAmount");
+      if (!input.value.includes(",")) input.value += ",";
+      updateChange();
+    }
+
+    function clearPayment() {
+      document.getElementById("paymentAmount").value = "";
+      updateChange();
+    }
+
+ function updateChange() {
+  const totalAmount = parseFloat(document.getElementById("paymentAmountToPay").textContent) || 0;
+  const paidAmount = parseFloat(document.getElementById("paymentAmount").value.replace(',', '.') || '0');
+  
+  const change = paidAmount - totalAmount;
+
+  document.getElementById("changeAmount").textContent = change.toFixed(2);
+}
+
+      
+function addProductToOrder(name) {
+  const product = products.find(p => p.name === name);
+
+  if (product) {
+    // Initialisiere die Datenstruktur für die aktuelle Reihe
+    if (!tables[currentRow]) {
+      tables[currentRow] = { persons: [] };
+    }
+
+    // Initialisiere die Datenstruktur für den aktuellen Tisch
+    if (!tables[currentRow].persons[currentTable - 1]) {
+      tables[currentRow].persons[currentTable - 1] = [ {}, {}, {}, {}, {}, {} ];
+    }
+
+    // Initialisiere die Datenstruktur für die aktuelle Person
+    if (!tables[currentRow].persons[currentTable - 1][currentPerson - 1]) {
+      tables[currentRow].persons[currentTable - 1][currentPerson - 1] = {};
+    }
+
+    const personOrder = tables[currentRow].persons[currentTable - 1][currentPerson - 1];
+
+    // Füge das Produkt hinzu oder erhöhe die Menge
+    if (personOrder[name]) {
+      personOrder[name].quantity++;
+      console.log(`Produkt "${name}" aktualisiert. Neue Menge: ${personOrder[name].quantity}`);
+    } else {
+      personOrder[name] = { ...product, quantity: 1 };
+      console.log(`Produkt "${name}" zur Bestellung hinzugefügt.`);
+    }
+
+    renderOrder();
+    saveOrdersToLocalStorage();
+    
+    // Entferne alte Einträge in sentOrders, um erneutes Blockieren zu verhindern
+    if (sentOrders[currentRow]?.[currentTable]?.[currentPerson]) {
+      delete sentOrders[currentRow][currentTable][currentPerson];
+      console.log(`Einträge in sentOrders für Person ${currentPerson} entfernt.`);
+    }
+
+    socket.emit('updateOrders', tables);
+  }
+}
+
+
+
+
+function adjustQuantity(name, delta) {
+  console.log("adjustQuantity aufgerufen:", name, delta); // Debugging-Ausgabe
+
+  const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[currentPerson - 1];
+
+  if (personOrder && personOrder[name]) {
+    console.log("Produkt gefunden:", personOrder[name]);
+    
+    personOrder[name].quantity += delta;
+
+    // Wenn die Menge < 1 ist, das Produkt aus der Bestellung entfernen
+    if (personOrder[name].quantity < 1) {
+      delete personOrder[name];
+    }
+
+    // Aktualisiere die Bestellanzeige
+    renderOrder();
+
+    // Speichere die Änderungen im lokalen Speicher
+    saveOrdersToLocalStorage();
+
+    // Sende aktualisierte Daten an den Server
+    socket.emit('updateOrders', tables);
+  } else {
+    console.error(`Produkt "${name}" nicht gefunden oder ungültige Datenstruktur.`);
+  }
+}
+
+
+
+
+
+function renderOrder() {
+  console.log("Aktuelle Bestellung:", tables[currentRow]?.persons?.[currentTable - 1]?.[currentPerson - 1]);
+
+  const tbody = document.querySelector("#orderTable tbody");
+  tbody.innerHTML = "";
+
+  // Überprüfen, ob die aktuelle Bestellung existiert
+  if (
+    !tables[currentRow] || 
+    !tables[currentRow].persons[currentTable - 1] || 
+    !tables[currentRow].persons[currentTable - 1][currentPerson - 1]
+  ) {
+    console.error("Keine Bestellung gefunden.");
+    return;
+  }
+
+  const personOrder = tables[currentRow].persons[currentTable - 1][currentPerson - 1];
+
+  Object.entries(personOrder).forEach(([name, product]) => {
+    console.log("Produkt:", name, product); // Debugging-Ausgabe
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${product.name}</td>
+      <td class="quantity-controls">
+        <button onclick="adjustQuantity('${name}', -1)">-</button>
+        ${product.quantity}
+        <button onclick="adjustQuantity('${name}', 1)">+</button>
+      </td>
+      <td>${product.price.toFixed(2)}</td>
+      <td>${(product.price * product.quantity).toFixed(2)}</td>
+    `; // Hier wird das Template Literal korrekt geschlossen
+    tbody.appendChild(row);
+  });
+
+  document.getElementById("totalSum").textContent = calculateTotal().toFixed(2);
+}
+
+
+
+
+function calculateTotal() {
+  let total = 0;
+  if (
+    !tables[currentRow] || 
+    !tables[currentRow].persons[currentTable - 1] || 
+    !tables[currentRow].persons[currentTable - 1][currentPerson - 1]
+  ) {
+    return total; // Gib 0 zurück, wenn keine Bestellung vorhanden ist
+  }
+
+  const personOrder = tables[currentRow].persons[currentTable - 1][currentPerson - 1];
+
+  for (const productName in personOrder) {
+    if (personOrder.hasOwnProperty(productName)) {
+      const product = personOrder[productName];
+      if (product && typeof product.price === 'number' && typeof product.quantity === 'number') {
+        total += product.price * product.quantity;
+      }
+    }
+  }
+  return total;
+}
+
+
+
+
+
+
+function sendOrderToTheke() {
+  if (!currentRow || !currentTable || !currentPerson) {
+    console.error("❌ Fehler: Reihen-, Tisch- oder Person-Nummer fehlt!");
+    alert("Bitte Reihe, Tisch und Person auswählen!");
+    return;
+  }
+
+  // Sicherstellen, dass die Bestellung existiert
+  const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[currentPerson - 1];
+  
+  if (!personOrder || Object.keys(personOrder).length === 0) {
+    alert("Keine Bestellung vorhanden!");
+    return;
+  }
+
+  // Initialisiere sentOrders für die aktuelle Reihe/Tisch/Person, falls noch nicht vorhanden
+  if (!sentOrders[currentRow]) {
+    sentOrders[currentRow] = {};
+  }
+  
+  if (!sentOrders[currentRow][currentTable]) {
+    sentOrders[currentRow][currentTable] = {};
+  }
+  
+  if (!sentOrders[currentRow][currentTable][currentPerson]) {
+    sentOrders[currentRow][currentTable][currentPerson] = {};
+  }
+
+  // Zugriff auf bereits gesendete Bestellungen
+  const previousSentOrder = sentOrders[currentRow][currentTable][currentPerson];
+  
+  const orderData = {
+    bedienung: bedienungName || "Unbekannt",
+    timestamp: Date.now(),
+    row: currentRow,
+    table: currentTable,
+    person: currentPerson,
+    order: {}
+  };
+
+  let hasNewItems = false;
+
+  // Berechne die Differenz für alle Produkte in der aktuellen Bestellung
+  for (const [productName, product] of Object.entries(personOrder)) {
+    const previousQuantity = previousSentOrder[productName] || 0;
+
+    // Prüfe, ob die Menge des Produkts erhöht wurde
+    if (product.quantity > previousQuantity) {
+      const newQuantity = product.quantity - previousQuantity;
+      orderData.order[productName] = { ...product, quantity: newQuantity };
+      hasNewItems = true; // Es gibt mindestens ein neues Produkt oder eine Erhöhung
+    }
+
+    // Aktualisiere die gesendete Menge in sentOrders
+    previousSentOrder[productName] = product.quantity;
+  }
+
+  // Sende nur, wenn es neue oder geänderte Produkte gibt
+  if (hasNewItems) {
+    socket.emit("sendOrder", orderData);
+    console.log("📦 Neue Bestellung gesendet:", orderData);
+    alert("Bestellung wurde an die Theke gesendet.");
+  } else {
+    console.log("⚠️ Keine neuen Produkte zum Senden.");
+    alert("Keine neuen Produkte zum Senden.");
+  }
+}
+
+
+
+    function selectPaymentTable(tableNumber) {
+      paymentDialogTable = tableNumber;
+      updatePaymentPersonSelection();
+      updatePaymentTotal();
+    }
+
+
+function saveOrderToLocal(personNumber) {
+  const localStorageKey = `order_${currentRow}_${currentTable}_${personNumber}`; // Eindeutiger Schlüssel
+  
+  const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[personNumber]; // Bestellung der Person
+  
+  if (personOrder) {
+    localStorage.setItem(localStorageKey, JSON.stringify(personOrder)); // Speichere die Bestellung im localStorage
+    console.log(`Bestellung gespeichert für Schlüssel: ${localStorageKey}`);
+  }
+}
+
+
+function showPersonOrderInModal(personNumber) {
+  const tbody = document.querySelector("#orderTable tbody");
+  tbody.innerHTML = ""; // Leere die Tabelle
+
+  // Greife auf die Bestellung der ausgewählten Person zu
+  const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[personNumber - 1];
+
+  if (!personOrder || Object.keys(personOrder).length === 0) {
+    console.log(`Keine Bestellung für Person ${personNumber}`);
+    return;
+  }
+
+  // Rendere jede Bestellung in der Tabelle
+  Object.entries(personOrder).forEach(([name, product]) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${product.name}</td>
+      <td>${product.quantity}</td>
+      <td>${product.price.toFixed(2)}</td>
+      <td>${(product.price * product.quantity).toFixed(2)}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function togglePaymentPerson(personNumber) {
+  const index = selectedPersons.indexOf(personNumber);
+  if (index === -1) {
+    selectedPersons.push(personNumber);
+  } else {
+    selectedPersons.splice(index, 1);
+  }
+  updatePaymentPersonSelection();
+  updatePaymentTotal();
+  previewSelectedOrders();
+}
+
+
+
+
+function updatePaymentTotal() {
+  let total = 0;
+  selectedPersons.forEach(person => {
+    const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[person];
+    if (personOrder) {
+      Object.values(personOrder).forEach(product => {
+        total += product.price * product.quantity;
+      });
+    }
+  });
+  document.getElementById("paymentAmountToPay").textContent = total.toFixed(2);
+}
+
+
+
+
+
+function completePayment() {
+  if (selectedPersons.length === 0) {
+    alert("Bitte wählen Sie mindestens eine Person aus!");
+    return;
+  }
+
+  const totalAmount = parseFloat(document.getElementById("paymentAmountToPay").textContent);
+  const paidAmount = parseFloat(document.getElementById("paymentAmount").value.replace(',', '.') || '0');
+  const change = paidAmount - totalAmount;
+
+  if (change < 0) {
+    alert("Der gezahlte Betrag reicht nicht aus!");
+    return;
+  }
+
+  selectedPersons.forEach(person => {
+    // Sende die korrekte Personennummer (1-6) an den Server
+    socket.emit('bestellungBezahlt', {
+      row: currentRow,
+      table: currentTable,
+      person: person + 1 // Hier wird die Personennummer um 1 erhöht
+    });
+    
+    // Lösche die Bestellung aus der Datenstruktur `tables`
+    tables[currentRow].persons[currentTable - 1][person] = {};
+    
+    // Entferne gespeicherte gesendete Bestellungen aus `sentOrders`
+    if (sentOrders[currentRow]?.[currentTable]?.[person]) {
+      delete sentOrders[currentRow][currentTable][person];
+    }
+
+    // Entferne die Bestellung aus dem lokalen Speicher
+    const localStorageKey = `order_${currentRow}_${currentTable}_${person + 1}`; // Hier ebenfalls um 1 erhöhen
+    localStorage.removeItem(localStorageKey);
+    
+    // Informiere den Server über die bezahlte Bestellung
+    socket.emit('orderPaid', {
+      row: currentRow,
+      table: currentTable,
+      person: person + 1 // Hier wird die Personennummer um 1 erhöht
+    });
+  });
+
+  // Aktualisiere die lokale Speicherung und die Benutzeroberfläche
+  saveOrdersToLocalStorage();
+  renderOrder();
+  updatePaymentPersonSelection();
+  updatePaymentTotal();
+
+  alert(`Zahlung abgeschlossen! Rückgeld: ${change.toFixed(2)}€`);
+
+  // Schließe das Zahlungsdialogfenster und setze Werte zurück
+  togglePaymentDialog();
+  document.getElementById("paymentAmount").value = "";
+  document.getElementById("changeAmount").textContent = "0.00";
+  selectedPersons = [];
+
+  // Aktualisiere die Anzeige der Bestellungen
+  updateOrderDisplay();
+}
+
+
+
+
+ function resetOrder() {
+  if (!currentRow || !currentTable || !currentPerson) {
+    alert("Bitte wählen Sie zuerst eine Reihe, einen Tisch und eine Person aus.");
+    return;
+  }
+
+  // Zurücksetzen nur für den aktuell ausgewählten Kunden
+  tables[currentRow].persons[currentTable - 1][currentPerson - 1] = {};
+
+  // Aktualisiere die Anzeige
+  renderOrder();
+
+  // Lösche auch die entsprechenden Einträge in sentOrders
+  if (sentOrders[currentRow]?.[currentTable]?.[currentPerson]) {
+    delete sentOrders[currentRow][currentTable][currentPerson];
+  }
+
+  // Aktualisiere den lokalen Speicher
+  saveOrdersToLocalStorage();
+
+  // Aktualisiere die Gesamtsumme
+  updateTotalSum();
+
+  console.log(`Bestellung für Reihe ${currentRow}, Tisch ${currentTable}, Person ${currentPerson} wurde zurückgesetzt.`);
+}
+
+
+ 
+
+function renderProductButtons() {
+    const essenButtons = document.getElementById("essenButtons");
+    const getraenkeButtons = document.getElementById("getraenkeButtons");
+    
+        // Überprüfen, ob die Elemente existieren
+  if (!essenButtons || !getraenkeButtons) {
+    console.error("Die Elemente 'essenButtons' oder 'getraenkeButtons' wurden nicht gefunden!");
+    return;
+  }
+      
+    essenButtons.innerHTML = "";
+  getraenkeButtons.innerHTML = "";
+
+  products.forEach(product => {
+    const button = document.createElement("button");
+    button.textContent = product.name;
+    button.className = `product-button ${product.category}-button`;
+    button.onclick = () => addProductToOrder(product.name);
+
+    if (product.category === "essen") {
+      essenButtons.appendChild(button);
+    } else if (product.category === "getraenke") {
+      getraenkeButtons.appendChild(button);
+    }
+  });
+}
+
+function markOrderAsPaid() {
+  const orderData = {
+    row: currentRow,
+    table: currentTable,
+    person: currentPerson
+  };
+
+  socket.emit('orderPaid', orderData); // Bestellung als bezahlt markieren
+  console.log(`Bestellung für Reihe: ${currentRow}, Tisch: ${currentTable}, Person: ${currentPerson} wurde als bezahlt markiert.`);
+}
+    
+function startNewSession() {
+
+ document.getElementById('startDialog').style.display = 'none';
+console.log("startNewSession wurde aufgerufen!"); // Debug-Ausgabe
+
+    // Lösche alle gespeicherten Daten
+    localStorage.clear();
+    alert("Alle bisherigen Daten wurden gelöscht. Du kannst jetzt neu beginnen.");
+
+    // Setze alle relevanten Variablen und Datenstrukturen zurück
+    tables = {
+        1: { persons: [{}, {}, {}, {}, {}, {}] },
+        2: { persons: [{}, {}, {}, {}, {}, {}] },
+        3: { persons: [{}, {}, {}, {}, {}, {}] },
+        4: { persons: [{}, {}, {}, {}, {}, {}] },
+        5: { persons: [{}, {}, {}, {}, {}, {}] },
+        6: { persons: [{}, {}, {}, {}, {}, {}] }
+    };
+
+    sentOrders = {
+        1: {}, 2: {}, 3: {}, 4: {}, 5: {}, 6: {}
+    };
+
+    // Leere die Bestelltabelle
+    const tbody = document.querySelector("#orderTable tbody");
+    if (tbody) {
+        tbody.innerHTML = "";
+    }
+
+    // Aktualisiere die Gesamtsumme
+    const totalSumElement = document.getElementById("totalSum");
+    if (totalSumElement) {
+        totalSumElement.textContent = "0.00";
+    }
+
+    // Verstecke den Dialog
+    const startDialog = document.getElementById('startDialog');
+    if (startDialog) {
+        startDialog.style.display = 'none'; // Verstecke den Dialog
+        console.log("Der Startdialog wurde ausgeblendet."); // Debug-Ausgabe
+    } else {
+        console.error("Das Element mit der ID 'startDialog' wurde nicht gefunden.");
+    }
+
+    // Initialisiere die Benutzeroberfläche neu
+    initializeUI();
+}
+
+
+      function keepExistingOrders() {
+
+ document.getElementById('startDialog').style.display = 'none';
+alert("Deine bisherigen Bestellungen bleiben erhalten.");
+    
+    // Verstecke den Dialog
+    const startDialog = document.getElementById('startDialog');
+    startDialog.style.display = 'none';
+
+    // Initialisiere die Benutzeroberfläche neu
+    initializeUI();
+}
+
+      
+      
+   function showStartDialog() {
+    const startDialog = document.getElementById("startDialog");
+    if (startDialog) {
+        startDialog.style.display = "flex"; // Zeige den Dialog an
+    }
+}
+      
+      
+      function hideStartDialog() {
+    const startDialog = document.getElementById("startDialog");
+    if (startDialog) {
+        startDialog.style.display = "none"; // Verstecke den Dialog
+    }
+}
+
+      
+
+function saveOrdersToLocalStorage() {
+  localStorage.setItem('tables', JSON.stringify(tables));
+  localStorage.setItem('sentOrders', JSON.stringify(sentOrders));
+}
+
+
+
+
+   function loadOrdersFromLocalStorage() {
+   const savedTables = localStorage.getItem('tables');
+   
+   if (savedTables) {
+       tables = JSON.parse(savedTables);
+   }
+}
+
+
+    
+    // Initialisierung
+    window.onload = function() {
+      
+     showStartDialog(); // Zeige danach die zweite Abfrage
+      loadOrdersFromLocalStorage();
+      renderProductButtons();
+      renderPersonButtons();
+      selectRow(1);
+      selectTable(1);
+        
+         initializeUI(); // Benutzeroberfläche initialisieren
+        
+        socket.emit('requestInitialData');
+
+
+      document.getElementById('sendOrderButton').addEventListener('click', function(e) {
+        e.preventDefault();
+        this.disabled = true;
+        sendOrderToTheke();
+        setTimeout(() => this.disabled = false, 2000); // Re-enable after 2 seconds
+      });
+    };
+  </script>
+
 <footer style="text-align: right; color: #C1351D; padding: 8px; font-size: 14px;">
 copyright @ M1Wundi
+</footer>
+
+</body>
+</html>
+
 </footer>
 
 </body>
