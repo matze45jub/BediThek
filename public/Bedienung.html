@@ -460,7 +460,7 @@
 </div>
 
 
-    
+
     
     
     
@@ -552,7 +552,6 @@
       
       
 document.addEventListener('DOMContentLoaded', function() {
-
     promptForBedienungName();
 
     const paymentButton = document.getElementById('paymentButton');
@@ -620,8 +619,7 @@ document.addEventListener('DOMContentLoaded', function() {
         orderInfo.className = 'order-info';
         orderInfo.textContent = orderText;
         orderArea.insertBefore(orderInfo, orderArea.firstChild);
-    }
-});
+    };
 
      
      
@@ -921,28 +919,23 @@ function selectTable(tableNumber) {
   }
     }
 
-   function promptForBedienungName() {
-  let name;
+function promptForBedienungName() {
+  let name = prompt("Bitte geben Sie Ihren Namen ein:", ""); // Erste und einzige Deklaration
 
-  while (!name || name.trim() === "") {
-    name = prompt("Bitte geben Sie Ihren Namen ein:", "");
-    
-    if (!name || name.trim() === "") {
-      alert("Bitte geben Sie einen gültigen Namen ein.");
+  if (name) {
+    name = name.trim();
+    bedienungName = name; // Zuweisung an die globale Variable bedienungName
+
+    const displayElement = document.getElementById('bedienungNameDisplay');
+    if (displayElement) {
+      displayElement.textContent = `Bedienung: ${bedienungName}`;
+    } else {
+      console.error("Das Element 'bedienungNameDisplay' wurde nicht gefunden!");
     }
-  }
-
-  bedienungName = name.trim();
-  
-  const displayElement = document.getElementById('bedienungNameDisplay');
-  
-  if (displayElement) {
-    displayElement.textContent = `Bedienung: ${bedienungName}`;
   } else {
-    console.error("Das Element 'bedienungNameDisplay' wurde nicht gefunden!");
+    console.warn("Kein Name eingegeben.");
   }
 }
-
 
       
 function selectPerson(personNumber) {
@@ -1059,21 +1052,20 @@ function updatePaymentPersonSelection() {
 
   if (currentRow && currentTable) {
     const tableOrders = tables[currentRow]?.persons?.[currentTable - 1];
-    console.log("TableOrders:", tableOrders); // Debugging
     if (tableOrders) {
-      Object.entries(tableOrders).forEach(([index, personOrder]) => {
-        console.log(`Checking Person ${parseInt(index) + 1}:`, personOrder); // Debugging
-        if (personOrder && Object.keys(personOrder).length > 0) { // Prüfen, ob Bestellung existiert
+      tableOrders.forEach((personOrder, index) => {
+        if (personOrder && Object.values(personOrder).some(product => product.quantity > 0)) {
           const button = document.createElement("button");
-          button.textContent = `Person ${parseInt(index) + 1}`;
-          button.className = `person-button ${selectedPersons.includes(parseInt(index)) ? 'selected' : ''}`;
-          button.onclick = () => togglePaymentPerson(parseInt(index));
+          button.textContent = `Person ${index + 1}`;
+          button.className = `person-button ${selectedPersons.includes(index) ? 'selected' : ''}`;
+          button.onclick = () => togglePaymentPerson(index);
           container.appendChild(button);
         }
       });
     }
   }
 }
+
 
 
 
