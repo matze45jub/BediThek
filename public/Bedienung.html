@@ -586,6 +586,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function updateOrderDisplay() {
+        const orderList = document.getElementById('orderList');
+  if (!orderList) {
+    console.error('Element mit ID "orderList" nicht gefunden');
+    return;
+  }
+  orderList.innerHTML = '';
         const orderArea = document.querySelector('#order');
         if (!orderArea) {
             console.error('Element mit ID "order" nicht gefunden.');
