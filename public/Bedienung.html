@@ -553,47 +553,76 @@
       
 document.addEventListener('DOMContentLoaded', function() {
 
-      promptForBedienungName();
-    
-  
+    promptForBedienungName();
 
     const paymentButton = document.getElementById('paymentButton');
-  if (paymentButton) {
-    paymentButton.addEventListener('click', togglePaymentDialog);
-  }
-    
-        const buttons = document.querySelectorAll('.unified-button');
-        buttons.forEach(button => {
-            button.addEventListener('click', function() {
-                const category = this.classList.contains('row-button') ? 'row-button' : 
-                                 this.classList.contains('table-button') ? 'table-button' : 'person-button';
-                document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
-                
-                this.classList.add('selected');
-                  updatePaymentRowSelection();
-                updateOrderDisplay();
-            });
+    if (paymentButton) {
+        paymentButton.addEventListener('click', togglePaymentDialog);
+    } else {
+        console.warn('Element mit ID "paymentButton" nicht gefunden.');
+    }
+
+    const buttons = document.querySelectorAll('.unified-button');
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            const category = this.classList.contains('row-button') ? 'row-button' : 
+                             this.classList.contains('table-button') ? 'table-button' : 'person-button';
+            document.querySelectorAll('.' + category).forEach(btn => btn.classList.remove('selected'));
+
+            this.classList.add('selected');
+            updatePaymentRowSelection();
+            updateOrderDisplay();
         });
         
-        function updateOrderDisplay() {
-            const orderArea = document.querySelector('#order');
-            const selectedRow = document.querySelector('.row-button.selected');
-            const selectedTable = document.querySelector('.table-button.selected');
-            const selectedPerson = document.querySelector('.person-button.selected');
+        
+       
+  const sendOrderButton = document.getElementById('sendOrderButton');
+  if (sendOrderButton) {
+    sendOrderButton.addEventListener('click', sendOrderToTheke);
+  } else {
+    console.error('Schaltfläche "Jetzt bestellen" nicht gefunden.');
+  }
+});
 
-            let orderText = 'Bestellung für: ';
-            if (selectedRow) orderText += selectedRow.textContent + ' ';
-            if (selectedTable) orderText += selectedTable.textContent + ' ';
-            if (selectedPerson) orderText += selectedPerson.textContent;
-
-            const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
-            orderInfo.className = 'order-info';
-            orderInfo.textContent = orderText;
-            orderArea.insertBefore(orderInfo, orderArea.firstChild);
-        }
     });
-     
-     
+
+    function updateOrderDisplay() {
+        const orderArea = document.querySelector('#order');
+        if (!orderArea) {
+            console.error('Element mit ID "order" nicht gefunden.');
+            return;
+        }
+
+        const selectedRow = document.querySelector('.row-button.selected');
+        const selectedTable = document.querySelector('.table-button.selected');
+        const selectedPerson = document.querySelector('.person-button.selected');
+
+        let orderText = 'Bestellung für: ';
+        if (selectedRow) {
+            orderText += selectedRow.textContent + ' ';
+        } else {
+            console.warn('Kein ausgewählter Row-Button gefunden.');
+        }
+
+        if (selectedTable) {
+            orderText += selectedTable.textContent + ' ';
+        } else {
+            console.warn('Kein ausgewählter Table-Button gefunden.');
+        }
+
+        if (selectedPerson) {
+            orderText += selectedPerson.textContent;
+        } else {
+            console.warn('Keine ausgewählte Person-Button gefunden.');
+        }
+
+        const orderInfo = orderArea.querySelector('.order-info') || document.createElement('div');
+        orderInfo.className = 'order-info';
+        orderInfo.textContent = orderText;
+        orderArea.insertBefore(orderInfo, orderArea.firstChild);
+    }
+});
+
      
      
       
@@ -1020,7 +1049,6 @@ function updatePaymentTableSelection() {
 
    
       
-
 function updatePaymentPersonSelection() {
   const container = document.getElementById("paymentPersonSelection");
   if (!container) {
@@ -1029,21 +1057,28 @@ function updatePaymentPersonSelection() {
   }
   container.innerHTML = "";
 
- 
-
   if (currentRow && currentTable) {
-    for (let i = 0; i < 6; i++) {
-      const personOrder = tables[currentRow]?.persons?.[currentTable - 1]?.[i];
-      if (personOrder && Object.keys(personOrder).length > 0) {
-        const button = document.createElement("button");
-        button.textContent = `Person ${i + 1}`;
-        button.className = `person-button ${selectedPersons.includes(i) ? 'selected' : ''}`;
-        button.onclick = () => togglePaymentPerson(i);
-        container.appendChild(button);
-      }
+    const tableOrders = tables[currentRow]?.persons?.[currentTable - 1];
+    console.log("TableOrders:", tableOrders); // Debugging
+
+    if (tableOrders) {
+      tableOrders.forEach((personOrder, index) => {
+        console.log(`Prüfe Person ${index + 1}:`, personOrder); // Debugging
+
+        // Prüfen, ob die Person eine Bestellung hat
+        if (personOrder && Object.values(personOrder).some(product => product.quantity > 0)) {
+          const button = document.createElement("button");
+          button.textContent = `Person ${index + 1}`;
+          button.className = `person-button ${selectedPersons.includes(index) ? 'selected' : ''}`;
+          button.onclick = () => togglePaymentPerson(index);
+          container.appendChild(button);
+        }
+      });
     }
   }
 }
+
+
 
 
       
