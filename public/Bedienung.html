@@ -635,12 +635,8 @@ socket.on('bestellungStatusUpdate', function(data) {
 
 function updateOrderDisplay() {
   // Aktualisiere die Gesamtübersicht aller Bestellungen
- const orderList = document.getElementById('orderList');
-if (orderList) {
-  orderList.innerHTML = 'Neuer Inhalt';
-} else {
-  console.log('Element orderList nicht gefunden');
-}
+  const orderList = document.getElementById('orderList');
+  orderList.innerHTML = '';
   
   for (const [row, tables] of Object.entries(allOrders)) {
     for (const [table, persons] of Object.entries(tables)) {
@@ -1635,6 +1631,7 @@ function saveOrdersToLocalStorage() {
 }
 
 
+    
     // Initialisierung
     window.onload = function() {
       
