@@ -3,6 +3,18 @@ const path = require('path');
 const http = require('http');
 const socketIo = require('socket.io');
 
+
+
+
+function updateBestellungStatus(data, status) {
+  console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Person ${data.person} Status aktualisiert auf: ${status}`);
+  // Hier können Sie weitere Logik zur Aktualisierung des Status implementieren
+}
+
+
+
+
+
 // Initialisiere Express und den Server
 const app = express();
 const server = http.createServer(app);
@@ -10,12 +22,6 @@ const io = socketIo(server);
 
 // Speicher für alle Bestellungen
 let allOrders = {};
-
-// Funktion zur Aktualisierung des Bestellstatus
-function updateBestellungStatus(data, status) {
-  console.log(`Bestellung für Reihe ${data.row}, Tisch ${data.table}, Person ${data.person} Status aktualisiert auf: ${status}`);
-  // Hier könnte eine Datenbankaktualisierung erfolgen
-}
 
 // Statische Dateien servieren
 app.use(express.static(path.join(__dirname, 'public')));
@@ -39,61 +45,73 @@ app.get('/theke', (req, res) => {
 io.on('connection', (socket) => {
   console.log('🔗 Ein Client hat sich verbunden');
 
-  // Sende initiale Daten an den neuen Client
-  socket.emit('initialData', allOrders);
+  // Anfrage für initiale Daten
+  socket.on('requestInitialData', () => {
+    socket.emit('initialData', allOrders);
+  });
 
   // Bestellung empfangen
   socket.on('sendOrder', (orderData) => {
     orderData.timestamp = Date.now();
     console.log('📦 Bestellung erhalten:', orderData);
-
+    
     // Bestellung zum Gesamtspeicher hinzufügen
-    const { row, table, person, order, bedienung } = orderData;
+    const { row, table, person, order } = orderData;
     if (!allOrders[row]) allOrders[row] = {};
     if (!allOrders[row][table]) allOrders[row][table] = {};
-    allOrders[row][table][person] = { order, bedienung, timestamp: orderData.timestamp };
+    allOrders[row][table][person] = order;
 
-    // Sende die neue Bestellung an alle verbundenen Clients
-    io.emit('newOrder', orderData);
+    io.emit('neworder', orderData);
     io.emit('orderUpdate', allOrders);
   });
-
-  // Aktualisierte Bestellungen empfangen und broadcasten
+  
   socket.on('updateOrders', (updatedTables) => {
-    allOrders = updatedTables;
-    io.emit('orderUpdate', allOrders);
-  });
+  allOrders = updatedTables;
+  io.emit('orderUpdate', allOrders);
+});
+
 
   // Bestellung als erledigt markieren
   socket.on('markOrderCompleted', (orderDetails) => {
     console.log('✅ Bestellung erledigt:', orderDetails);
-    updateBestellungStatus(orderDetails, 'erledigt');
     io.emit('orderCompleted', orderDetails);
   });
+    
+    
+ socket.on('bestellungAusgegeben', function(data) {
+  updateBestellungStatus(data.id, 'ausgegeben'); // Datenbank aktualisieren
+  io.emit('bestellungStatusUpdate', { id: data.id, status: 'ausgegeben' }); // Benachrichtigung senden
+});
 
-  // Status "ausgegeben" für eine Bestellung setzen
-  socket.on('bestellungAusgegeben', (data) => {
-    updateBestellungStatus(data, 'ausgegeben');
-    io.emit('bestellungStatusUpdate', { ...data, status: 'ausgegeben' });
+    
+socket.on('bestellungBezahlt', function(data) {
+  // Aktualisieren Sie den Status in der Datenbank, falls nötig
+  updateBestellungStatus(data, 'bezahlt');
+  
+  // Benachrichtigen Sie alle Clients
+  io.emit('bestellungStatusUpdate', { 
+    status: 'bezahlt', 
+    row: data.row, 
+    table: data.table, 
+    person: data.person  // Hier wird die Person-Nummer direkt verwendet (1-6)
   });
+});
 
-  // Status "bezahlt" für eine Bestellung setzen
-  socket.on('bestellungBezahlt', (data) => {
-    updateBestellungStatus(data, 'bezahlt');
-    io.emit('bestellungStatusUpdate', { ...data, status: 'bezahlt' });
-  });
 
-  // Empfang von "orderPaid" Event und Entfernen der bezahlten Bestellung
+
+    
+
+  // Empfang von 'orderPaid' Event
   socket.on('orderPaid', (orderData) => {
     console.log('Bestellung bezahlt:', orderData);
-
+    io.emit('orderPaid', orderData);
+    
+    // Entferne die bezahlte Bestellung aus allOrders
     const { row, table, person } = orderData;
     if (allOrders[row] && allOrders[row][table] && allOrders[row][table][person]) {
       delete allOrders[row][table][person];
-      io.emit('orderUpdate', allOrders); // Aktualisierte Bestellungen senden
+      io.emit('orderUpdate', allOrders);
     }
-    
-    io.emit('orderPaid', orderData); // Benachrichtigen Sie alle Clients über die Zahlung
   });
 
   // Benutzer trennt Verbindung
